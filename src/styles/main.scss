@@ -1,0 +1,7 @@
+@use 'abstracts/variables' as *;
+
+body {
+  background-color: $bg;
+  color: $on-bg;
+  font-family: $Inter;
+}
