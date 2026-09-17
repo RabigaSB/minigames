@@ -4,4 +4,84 @@ body {
   background-color: $bg;
   color: $on-bg;
   font-family: $Inter;
+margin: 0;
+}
+
+button,
+a {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.app {
+    min-height: 100vh;
+}
+
+.header {
+    background-color: $bg;
+    border-bottom: 1px solid $black;
+
+    &__container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $size-2;
+        margin: 0 auto;
+        padding: $size-3 $size-3;
+    }
+
+    &__logo {
+        font-size: $headline-medium;
+        font-weight: 700;
+
+        &-container {
+            display: flex;
+            gap: $size-1;
+            justify-content: start;
+            align-items: center;
+        }
+    }     
+
+    &__btns-wrapper {
+        display: flex;
+        gap: $size-4;
+        justify-content: end;
+        align-items: center;
+    }
+
+    &__navigation {
+        display: flex;
+        gap: $size-7;
+        font-size: $label-extra-large;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: $size-1;
+    }
+
+    &__sign-in, &__sign-up {
+        padding: $btn-medium;
+        border-radius: $size-1;
+        color: $black;
+        font-weight: bold;
+        font-size: $label-large;
+    }
+
+    &__sign-in {
+        background-color: $bg;
+    }
+
+    &__sign-up {
+        background-color: $primary;
+    }
 }
