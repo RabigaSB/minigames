@@ -1,3 +1,4 @@
+import './styles/main.scss';
 import './style.css';
 import heroImg from './assets/hero.png';
 import typescriptLogo from './assets/typescript.svg';
