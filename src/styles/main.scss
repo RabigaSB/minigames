@@ -1,4 +1,5 @@
 @use 'abstracts/variables' as *;
+@use 'abstracts/_breakpoints' as *;
 
 body {
   background-color: $bg;
@@ -121,5 +122,115 @@ a {
       background-color: $primary;
       display: inline-block;
     }
+  }
+
+  &__newgames {
+    max-width: $breakpoint-desktop;
+    padding: 0 $size-5;
+    &-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    &-title {
+      display: flex;
+      align-items: center;
+      font-size: $headline-large;
+      color: $on-primary;
+
+      &::before {
+        content: '';
+        display: inline-block;
+        width: $size-1;
+        border-radius: $size-05;
+        background-color: $primary;
+        border: 1px solid $on-primary;
+        height: $size-4;
+        margin-right: $size-1;
+      }
+    }
+    &-arrow {
+      &--forward,
+      &--backward {
+        display: inline-block;
+        padding: $size-1;
+        border-radius: 50%;
+        border: 1px solid $on-primary;
+        cursor: pointer;
+        &:hover {
+          background-color: $primary;
+        }
+      }
+
+      &--backward {
+        transform: scaleX(-1);
+        margin-right: $size-2;
+      }
+    }
+
+    &-carousel {
+      display: flex;
+    }
+  }
+}
+
+.carousel {
+  display: flex;
+  gap: 0.5rem;
+  overflow: hidden;
+  &__rating,
+  &__likes {
+    display: flex;
+    align-items: center;
+  }
+  &__rating::before,
+  &__likes::before {
+    content: '';
+    display: inline-block;
+    width: $size-3;
+    height: $size-3;
+
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  &__rating::before {
+    background-image: url('src/assets/star.png');
+  }
+  &__likes::before {
+    background-image: url('src/assets/favorite.png');
+  }
+
+  &__card {
+    position: relative;
+    flex: 0 0 240px;
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  &__img {
+    display: block;
+    max-width: 500px;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  &__content {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    background: rgb(0 0 0 / 60%);
+    color: white;
+  }
+
+  &__name {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+  }
+
+  &__info {
+    display: flex;
+    justify-content: space-between;
   }
 }
