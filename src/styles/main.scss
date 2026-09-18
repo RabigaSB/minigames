@@ -4,84 +4,122 @@ body {
   background-color: $bg;
   color: $on-bg;
   font-family: $Inter;
-margin: 0;
-}
-
-button,
-a {
-    font: inherit;
+  margin: 0;
 }
 
 button {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 a {
-    color: inherit;
-    text-decoration: none;
-}
-
-.app {
-    min-height: 100vh;
+  color: inherit;
+  text-decoration: none;
 }
 
 .header {
+  background-color: $bg;
+  border-bottom: 1px solid $black;
+
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $size-2;
+    margin: 0 auto;
+    padding: $size-3 $size-3;
+  }
+
+  &__logo {
+    font-size: $headline-medium;
+    font-weight: 700;
+
+    &-container {
+      display: flex;
+      gap: $size-1;
+      justify-content: start;
+      align-items: center;
+    }
+  }
+
+  &__btns-wrapper {
+    display: flex;
+    gap: $size-4;
+    justify-content: end;
+    align-items: center;
+  }
+
+  &__navigation {
+    display: flex;
+    gap: $size-7;
+    font-size: $label-extra-large;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $size-1;
+  }
+
+  &__sign-in,
+  &__sign-up {
+    padding: $btn-medium;
+    border-radius: $size-1;
+    color: $black;
+    font-weight: bold;
+    font-size: $label-large;
+  }
+
+  &__sign-in {
     background-color: $bg;
-    border-bottom: 1px solid $black;
+  }
 
-    &__container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: $size-2;
-        margin: 0 auto;
-        padding: $size-3 $size-3;
+  &__sign-up {
+    background-color: $primary;
+  }
+}
+
+.home {
+  &__description {
+    height: 627px;
+    background-image: url('../assets/description_section.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+
+    &-container {
+      border-radius: $size-3;
+      background-color: $white;
+      box-shadow: 3px 3px $on-primary;
+      position: absolute;
+      max-width: 640px;
+      max-height: 403px;
+      padding: $size-6;
+      top: 10%;
+      left: 10%;
     }
 
-    &__logo {
-        font-size: $headline-medium;
-        font-weight: 700;
-
-        &-container {
-            display: flex;
-            gap: $size-1;
-            justify-content: start;
-            align-items: center;
-        }
-    }     
-
-    &__btns-wrapper {
-        display: flex;
-        gap: $size-4;
-        justify-content: end;
-        align-items: center;
+    &-title {
+      font-size: $display-large;
+      color: $on-primary;
     }
 
-    &__navigation {
-        display: flex;
-        gap: $size-7;
-        font-size: $label-extra-large;
+    &-text {
+      font-size: $body-large;
+      color: $on-bg;
+      margin: $size-3 0;
+      max-width: 500px;
     }
 
-    &__actions {
-        display: flex;
-        align-items: center;
-        gap: $size-1;
+    &-button {
+      padding: $btn-medium;
+      border-radius: $size-1;
+      border: 1px solid $on-primary;
+      color: $on-primary;
+      font-weight: bold;
+      font-size: $body-large;
+      background-color: $primary;
+      display: inline-block;
     }
-
-    &__sign-in, &__sign-up {
-        padding: $btn-medium;
-        border-radius: $size-1;
-        color: $black;
-        font-weight: bold;
-        font-size: $label-large;
-    }
-
-    &__sign-in {
-        background-color: $bg;
-    }
-
-    &__sign-up {
-        background-color: $primary;
-    }
+  }
 }
