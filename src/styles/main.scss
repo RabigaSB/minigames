@@ -234,3 +234,124 @@ a {
     justify-content: space-between;
   }
 }
+
+.leaderboard {
+  max-width: 1840px;
+  margin: 0 auto;
+  padding: $size-4 $size-2;
+
+  &__title {
+    margin: 0 0 $size-4;
+    color: $on-primary;
+    font-family: $Inter;
+    font-size: $headline-large;
+    font-weight: $bold;
+  }
+
+  &__table {
+    width: 100%;
+    border: 2px solid $on-primary;
+    border-radius: $corner-large;
+    border-spacing: 0;
+    overflow: hidden;
+    background-color: $surface-low;
+    box-shadow: $level-3;
+  }
+
+  &__head {
+    background-color: $tertiary;
+    color: $white;
+  }
+
+  &__header {
+    padding: $size-2;
+    font-family: $Inter;
+    font-size: $label-extra-large;
+    font-weight: $bold;
+    text-align: center;
+  }
+
+  &__row {
+    background-color: $surface-low;
+
+    &:nth-child(even) {
+      background-color: $white;
+    }
+
+    &:last-child {
+      .leaderboard__cell {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  &__cell {
+    padding: $size-2;
+    border-bottom: 1px solid $outline;
+    color: $on-primary;
+    font-family: $Inter;
+    font-size: $body-medium;
+    font-weight: $medium;
+    text-align: center;
+  }
+
+  &__rank {
+    font-weight: $bold;
+  }
+
+  &__player {
+    display: flex;
+    align-items: center;
+    gap: $size-2;
+    text-align: left;
+  }
+
+  &__avatar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid $on-primary;
+    border-radius: $corner-full;
+    color: $on-primary;
+    font-size: $label-large;
+    font-weight: $bold;
+  }
+
+  &__row:nth-child(1) &__avatar {
+    background-color: $primary;
+  }
+
+  &__row:nth-child(2) &__avatar {
+    background-color: $avatar-random-2;
+  }
+
+  &__row:nth-child(3) &__avatar {
+    background-color: $avatar-random-3;
+  }
+
+  &__row:nth-child(4) &__avatar {
+    background-color: $avatar-random-4;
+  }
+
+  &__row:nth-child(5) &__avatar {
+    background-color: $avatar-random-5;
+  }
+
+  &__name {
+    font-weight: $bold;
+  }
+
+  &__game {
+    display: inline-block;
+    padding: $size-05 $size-1;
+    border: 2px solid $on-primary;
+    border-radius: $corner-full;
+    color: $on-primary;
+    font-size: $label-medium;
+    font-weight: $bold;
+    white-space: nowrap;
+  }
+}
