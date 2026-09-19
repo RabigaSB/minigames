@@ -3,6 +3,7 @@ import gamesData from '../../data/all-games-seed.json';
 import leaderboardData from '../../data/leaderboard.json';
 import { createCarouselCard } from '../components/carouselCard';
 import { createLeaderboard } from '../components/leaderboard';
+import { createDeveloperCta } from '../components/developer-cta';
 
 export function createHomePage(): HTMLElement {
   const main = createElement('main', 'home');
@@ -46,9 +47,10 @@ export function createHomePage(): HTMLElement {
   }
 
   const leaderboard = createLeaderboard(leaderboardData.data);
+  const developerCta = createDeveloperCta();
 
   newGames.append(titleWrapper, carouselContainer);
-  main.append(description, newGames, leaderboard);
+  main.append(description, newGames, leaderboard, developerCta);
 
   return main;
 }
