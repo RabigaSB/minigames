@@ -1,4 +1,5 @@
 import { createElement } from '../create-element';
+import { createMobileMenu } from './mobile-menu';
 
 export function createHeader(): HTMLElement {
   const header = createElement('header', 'header');
@@ -36,10 +37,30 @@ export function createHeader(): HTMLElement {
   const signUpButton = createElement('button', 'header__sign-up', 'Sign up');
   signUpButton.type = 'button';
 
+  const burgerButton = createElement('button', 'header__burger');
+  burgerButton.type = 'button';
+  const mobileMenu = createMobileMenu();
+
   headerBtnsWrapper.append(navigation, actions);
-  actions.append(signInButton, signUpButton);
-  container.append(logoContainer, headerBtnsWrapper);
+  actions.append(signInButton, signUpButton, burgerButton);
+  container.append(logoContainer, headerBtnsWrapper, mobileMenu);
   header.append(container);
+
+  const closeButton = mobileMenu.querySelector('.mobile-menu__close');
+  burgerButton.addEventListener('click', () => {
+    mobileMenu.classList.add('mobile-menu--open');
+    document.body.classList.add('menu-open');
+  });
+  closeButton?.addEventListener('click', () => {
+    mobileMenu.classList.remove('mobile-menu--open');
+    document.body.classList.remove('menu-open');
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && mobileMenu.classList.contains('mobile-menu--open')) {
+      mobileMenu.classList.remove('mobile-menu--open');
+      document.body.classList.remove('menu-open');
+    }
+  });
 
   return header;
 }
