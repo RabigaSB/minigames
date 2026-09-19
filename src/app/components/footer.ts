@@ -55,10 +55,7 @@ export function createFooter(): HTMLElement {
   return footer;
 }
 
-function createFooterColumn(
-  titleText: string,
-  items: string[][],
-): HTMLElement {
+function createFooterColumn(titleText: string, items: string[][]): HTMLElement {
   const column = createElement('nav', 'footer__column');
 
   const title = createElement('h3', 'footer__column-title', titleText);
@@ -83,11 +80,7 @@ function createFooterColumn(
 function createFooterCommunity(): HTMLElement {
   const column = createElement('div', 'footer__column');
 
-  const title = createElement(
-    'h3',
-    'footer__column-title',
-    'Community',
-  );
+  const title = createElement('h3', 'footer__column-title', 'Community');
 
   const socialLinks = createElement('div', 'footer__social');
 
@@ -118,23 +111,11 @@ function createFooterBottom(): HTMLElement {
     '© 2026 MiniGames. All rights reserved.',
   );
 
-  const school = createElement(
-    'span',
-    'footer__school',
-    'RS School',
-  );
+  const school = createElement('span', 'footer__school', 'RS School');
 
-  const author = createElement(
-    'span',
-    'footer__author',
-    '@student-nickname',
-  );
+  const author = createElement('span', 'footer__author', '@student-nickname');
 
-  const design = createElement(
-    'span',
-    'footer__design',
-    'Designed with love',
-  );
+  const design = createElement('span', 'footer__design', 'Designed with love');
 
   bottom.append(copyright, school, author, design);
 

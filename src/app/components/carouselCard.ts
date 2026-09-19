@@ -14,17 +14,9 @@ export function createCarouselCard(game: Game): HTMLElement {
 
   const info = createElement('div', 'carousel__info');
 
-  const rating = createElement(
-    'span',
-    'carousel__rating',
-    `${game.rating}`,
-  );
+  const rating = createElement('span', 'carousel__rating', `${game.rating}`);
 
-  const likes = createElement(
-    'span',
-    'carousel__likes',
-    `${formatLikes(game.likesCount)}`,
-  );
+  const likes = createElement('span', 'carousel__likes', `${formatLikes(game.likesCount)}`);
 
   info.append(rating, likes);
   content.append(name, info);

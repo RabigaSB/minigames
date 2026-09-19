@@ -6,11 +6,7 @@ export function createLeaderboard(players: Player[]): HTMLElement {
 
   section.setAttribute('aria-labelledby', 'leaderboard-title');
 
-  const title = createElement(
-    'h2',
-    'leaderboard__title',
-    'Top Players This Week',
-  );
+  const title = createElement('h2', 'leaderboard__title', 'Top Players This Week');
 
   title.id = 'leaderboard-title';
 
@@ -19,14 +15,7 @@ export function createLeaderboard(players: Player[]): HTMLElement {
   const tableHead = createElement('thead', 'leaderboard__head');
   const headerRow = createElement('tr');
 
-  const headers = [
-    'Rank',
-    'Player',
-    'Games Played',
-    'Total Score',
-    'Streak',
-    'Favorite Game',
-  ];
+  const headers = ['Rank', 'Player', 'Games Played', 'Total Score', 'Streak', 'Favorite Game'];
 
   for (const header of headers) {
     const cell = createElement('th', 'leaderboard__header', header);
@@ -56,11 +45,7 @@ export function createLeaderboard(players: Player[]): HTMLElement {
 function createPlayerRow(player: Player): HTMLTableRowElement {
   const row = createElement('tr', 'leaderboard__row');
 
-  const rank = createElement(
-    'td',
-    'leaderboard__cell leaderboard__rank',
-    `#${player.rank}`,
-  );
+  const rank = createElement('td', 'leaderboard__cell leaderboard__rank', `#${player.rank}`);
 
   const playerCell = createElement('td', 'leaderboard__cell');
 
@@ -68,28 +53,16 @@ function createPlayerRow(player: Player): HTMLTableRowElement {
 
   const initials = getInitials(player.playerName);
 
-  const avatar = createElement(
-    'span',
-    'leaderboard__avatar',
-    initials,
-  );
+  const avatar = createElement('span', 'leaderboard__avatar', initials);
 
   avatar.setAttribute('aria-hidden', 'true');
 
-  const playerName = createElement(
-    'span',
-    'leaderboard__name',
-    player.playerName,
-  );
+  const playerName = createElement('span', 'leaderboard__name', player.playerName);
 
   playerWrapper.append(avatar, playerName);
   playerCell.append(playerWrapper);
 
-  const gamesPlayed = createElement(
-    'td',
-    'leaderboard__cell',
-    player.gamesPlayed.toString(),
-  );
+  const gamesPlayed = createElement('td', 'leaderboard__cell', player.gamesPlayed.toString());
 
   const totalScore = createElement(
     'td',
@@ -100,32 +73,16 @@ function createPlayerRow(player: Player): HTMLTableRowElement {
   const streak = createElement(
     'td',
     'leaderboard__cell',
-    `🔥 ${player.streakDays} ${
-      player.streakDays === 1 ? 'day' : 'days'
-    }`,
+    `🔥 ${player.streakDays} ${player.streakDays === 1 ? 'day' : 'days'}`,
   );
 
-  const favoriteGame = createElement(
-    'td',
-    'leaderboard__cell',
-  );
+  const favoriteGame = createElement('td', 'leaderboard__cell');
 
-  const gameBadge = createElement(
-    'span',
-    'leaderboard__game',
-    player.favoriteGameName,
-  );
+  const gameBadge = createElement('span', 'leaderboard__game', player.favoriteGameName);
 
   favoriteGame.append(gameBadge);
 
-  row.append(
-    rank,
-    playerCell,
-    gamesPlayed,
-    totalScore,
-    streak,
-    favoriteGame,
-  );
+  row.append(rank, playerCell, gamesPlayed, totalScore, streak, favoriteGame);
 
   return row;
 }

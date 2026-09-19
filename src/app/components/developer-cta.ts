@@ -14,11 +14,7 @@ export function createDeveloperCta(): HTMLElement {
 
   const content = createElement('div', 'developer-cta__content');
 
-  const title = createElement(
-    'h2',
-    'developer-cta__title',
-    'Are You a Game Developer?',
-  );
+  const title = createElement('h2', 'developer-cta__title', 'Are You a Game Developer?');
 
   title.id = 'developer-cta-title';
 
@@ -28,11 +24,7 @@ export function createDeveloperCta(): HTMLElement {
     "Want to see your game on MiniGames? We're always looking for fun, engaging mini games to add to our platform. Submit your game and reach thousands of players!",
   );
 
-  const button = createElement(
-    'a',
-    'developer-cta__button',
-    'Submit Form',
-  );
+  const button = createElement('a', 'developer-cta__button', 'Submit Form');
 
   button.href = '#';
 
