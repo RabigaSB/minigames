@@ -1,7 +1,584 @@
 @use 'abstracts/variables' as *;
+@use 'abstracts/_breakpoints' as *;
 
 body {
   background-color: $bg;
   color: $on-bg;
   font-family: $Inter;
+  margin: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.header {
+  background-color: $bg;
+  border-bottom: 1px solid $black;
+
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $size-2;
+    margin: 0 auto;
+    padding: $size-3 $size-3;
+  }
+
+  &__logo {
+    font-size: $headline-medium;
+    font-weight: 700;
+
+    &-container {
+      display: flex;
+      gap: $size-1;
+      justify-content: start;
+      align-items: center;
+    }
+  }
+
+  &__btns-wrapper {
+    display: flex;
+    gap: $size-4;
+    justify-content: end;
+    align-items: center;
+  }
+
+  &__navigation {
+    display: flex;
+    gap: $size-7;
+    font-size: $label-extra-large;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $size-1;
+  }
+
+  &__sign-in,
+  &__sign-up {
+    padding: $btn-medium;
+    border-radius: $size-1;
+    color: $black;
+    font-weight: bold;
+    font-size: $label-large;
+  }
+
+  &__sign-in {
+    background-color: $bg;
+  }
+
+  &__sign-up {
+    background-color: $primary;
+  }
+}
+
+.home {
+  &__description {
+    height: 627px;
+    background-image: url('../assets/description_section.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+
+    &-container {
+      border-radius: $size-3;
+      background-color: $white;
+      box-shadow: 3px 3px $on-primary;
+      position: absolute;
+      max-width: 640px;
+      max-height: 403px;
+      padding: $size-6;
+      top: 10%;
+      left: 10%;
+    }
+
+    &-title {
+      font-size: $display-large;
+      color: $on-primary;
+    }
+
+    &-text {
+      font-size: $body-large;
+      color: $on-bg;
+      margin: $size-3 0;
+      max-width: 500px;
+    }
+
+    &-button {
+      padding: $btn-medium;
+      border-radius: $size-1;
+      border: 1px solid $on-primary;
+      color: $on-primary;
+      font-weight: bold;
+      font-size: $body-large;
+      background-color: $primary;
+      display: inline-block;
+    }
+  }
+
+  &__newgames {
+    max-width: $breakpoint-desktop;
+    padding: 0 $size-5;
+    &-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    &-title {
+      display: flex;
+      align-items: center;
+      font-size: $headline-large;
+      color: $on-primary;
+
+      &::before {
+        content: '';
+        display: inline-block;
+        width: $size-1;
+        border-radius: $size-05;
+        background-color: $primary;
+        border: 1px solid $on-primary;
+        height: $size-4;
+        margin-right: $size-1;
+      }
+    }
+    &-arrow {
+      &--forward,
+      &--backward {
+        display: inline-block;
+        padding: $size-1;
+        border-radius: 50%;
+        border: 1px solid $on-primary;
+        cursor: pointer;
+        &:hover {
+          background-color: $primary;
+        }
+      }
+
+      &--backward {
+        transform: scaleX(-1);
+        margin-right: $size-2;
+      }
+    }
+
+    &-carousel {
+      display: flex;
+    }
+  }
+}
+
+.carousel {
+  display: flex;
+  gap: 0.5rem;
+  overflow: hidden;
+  &__rating,
+  &__likes {
+    display: flex;
+    align-items: center;
+  }
+  &__rating::before,
+  &__likes::before {
+    content: '';
+    display: inline-block;
+    width: $size-3;
+    height: $size-3;
+
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  &__rating::before {
+    background-image: url('src/assets/star.png');
+  }
+  &__likes::before {
+    background-image: url('src/assets/favorite.png');
+  }
+
+  &__card {
+    position: relative;
+    flex: 0 0 240px;
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  &__img {
+    display: block;
+    max-width: 500px;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  &__content {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    background: rgb(0 0 0 / 60%);
+    color: white;
+  }
+
+  &__name {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+  }
+
+  &__info {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.leaderboard {
+  max-width: 1840px;
+  margin: 0 auto;
+  padding: $size-4 $size-2;
+
+  &__title {
+    margin: 0 0 $size-4;
+    color: $on-primary;
+    font-family: $Inter;
+    font-size: $headline-large;
+    font-weight: $bold;
+  }
+
+  &__table {
+    width: 100%;
+    border: 2px solid $on-primary;
+    border-radius: $corner-large;
+    border-spacing: 0;
+    overflow: hidden;
+    background-color: $surface-low;
+    box-shadow: $level-3;
+  }
+
+  &__head {
+    background-color: $tertiary;
+    color: $white;
+  }
+
+  &__header {
+    padding: $size-2;
+    font-family: $Inter;
+    font-size: $label-extra-large;
+    font-weight: $bold;
+    text-align: center;
+  }
+
+  &__row {
+    background-color: $surface-low;
+
+    &:nth-child(even) {
+      background-color: $white;
+    }
+
+    &:last-child {
+      .leaderboard__cell {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  &__cell {
+    padding: $size-2;
+    border-bottom: 1px solid $outline;
+    color: $on-primary;
+    font-family: $Inter;
+    font-size: $body-medium;
+    font-weight: $medium;
+    text-align: center;
+  }
+
+  &__rank {
+    font-weight: $bold;
+  }
+
+  &__player {
+    display: flex;
+    align-items: center;
+    gap: $size-2;
+    text-align: left;
+  }
+
+  &__avatar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid $on-primary;
+    border-radius: $corner-full;
+    color: $on-primary;
+    font-size: $label-large;
+    font-weight: $bold;
+  }
+
+  &__row:nth-child(1) &__avatar {
+    background-color: $primary;
+  }
+
+  &__row:nth-child(2) &__avatar {
+    background-color: $avatar-random-2;
+  }
+
+  &__row:nth-child(3) &__avatar {
+    background-color: $avatar-random-3;
+  }
+
+  &__row:nth-child(4) &__avatar {
+    background-color: $avatar-random-4;
+  }
+
+  &__row:nth-child(5) &__avatar {
+    background-color: $avatar-random-5;
+  }
+
+  &__name {
+    font-weight: $bold;
+  }
+
+  &__game {
+    display: inline-block;
+    padding: $size-05 $size-1;
+    border: 2px solid $on-primary;
+    border-radius: $corner-full;
+    color: $on-primary;
+    font-size: $label-medium;
+    font-weight: $bold;
+    white-space: nowrap;
+  }
+}
+
+.developer-cta {
+  padding: $size-8 $size-2;
+
+  &__container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: $size-5;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  &__image {
+    display: block;
+    width: 100%;
+    border-radius: $corner-large;
+    object-fit: cover;
+  }
+
+  &__content {
+    padding: $size-5;
+    border: 2px solid $on-primary;
+    border-radius: $corner-large;
+    background-color: $surface-low;
+    box-shadow: $level-3;
+  }
+
+  &__title {
+    margin: 0 0 $size-2;
+    color: $on-primary;
+    font-family: $Inter;
+    font-size: $headline-large;
+    font-weight: $bold;
+  }
+
+  &__description {
+    max-width: 600px;
+    margin: 0 0 $size-3;
+    color: $on-bg;
+    font-family: $Inter;
+    font-size: $body-medium;
+    line-height: 1.5;
+  }
+
+  &__button {
+    display: inline-flex;
+    align-items: center;
+    gap: $size-1;
+    padding: $btn-medium;
+    border: 2px solid $on-primary;
+    border-radius: $corner-medium;
+    background-color: $primary;
+    box-shadow: $level-2;
+    color: $on-primary;
+    font-family: $Inter;
+    font-weight: $bold;
+
+    &::before {
+      display: inline-block;
+      width: $size-3;
+      height: $size-3;
+      background-image: url('../assets/upload.png');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      content: '';
+    }
+  }
+
+  &__contact {
+    margin: $size-3 0 0;
+    color: $on-bg-low;
+    font-family: $Inter;
+    font-size: $body-small;
+  }
+}
+
+.footer {
+  background-color: $bg-footer;
+  color: $on-bg-footer;
+
+  &__container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: $size-6 $size-2 $size-2;
+  }
+
+  &__wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  &__brand {
+    max-width: 400px;
+  }
+
+  &__logo {
+    font-size: $headline-medium;
+    font-weight: 700;
+    color: $white;
+
+    &-container {
+      display: flex;
+      gap: $size-1;
+      justify-content: start;
+      align-items: center;
+    }
+  }
+
+  &__description {
+    margin: 0;
+    font-family: $Inter;
+    font-size: $body-small;
+    line-height: 1.5;
+  }
+
+  &__links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $size-5;
+    margin-top: $size-5;
+  }
+
+  &__column-title {
+    margin: 0 0 $size-2;
+    color: $white;
+    font-family: $Inter;
+    font-size: $body-medium;
+    font-weight: $bold;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__link {
+    color: $on-bg-footer;
+    font-family: $Inter;
+    font-size: $body-small;
+
+    &:hover {
+      color: $white;
+    }
+  }
+
+  &__social {
+    display: flex;
+    gap: $size-1;
+  }
+
+  &__social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $size-5;
+    height: $size-5;
+    border-radius: $corner-full;
+    background-color: $bg-footer-low;
+
+    &::before {
+      display: inline-block;
+      width: $size-2;
+      height: $size-2;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      content: '';
+    }
+
+    &--share::before {
+      background-image: url('../assets/share.svg');
+    }
+
+    &--community::before {
+      background-image: url('../assets/chat.svg');
+    }
+
+    &--rss::before {
+      background-image: url('../assets/rss_feed.svg');
+    }
+  }
+  &__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: $size-6;
+    padding-top: $size-2;
+    border-top: 1px solid $bg-footer-low;
+    font-family: $Inter;
+    font-size: $body-small;
+  }
+
+  &__bottom p {
+    margin: 0;
+  }
+
+  &__school,
+  &__author {
+    display: flex;
+    align-items: center;
+  }
+
+  &__school::before,
+  &__author::before {
+    display: inline-block;
+    width: $size-3;
+    height: $size-3;
+    background-position: center;
+    background-repeat: no-repeat;
+    content: '';
+    border-radius: 50%;
+  }
+  &__school::before {
+    background-image: url('../assets/rs_logo.png');
+  }
+  &__author::before {
+    background-image: url('../assets/code.svg');
+    background-color: $white;
+  }
 }
