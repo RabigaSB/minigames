@@ -59,9 +59,17 @@ export function createHeader(): HTMLElement {
     document.body.classList.remove('menu-open');
   });
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && mobileMenu.classList.contains('mobile-menu--open')) {
+    if (event.key !== 'Escape') {
+      return;
+    }
+
+    if (mobileMenu.classList.contains('mobile-menu--open')) {
       mobileMenu.classList.remove('mobile-menu--open');
       document.body.classList.remove('menu-open');
+    }
+
+    if (authDialog.classList.contains('auth-dialog--open')) {
+      authDialog.classList.remove('auth-dialog--open');
     }
   });
 

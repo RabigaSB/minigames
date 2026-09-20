@@ -799,6 +799,11 @@ body.menu-open {
   &__form {
     display: flex;
     flex-direction: column;
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 200ms ease,
+      transform 200ms ease;
 
     &--hidden {
       display: none;
