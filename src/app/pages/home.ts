@@ -18,8 +18,14 @@ export function createHomePage(): HTMLElement {
   const descriptionText = createElement(
     'p',
     'home__description-text',
-    'Discover hundreds of curated casual mini-games. Play instantly in your browser — puzzle, match 3, farm, and board classics.',
+    'Discover hundreds of curated casual mini-games. Play instantly in your browser',
   );
+  const descriptionTextSpan = createElement(
+    'span',
+    'home__description-text--small',
+    ' — puzzle, match 3, farm, and board classics.',
+  );
+  descriptionText.append(descriptionTextSpan);
   const descriptionAction = createElement('a', 'home__description-button', 'Browse Library');
   descriptionAction.href = '/library';
   descriptionContainer.append(descriptionTitle, descriptionText, descriptionAction);

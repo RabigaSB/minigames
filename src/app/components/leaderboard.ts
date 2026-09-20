@@ -6,7 +6,9 @@ export function createLeaderboard(players: Player[]): HTMLElement {
 
   section.setAttribute('aria-labelledby', 'leaderboard-title');
 
-  const title = createElement('h2', 'leaderboard__title', 'Top Players This Week');
+  const title = createElement('h2', 'leaderboard__title', 'Top Players ');
+  const titleSpan = createElement('span', 'leaderboard__title--span', 'This Week');
+  title.append(titleSpan);
 
   title.id = 'leaderboard-title';
 
@@ -15,7 +17,16 @@ export function createLeaderboard(players: Player[]): HTMLElement {
   const tableHead = createElement('thead', 'leaderboard__head');
   const headerRow = createElement('tr');
 
-  const headers = ['Rank', 'Player', 'Games Played', 'Total Score', 'Streak', 'Favorite Game'];
+  const headersTablet = ['RANK', 'PLAYER', 'GAMES', 'SCORE', 'STREAK'];
+  const headers = ['RANK', 'PLAYER', 'GAMES PLAYED', 'TOTAL SCORE', 'STREAK', 'FAVORITE GAME'];
+
+  for (const header of headersTablet) {
+    const cell = createElement('th', 'leaderboard__header--tablet', header);
+
+    cell.scope = 'col';
+
+    headerRow.append(cell);
+  }
 
   for (const header of headers) {
     const cell = createElement('th', 'leaderboard__header', header);
@@ -64,15 +75,27 @@ function createPlayerRow(player: Player): HTMLTableRowElement {
 
   const gamesPlayed = createElement('td', 'leaderboard__cell', player.gamesPlayed.toString());
 
+  const totalScoreMobile = createElement(
+    'td',
+    'leaderboard__cell leaderboard__cell--mobile',
+    formatToK(player.totalScore).toString(),
+  );
+
   const totalScore = createElement(
     'td',
-    'leaderboard__cell',
+    'leaderboard__cell leaderboard__cell--tablet',
     player.totalScore.toLocaleString('en-US'),
+  );
+
+  const streakMobile = createElement(
+    'td',
+    'leaderboard__cell leaderboard__cell--mobile-d',
+    `🔥 ${player.streakDays}d`,
   );
 
   const streak = createElement(
     'td',
-    'leaderboard__cell',
+    'leaderboard__cell leaderboard__cell--desktop',
     `🔥 ${player.streakDays} ${player.streakDays === 1 ? 'day' : 'days'}`,
   );
 
@@ -82,7 +105,16 @@ function createPlayerRow(player: Player): HTMLTableRowElement {
 
   favoriteGame.append(gameBadge);
 
-  row.append(rank, playerCell, gamesPlayed, totalScore, streak, favoriteGame);
+  row.append(
+    rank,
+    playerCell,
+    gamesPlayed,
+    totalScoreMobile,
+    totalScore,
+    streakMobile,
+    streak,
+    favoriteGame,
+  );
 
   return row;
 }
@@ -95,4 +127,11 @@ function getInitials(playerName: string): string {
   }
 
   return playerName.slice(0, 2).toUpperCase();
+}
+
+function formatToK(num: number): string {
+  if (num >= 1_000) {
+    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return num.toString();
 }
