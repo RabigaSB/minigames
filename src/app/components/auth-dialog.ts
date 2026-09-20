@@ -12,7 +12,7 @@ export function createAuthDialog(): HTMLElement {
   registerTab.type = 'button';
   tabsContainer.append(loginTab, registerTab);
 
-  const loginForm = createElement('div', 'auth-dialog__form auth-dialog__form--login');
+  const loginForm = createElement('form', 'auth-dialog__form auth-dialog__form--login');
 
   const loginTitle = createElement('h2', 'auth-dialog__title', 'Welcome Back!');
   const loginSubtitle = createElement(
@@ -55,7 +55,7 @@ export function createAuthDialog(): HTMLElement {
 
   const switchRegisterText = createElement(
     'p',
-    'auth-dialog *switch-text',
+    'auth-dialog switch-text',
     "Don't have an account? ",
   );
   const switchRegisterLink = createElement('a', 'auth-dialog__switch-link', 'Register');
@@ -75,7 +75,7 @@ export function createAuthDialog(): HTMLElement {
   );
 
   const registerForm = createElement(
-    'div',
+    'form',
     'auth-dialog__form auth-dialog__form--register auth-dialog__form--hidden',
   );
 
@@ -186,6 +186,12 @@ export function createAuthDialog(): HTMLElement {
   switchLoginLink.addEventListener('click', (e) => {
     e.preventDefault();
     showLogin();
+  });
+
+  authDialog.addEventListener('click', (event) => {
+    if (event.target === authDialog) {
+      authDialog.classList.remove('auth-dialog--open');
+    }
   });
 
   return authDialog;
