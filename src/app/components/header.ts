@@ -1,5 +1,6 @@
 import { createElement } from '../create-element';
 import { createMobileMenu } from './mobile-menu';
+import { createAuthDialog } from './auth-dialog';
 
 export function createHeader(): HTMLElement {
   const header = createElement('header', 'header');
@@ -41,9 +42,11 @@ export function createHeader(): HTMLElement {
   burgerButton.type = 'button';
   const mobileMenu = createMobileMenu();
 
+  const authDialog = createAuthDialog();
+
   headerBtnsWrapper.append(navigation, actions);
   actions.append(signInButton, signUpButton, burgerButton);
-  container.append(logoContainer, headerBtnsWrapper, mobileMenu);
+  container.append(logoContainer, headerBtnsWrapper, mobileMenu, authDialog);
   header.append(container);
 
   const closeButton = mobileMenu.querySelector('.mobile-menu__close');
@@ -61,6 +64,30 @@ export function createHeader(): HTMLElement {
       document.body.classList.remove('menu-open');
     }
   });
+
+  const openAuthDialog = () => {
+    authDialog.classList.add('auth-dialog--open');
+  };
+  signInButton.addEventListener('click', openAuthDialog);
+  signUpButton.addEventListener('click', openAuthDialog);
+
+  const mobileLoginButton = mobileMenu.querySelector('.mobile-menu__login');
+
+  const mobileSignUpButton = mobileMenu.querySelector('.mobile-menu__signup');
+
+  const openAuthFromMobile = () => {
+    mobileMenu.classList.remove('mobile-menu--open');
+    document.body.classList.remove('menu-open');
+
+    burgerButton.setAttribute('aria-expanded', 'false');
+
+    authDialog.classList.add('auth-dialog--open');
+    authDialog.setAttribute('aria-hidden', 'false');
+  };
+
+  mobileLoginButton?.addEventListener('click', openAuthFromMobile);
+
+  mobileSignUpButton?.addEventListener('click', openAuthFromMobile);
 
   return header;
 }
