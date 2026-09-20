@@ -744,3 +744,257 @@ body.menu-open {
     display: none;
   }
 }
+.auth-dialog {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: $size-2;
+  background-color: $bg-footer;
+  backdrop-filter: blur(4px);
+
+  &__content {
+    box-sizing: border-box;
+    width: 460px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: $size-5;
+    border: 2px solid $on-primary;
+    border-radius: $corner-large;
+    background-color: $bg;
+    box-shadow: $level-3;
+  }
+
+  &__tabs {
+    display: flex;
+    background-color: $on-primary;
+    border-radius: $corner-large;
+    padding: 4px;
+    margin-bottom: $size-4;
+  }
+
+  &__tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: $bg;
+    font-size: 16px;
+    font-weight: $bold;
+    padding: 10px;
+    border-radius: calc($corner-large - 4px);
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+
+    &--active {
+      background-color: $bg;
+      color: $on-primary;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+
+    &--hidden {
+      display: none;
+    }
+  }
+
+  &__title {
+    margin: 0 0 4px 0;
+    color: $on-primary;
+    font-size: 28px;
+    font-weight: $bold;
+  }
+
+  &__subtitle {
+    margin: 0 0 $size-4 0;
+    color: $on-bg;
+    font-size: 14px;
+  }
+
+  &__input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: $size-3;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: $bold;
+    color: $on-primary;
+    margin-bottom: 6px;
+  }
+
+  &__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon,
+  &__eye-icon {
+    position: absolute;
+    color: $on-bg;
+    font-size: 14px;
+  }
+
+  &__icon {
+    left: 12px;
+    &--lock::before,
+    &--mail::before,
+    &--person::before {
+      content: '';
+      display: inline-block;
+      width: $size-3;
+      height: $size-3;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    &--lock::before {
+      background-image: url('src/assets/lock.png');
+    }
+    &--mail::before {
+      background-image: url('src/assets/mail.png');
+    }
+    &--person::before {
+      background-image: url('src/assets/person.png');
+    }
+  }
+
+  &__eye-icon {
+    right: 12px;
+    cursor: pointer;
+    &::before {
+      content: '';
+      display: inline-block;
+      width: $size-3;
+      height: $size-3;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-image: url('src/assets/visibility.png');
+    }
+  }
+
+  &__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 16px 12px 38px;
+    border: 2px solid $on-primary;
+    border-radius: $corner-large;
+    background-color: $white;
+    color: $on-primary;
+    font-size: 14px;
+
+    &::placeholder {
+      color: $on-bg;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+    }
+  }
+
+  &__forgot-link,
+  &__switch-link {
+    color: $on-primary;
+    font-weight: $bold;
+    text-decoration: underline;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  &__forgot-link {
+    align-self: flex-end;
+    margin-bottom: $size-4;
+  }
+
+  &__submit-btn {
+    width: 100%;
+    background-color: $primary;
+    color: $on-primary;
+    border: 2px solid $on-primary;
+    border-radius: $corner-large;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: $bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 $on-primary;
+    transition:
+      transform 0.1s,
+      box-shadow 0.1s;
+    margin-top: $size-2;
+
+    &:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 $on-primary;
+    }
+  }
+
+  &__divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: $on-bg;
+    font-size: 12px;
+    font-weight: $bold;
+    margin: $size-4 0;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid $secondary;
+    }
+
+    &::before {
+      margin-right: 10px;
+    }
+    &::after {
+      margin-left: 10px;
+    }
+  }
+
+  &__google-btn {
+    width: 100%;
+    background-color: $white;
+    color: $on-primary;
+    border: 2px solid $on-primary;
+    border-radius: $corner-large;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: $bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: $size-4;
+    &::before {
+      content: '';
+      display: inline-block;
+      width: $size-3;
+      height: $size-3;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-image: url('src/assets/google.svg');
+    }
+  }
+
+  &__switch-text {
+    text-align: center;
+    font-size: 13px;
+    color: $on-bg;
+    margin: 0;
+  }
+
+  &--open {
+    display: flex;
+  }
+}
