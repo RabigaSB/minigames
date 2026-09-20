@@ -18,11 +18,25 @@ export function createDeveloperCta(): HTMLElement {
 
   title.id = 'developer-cta-title';
 
-  const description = createElement(
-    'p',
-    'developer-cta__description',
-    "Want to see your game on MiniGames? We're always looking for fun, engaging mini games to add to our platform. Submit your game and reach thousands of players!",
+  const description = createElement('p', 'developer-cta__description');
+
+  const firstRow = createElement(
+    'span',
+    'developer-cta__description--span',
+    "Want to see your game on MiniGames? We're always looking for fun,",
   );
+  const secondRow = createElement(
+    'span',
+    'developer-cta__description--span',
+    'engaging mini games to add to our platform. Submit your game',
+  );
+  const thirdtRow = createElement(
+    'span',
+    'developer-cta__description--span',
+    'and reach thousands of players!',
+  );
+
+  description.append(firstRow, secondRow, thirdtRow);
 
   const button = createElement('a', 'developer-cta__button', 'Submit Form');
 
