@@ -11,7 +11,7 @@ export function createFooter(): HTMLElement {
 
   const logoContainer = createElement('div', 'footer__logo-container');
   const logoIcon = createElement('img', 'footer__logo-icon');
-  logoIcon.src = '/src/assets/minigames_logo.png';
+  logoIcon.src = './assets/minigames_logo.png';
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'footer__logo', 'MiniGames');
   logo.href = '/';

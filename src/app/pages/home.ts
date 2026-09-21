@@ -37,9 +37,9 @@ export function createHomePage(): HTMLElement {
   const arrowWrapper = createElement('div', 'home__newgames-tools');
   const arrowForward = createElement('img', 'home__newgames-arrow--forward');
   const arrowBackward = createElement('img', 'home__newgames-arrow--backward');
-  arrowForward.src = 'src/assets/arrow.png';
+  arrowForward.src = './assets/arrow.png';
   arrowForward.alt = 'arrow';
-  arrowBackward.src = 'src/assets/arrow.png';
+  arrowBackward.src = './assets/arrow.png';
   arrowBackward.alt = 'arrow';
   arrowWrapper.append(arrowBackward, arrowForward);
   titleWrapper.append(newGamesTitle, arrowWrapper);
