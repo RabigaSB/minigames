@@ -22,15 +22,19 @@ export function createHeader(): HTMLElement {
   const homeLink = createElement('a', 'header__link', 'Home');
   homeLink.href = '/';
   homeLink.setAttribute('data-nav', 'home');
+  homeLink.setAttribute('data-text', 'Home');
   const libraryLink = createElement('a', 'header__link', 'Library');
   libraryLink.href = '/library';
   libraryLink.setAttribute('data-nav', 'library');
+  libraryLink.setAttribute('data-text', 'Library');
   const tournamentsLink = createElement('a', 'header__link', 'Tournaments');
   tournamentsLink.href = '/';
   tournamentsLink.setAttribute('data-nav', 'home');
+  tournamentsLink.setAttribute('data-text', 'Tournaments');
   const communityLink = createElement('a', 'header__link', 'Community');
   communityLink.href = '/';
   communityLink.setAttribute('data-nav', 'home');
+  communityLink.setAttribute('data-text', 'Community');
   navigation.append(homeLink, libraryLink, tournamentsLink, communityLink);
 
   const actions = createElement('div', 'header__actions');

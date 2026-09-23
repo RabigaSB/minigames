@@ -21,6 +21,26 @@ a {
   background-color: $bg;
   border-bottom: 1px solid $black;
 
+  &__link {
+    position: relative;
+    &::after {
+      content: attr(data-text);
+      content: attr(data-text) / '';
+      font-weight: $bold;
+      height: 0;
+      overflow: hidden;
+      visibility: hidden;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+    &:hover,
+    &.active {
+      font-weight: $bold;
+      color: $on-primary;
+    }
+  }
+
   &__burger {
     display: none;
     align-items: center;
@@ -41,6 +61,10 @@ a {
       background-repeat: no-repeat;
       background-size: contain;
       content: '';
+    }
+
+    &:hover {
+      background-color: $primary;
     }
   }
 
@@ -120,6 +144,13 @@ a {
   &__sign-up {
     background-color: $primary;
     border: 2px solid $on-primary;
+    &:hover {
+      background-color: $primary;
+    }
+    &:hover {
+      background-color: $on-primary;
+      color: $primary;
+    }
     @media (min-width: $breakpoint-tablet) {
       display: inline-block;
       padding: 7px 15px;
