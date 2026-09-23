@@ -13,21 +13,24 @@ export function createHeader(): HTMLElement {
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'header__logo', 'MiniGames');
   logo.href = '/';
-  logo.setAttribute('aria-label', 'MiniGames home page');
+  logo.setAttribute('data-nav', 'home');
   logoContainer.append(logoIcon, logo);
 
   const navigation = createElement('nav', 'header__navigation');
-  navigation.setAttribute('aria-label', 'Main navigation');
 
   const headerBtnsWrapper = createElement('div', 'header__btns-wrapper');
   const homeLink = createElement('a', 'header__link', 'Home');
   homeLink.href = '/';
+  homeLink.setAttribute('data-nav', 'home');
   const libraryLink = createElement('a', 'header__link', 'Library');
   libraryLink.href = '/library';
+  libraryLink.setAttribute('data-nav', 'library');
   const tournamentsLink = createElement('a', 'header__link', 'Tournaments');
-  tournamentsLink.href = '/tournaments';
+  tournamentsLink.href = '/';
+  tournamentsLink.setAttribute('data-nav', 'home');
   const communityLink = createElement('a', 'header__link', 'Community');
-  communityLink.href = '/community';
+  communityLink.href = '/';
+  communityLink.setAttribute('data-nav', 'home');
   navigation.append(homeLink, libraryLink, tournamentsLink, communityLink);
 
   const actions = createElement('div', 'header__actions');
@@ -87,10 +90,7 @@ export function createHeader(): HTMLElement {
     mobileMenu.classList.remove('mobile-menu--open');
     document.body.classList.remove('menu-open');
 
-    burgerButton.setAttribute('aria-expanded', 'false');
-
     authDialog.classList.add('auth-dialog--open');
-    authDialog.setAttribute('aria-hidden', 'false');
   };
 
   mobileLoginButton?.addEventListener('click', openAuthFromMobile);
