@@ -5,7 +5,7 @@ export function createCarouselCard(game: Game): HTMLElement {
   const card = createElement('article', 'carousel__card');
 
   const image = createElement('img', 'carousel__img');
-  image.src = 'src/' + game.cardImage;
+  image.src = './' + game.cardImage;
   image.alt = game.name;
 
   const content = createElement('div', 'carousel__content');

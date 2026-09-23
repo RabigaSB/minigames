@@ -9,7 +9,7 @@ export function createDeveloperCta(): HTMLElement {
 
   const image = createElement('img', 'developer-cta__image');
 
-  image.src = '/src/assets/developer.png';
+  image.src = './assets/developer.png';
   image.alt = 'Game developer working on a game';
 
   const content = createElement('div', 'developer-cta__content');

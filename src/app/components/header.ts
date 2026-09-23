@@ -9,7 +9,7 @@ export function createHeader(): HTMLElement {
 
   const logoContainer = createElement('div', 'header__logo-container');
   const logoIcon = createElement('img', 'header__logo-icon');
-  logoIcon.src = '/src/assets/minigames_logo.png';
+  logoIcon.src = './assets/minigames_logo.png';
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'header__logo', 'MiniGames');
   logo.href = '/';
