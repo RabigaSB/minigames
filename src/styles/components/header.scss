@@ -1,0 +1,156 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+
+.header {
+  background-color: $bg;
+  border-bottom: 1px solid $black;
+
+  &__link {
+    position: relative;
+    &::after {
+      content: attr(data-text);
+      content: attr(data-text) / '';
+      font-weight: $bold;
+      height: 0;
+      overflow: hidden;
+      visibility: hidden;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+    &:hover,
+    &.active {
+      font-weight: $bold;
+      color: $on-primary;
+    }
+  }
+
+  &__burger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $size-4;
+    height: $size-4;
+    border: 2px solid $on-primary;
+    border-radius: $corner-small;
+    background-color: transparent;
+    cursor: pointer;
+
+    &::before {
+      display: inline-block;
+      width: $size-2;
+      height: $size-2;
+      background-image: url('../../assets/burger.png');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      content: '';
+    }
+
+    &:hover {
+      background-color: $primary;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      display: none;
+    }
+  }
+
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $size-2;
+    margin: 0 auto;
+    padding: $size-2;
+    max-width: $container-max;
+    box-sizing: border-box;
+
+    @media (min-width: $breakpoint-tablet) {
+      padding: 20px 40px;
+    }
+    @media (min-width: $breakpoint-desktop) {
+      padding: $size-3 0;
+    }
+  }
+
+  &__logo {
+    font-size: 21px;
+    font-weight: 700;
+
+    @media (min-width: $breakpoint-desktop) {
+      font-size: $headline-medium;
+    }
+
+    &-container {
+      display: flex;
+      gap: $size-1;
+      justify-content: start;
+      align-items: center;
+    }
+  }
+
+  &__btns-wrapper {
+    display: flex;
+    gap: $size-4;
+    justify-content: end;
+    align-items: center;
+  }
+
+  &__navigation {
+    display: none;
+    gap: $size-5;
+    font-size: $label-extra-large;
+
+    @media (min-width: $breakpoint-desktop) {
+      display: flex;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $size-1;
+    @media (min-width: $breakpoint-tablet) {
+      gap: $size-2;
+    }
+  }
+
+  &__sign-in,
+  &__sign-up {
+    display: none;
+
+    @media (min-width: $breakpoint-tablet) {
+      border-radius: $size-1;
+      color: $black;
+      font-weight: bold;
+      font-size: $label-large;
+      padding: $btn-small;
+    }
+    @media (min-width: $breakpoint-desktop) {
+      display: inline-block;
+      padding: $btn-medium;
+    }
+  }
+
+  &__sign-in {
+    background-color: $bg;
+
+    &:hover {
+      background-color: $surface;
+    }
+  }
+
+  &__sign-up {
+    background-color: $primary;
+    border: 2px solid $on-primary;
+
+    @media (min-width: $breakpoint-tablet) {
+      display: inline-block;
+    }
+
+    &:hover {
+      background-color: $primary-high;
+    }
+  }
+}

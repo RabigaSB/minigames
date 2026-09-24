@@ -19,7 +19,7 @@ export function createHeader(): HTMLElement {
   const navigation = createElement('nav', 'header__navigation');
 
   const headerBtnsWrapper = createElement('div', 'header__btns-wrapper');
-  const homeLink = createElement('a', 'header__link', 'Home');
+  const homeLink = createElement('a', 'header__link active', 'Home');
   homeLink.href = '/';
   homeLink.setAttribute('data-nav', 'home');
   homeLink.setAttribute('data-text', 'Home');
