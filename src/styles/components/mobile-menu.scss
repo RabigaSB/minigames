@@ -54,12 +54,16 @@ body.menu-open {
     justify-content: center;
     width: $size-4;
     height: $size-4;
-    border: 0;
+    border: $border-solid $bg-footer-low;
     border-radius: $corner-small;
     background-color: $bg-footer-low;
     color: $white;
     font-size: $headline-small;
     cursor: pointer;
+
+    &:hover {
+      border-color: $primary;
+    }
   }
 
   &__navigation {
