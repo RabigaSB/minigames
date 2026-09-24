@@ -1,0 +1,230 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+
+.footer {
+  background-color: $bg-footer;
+  color: $on-bg-footer;
+
+  &__container {
+    max-width: $container-max;
+    margin: 0 auto;
+    padding: $size-4 $size-2 $size-2;
+    box-sizing: border-box;
+
+    @media (min-width: $breakpoint-tablet) {
+      margin-top: $size-1;
+      padding: $size-5;
+    }
+  }
+
+  &__wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: $size-4;
+
+    @media (min-width: $breakpoint-tablet) {
+      align-items: baseline;
+      gap: $size-3;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+  }
+
+  &__brand {
+    max-width: $width-1;
+    @media (min-width: $breakpoint-tablet) {
+      max-width: $full-width;
+    }
+  }
+
+  &__logo {
+    font-size: $headline-small;
+    font-weight: $bold;
+    color: $white;
+
+    @media (min-width: $breakpoint-desktop) {
+      font-size: $headline-medium;
+    }
+
+    &-container {
+      display: flex;
+      gap: $size-1;
+      justify-content: start;
+      align-items: center;
+    }
+  }
+
+  &__description {
+    margin: $size-3 0 0;
+    font-family: $Inter;
+    font-size: $body-medium;
+
+    @media (min-width: $breakpoint-tablet) {
+      font-size: $body-large;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      max-width: $width-1;
+    }
+  }
+
+  &__links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $size-2;
+
+    @media (min-width: $breakpoint-tablet) {
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 0;
+      gap: 0;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      gap: $size-2;
+    }
+  }
+
+  &__column-title {
+    margin: 0 0 $size-2;
+    color: $white;
+    font-family: $Inter;
+    font-size: $body-medium;
+    font-weight: $bold;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $size-2;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__link {
+    color: $on-bg-footer;
+    font-family: $Inter;
+    font-size: $body-small;
+
+    &:hover {
+      color: $primary;
+      font-weight: $bold;
+      text-decoration: underline;
+    }
+  }
+
+  &__social {
+    display: flex;
+    gap: $size-2;
+  }
+
+  &__social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $size-4;
+    height: $size-4;
+    border-radius: $corner-full;
+    background-color: $bg-footer-low;
+    border: $border-solid $bg-footer-low;
+
+    @media (min-width: $breakpoint-desktop) {
+      width: $size-5;
+      height: $size-5;
+    }
+
+    &::before {
+      display: inline-block;
+      width: $size-2;
+      height: $size-2;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      content: '';
+    }
+
+    &--share::before {
+      background-image: url('../../assets/share.svg');
+    }
+
+    &--community::before {
+      background-image: url('../../assets/chat.svg');
+    }
+
+    &--rss::before {
+      background-image: url('../../assets/rss_feed.svg');
+    }
+
+    &:hover {
+      border-color: $primary;
+    }
+  }
+
+  &__bottom {
+    margin-top: $size-1;
+    padding-top: $size-2;
+    border-top: $border-solid $bg-footer-low;
+    font-size: $body-small;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: $size-1;
+
+    @media (min-width: $breakpoint-tablet) {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: $size-4;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      margin-top: $size-8;
+    }
+  }
+
+  &__bottom p {
+    margin: 0;
+  }
+
+  &__copyright {
+    grid-column: 1 / -1;
+  }
+  &__school,
+  &__author {
+    display: flex;
+    align-items: center;
+    gap: $size-1;
+    font-size: $label-medium;
+  }
+
+  &__school::before,
+  &__author::before {
+    display: inline-block;
+    width: $size-3;
+    height: $size-3;
+    background-position: center;
+    background-repeat: no-repeat;
+    content: '';
+    border-radius: $corner-full;
+  }
+
+  &__school::before {
+    background-image: url('../../assets/rs_logo.png');
+  }
+
+  &__author::before {
+    background-image: url('../../assets/code.svg');
+    background-color: $white;
+  }
+
+  &__design {
+    display: none;
+
+    @media (min-width: $breakpoint-tablet) {
+      display: grid;
+    }
+  }
+}

@@ -1,16 +1,18 @@
 import { createElement } from './create-element';
 import { createHeader } from './components/header';
-import { createHomePage } from './pages/home';
 import { createFooter } from './components/footer';
+import { Router } from './router';
 
 export function createApp(): HTMLElement {
   const app = createElement('div', 'app');
 
   const header = createHeader();
-  const homePage = createHomePage();
+  const contentContainer = createElement('main', 'app__content');
   const footer = createFooter();
 
-  app.append(header, homePage, footer);
+  const router = new Router(contentContainer);
+  router.navigate('home');
 
+  app.append(header, contentContainer, footer);
   return app;
 }

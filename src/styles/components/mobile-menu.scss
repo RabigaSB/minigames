@@ -1,0 +1,128 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+
+body.menu-open {
+  overflow: hidden;
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  z-index: $z-index-upper;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: $size-3;
+  background-color: $bg-footer;
+  color: $white;
+  transform: translateX(100%);
+  transition: transform 300ms ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &--open {
+    transform: translateX(0);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__logo {
+    color: $white;
+    font-size: $headline-small;
+    font-weight: $bold;
+
+    &-container {
+      display: flex;
+      align-items: center;
+    }
+
+    &-icon {
+      margin-right: $size-1;
+    }
+  }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $size-4;
+    height: $size-4;
+    border: $border-solid $bg-footer-low;
+    border-radius: $corner-small;
+    background-color: $bg-footer-low;
+    color: $white;
+    font-size: $headline-small;
+    cursor: pointer;
+
+    &:hover {
+      border-color: $primary;
+    }
+  }
+
+  &__navigation {
+    margin-top: $size-4;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $size-3;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__link {
+    color: $on-bg-footer;
+    font-size: $body-large;
+    font-weight: $medium;
+
+    &:hover {
+      color: $primary;
+      text-decoration: underline;
+    }
+
+    &.active {
+      color: $primary;
+      font-weight: $bold;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $size-2;
+    margin-top: auto;
+    padding-top: $size-4;
+  }
+
+  &__login,
+  &__signup {
+    width: 100%;
+    min-height: $size-5;
+    border-radius: $corner-small;
+    font-family: $Inter;
+    font-size: $label-large;
+    font-weight: $bold;
+    cursor: pointer;
+  }
+
+  &__login {
+    border: $border-solid $white;
+    background-color: transparent;
+    color: $white;
+  }
+
+  &__signup {
+    border: $border-solid $primary;
+    background-color: $primary;
+    color: $on-primary;
+  }
+}

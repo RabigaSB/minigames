@@ -1,6 +1,7 @@
 import { createElement } from '../create-element';
 import { createMobileMenu } from './mobile-menu';
 import { createAuthDialog } from './auth-dialog';
+import { ROUTES } from '../constants';
 
 export function createHeader(): HTMLElement {
   const header = createElement('header', 'header');
@@ -13,21 +14,26 @@ export function createHeader(): HTMLElement {
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'header__logo', 'MiniGames');
   logo.href = '/';
-  logo.setAttribute('aria-label', 'MiniGames home page');
+  logo.setAttribute('data-nav', ROUTES.HOME);
   logoContainer.append(logoIcon, logo);
 
   const navigation = createElement('nav', 'header__navigation');
-  navigation.setAttribute('aria-label', 'Main navigation');
 
   const headerBtnsWrapper = createElement('div', 'header__btns-wrapper');
-  const homeLink = createElement('a', 'header__link', 'Home');
+  const homeLink = createElement('a', 'header__link active', 'Home');
   homeLink.href = '/';
+  homeLink.setAttribute('data-nav', ROUTES.HOME);
+  homeLink.setAttribute('data-text', 'Home');
   const libraryLink = createElement('a', 'header__link', 'Library');
   libraryLink.href = '/library';
+  libraryLink.setAttribute('data-nav', ROUTES.LIBRARY);
+  libraryLink.setAttribute('data-text', 'Library');
   const tournamentsLink = createElement('a', 'header__link', 'Tournaments');
-  tournamentsLink.href = '/tournaments';
+  tournamentsLink.href = '/';
+  tournamentsLink.setAttribute('data-text', 'Tournaments');
   const communityLink = createElement('a', 'header__link', 'Community');
-  communityLink.href = '/community';
+  communityLink.href = '/';
+  communityLink.setAttribute('data-text', 'Community');
   navigation.append(homeLink, libraryLink, tournamentsLink, communityLink);
 
   const actions = createElement('div', 'header__actions');
@@ -73,6 +79,15 @@ export function createHeader(): HTMLElement {
     }
   });
 
+  const mobileNavLinks = mobileMenu.querySelectorAll('.mobile-menu__link');
+
+  mobileNavLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('mobile-menu--open');
+      document.body.classList.remove('menu-open');
+    });
+  });
+
   const openAuthDialog = () => {
     authDialog.classList.add('auth-dialog--open');
   };
@@ -87,10 +102,7 @@ export function createHeader(): HTMLElement {
     mobileMenu.classList.remove('mobile-menu--open');
     document.body.classList.remove('menu-open');
 
-    burgerButton.setAttribute('aria-expanded', 'false');
-
     authDialog.classList.add('auth-dialog--open');
-    authDialog.setAttribute('aria-hidden', 'false');
   };
 
   mobileLoginButton?.addEventListener('click', openAuthFromMobile);

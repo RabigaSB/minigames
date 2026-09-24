@@ -6,7 +6,7 @@ import { createLeaderboard } from '../components/leaderboard';
 import { createDeveloperCta } from '../components/developer-cta';
 
 export function createHomePage(): HTMLElement {
-  const main = createElement('main', 'home');
+  const main = createElement('div', 'home');
 
   const description = createElement('section', 'home__description');
   const descriptionContainer = createElement('div', 'home__description-container');

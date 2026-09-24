@@ -25,18 +25,26 @@ export function createMobileMenu(): HTMLElement {
   const navigationList = createElement('ul', 'mobile-menu__list');
 
   const links = [
-    ['Home', '/'],
-    ['Library', '#'],
-    ['Tournaments', '#'],
-    ['Community', '#'],
+    ['Home', '/', 'home', 'active'],
+    ['Library', '/library', 'library'],
+    ['Tournaments', '/'],
+    ['Community', '/'],
   ];
 
-  for (const [text, href] of links) {
+  for (const [text, href, navData, className] of links) {
     const item = createElement('li', 'mobile-menu__item');
 
     const link = createElement('a', 'mobile-menu__link', text);
 
     link.href = href;
+
+    if (navData) {
+      link.setAttribute('data-nav', navData);
+    }
+
+    if (className) {
+      link.classList.add(className);
+    }
 
     item.append(link);
     navigationList.append(item);
