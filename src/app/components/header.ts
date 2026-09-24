@@ -80,6 +80,15 @@ export function createHeader(): HTMLElement {
     }
   });
 
+  const mobileNavLinks = mobileMenu.querySelectorAll('.mobile-menu__link');
+
+  mobileNavLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('mobile-menu--open');
+      document.body.classList.remove('menu-open');
+    });
+  });
+
   const openAuthDialog = () => {
     authDialog.classList.add('auth-dialog--open');
   };

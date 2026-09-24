@@ -15,7 +15,7 @@ body.menu-open {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: $size-2;
+  padding: $size-3;
   background-color: $bg-footer;
   color: $white;
   transform: translateX(100%);
@@ -35,13 +35,16 @@ body.menu-open {
 
   &__logo {
     color: $white;
-    font-family: $Inter;
-    font-size: $body-large;
+    font-size: $headline-small;
     font-weight: $bold;
 
     &-container {
       display: flex;
       align-items: center;
+    }
+
+    &-icon {
+      margin-right: $size-1;
     }
   }
 
@@ -60,13 +63,13 @@ body.menu-open {
   }
 
   &__navigation {
-    margin-top: $size-3;
+    margin-top: $size-4;
   }
 
   &__list {
     display: flex;
     flex-direction: column;
-    gap: $size-2;
+    gap: $size-3;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -74,23 +77,18 @@ body.menu-open {
 
   &__link {
     color: $on-bg-footer;
-    font-family: $Inter;
-    font-size: $body-medium;
+    font-size: $body-large;
     font-weight: $medium;
 
     &:hover {
-      color: $white;
+      color: $primary;
+      text-decoration: underline;
     }
 
-    &:focus-visible {
-      outline: 2px solid $primary;
-      outline-offset: 4px;
+    &.active {
+      color: $primary;
+      font-weight: $bold;
     }
-  }
-
-  &__item:first-child &__link {
-    color: $primary;
-    font-weight: $bold;
   }
 
   &__actions {
@@ -104,7 +102,7 @@ body.menu-open {
   &__login,
   &__signup {
     width: 100%;
-    min-height: 40px;
+    min-height: $size-5;
     border-radius: $corner-small;
     font-family: $Inter;
     font-size: $label-large;
@@ -113,13 +111,13 @@ body.menu-open {
   }
 
   &__login {
-    border: 2px solid $white;
+    border: $border-solid $white;
     background-color: transparent;
     color: $white;
   }
 
   &__signup {
-    border: 2px solid $primary;
+    border: $border-solid $primary;
     background-color: $primary;
     color: $on-primary;
   }
