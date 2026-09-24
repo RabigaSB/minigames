@@ -1,0 +1,95 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+
+.library {
+  background-color: $bg;
+
+  &__container {
+    max-width: $container-max;
+    margin: 0 auto;
+    padding: $size-3 $size-2;
+
+    @media (min-width: $breakpoint-tablet) {
+      padding: $size-5 $size-4;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      padding: $size-6 $size-6;
+    }
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: $size-4;
+  }
+
+  &__header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: $size-05;
+  }
+
+  &__title {
+    font-family: $Inter;
+    font-size: $headline-large;
+    font-weight: $bold;
+    color: $on-primary;
+    margin: 0;
+
+    @media (min-width: $breakpoint-tablet) {
+      font-size: $display-medium;
+    }
+  }
+
+  &__subtitle {
+    font-family: $Inter;
+    font-size: $body-medium;
+    color: $on-bg;
+    margin: 0;
+  }
+
+  &__controls {
+    display: flex;
+    flex-direction: column;
+    gap: $size-3;
+    align-items: stretch;
+    width: $full-width;
+
+    @media (min-width: $breakpoint-desktop) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  &__chips {
+    display: flex;
+    gap: $size-2;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: $size-05;
+  }
+
+  &__chip {
+    flex-shrink: 0;
+    font-family: $Inter;
+    font-size: $label-large;
+    font-weight: $bold;
+    padding: $btn-small;
+    background-color: $white;
+    border: $border-solid $on-primary;
+    border-radius: $corner-full;
+    color: $on-primary;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: $surface;
+    }
+
+    &.active {
+      background-color: $primary;
+    }
+  }
+}
