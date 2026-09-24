@@ -1,6 +1,7 @@
 import { createElement } from '../create-element';
 import { createMobileMenu } from './mobile-menu';
 import { createAuthDialog } from './auth-dialog';
+import { ROUTES } from '../constants';
 
 export function createHeader(): HTMLElement {
   const header = createElement('header', 'header');
@@ -13,7 +14,7 @@ export function createHeader(): HTMLElement {
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'header__logo', 'MiniGames');
   logo.href = '/';
-  logo.setAttribute('data-nav', 'home');
+  logo.setAttribute('data-nav', ROUTES.HOME);
   logoContainer.append(logoIcon, logo);
 
   const navigation = createElement('nav', 'header__navigation');
@@ -21,11 +22,11 @@ export function createHeader(): HTMLElement {
   const headerBtnsWrapper = createElement('div', 'header__btns-wrapper');
   const homeLink = createElement('a', 'header__link active', 'Home');
   homeLink.href = '/';
-  homeLink.setAttribute('data-nav', 'home');
+  homeLink.setAttribute('data-nav', ROUTES.HOME);
   homeLink.setAttribute('data-text', 'Home');
   const libraryLink = createElement('a', 'header__link', 'Library');
   libraryLink.href = '/library';
-  libraryLink.setAttribute('data-nav', 'library');
+  libraryLink.setAttribute('data-nav', ROUTES.LIBRARY);
   libraryLink.setAttribute('data-text', 'Library');
   const tournamentsLink = createElement('a', 'header__link', 'Tournaments');
   tournamentsLink.href = '/';

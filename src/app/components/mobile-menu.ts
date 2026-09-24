@@ -25,13 +25,13 @@ export function createMobileMenu(): HTMLElement {
   const navigationList = createElement('ul', 'mobile-menu__list');
 
   const links = [
-    ['Home', '/', 'home'],
+    ['Home', '/', 'home', 'active'],
     ['Library', '/library', 'library'],
     ['Tournaments', '/'],
     ['Community', '/'],
   ];
 
-  for (const [text, href, navData] of links) {
+  for (const [text, href, navData, className] of links) {
     const item = createElement('li', 'mobile-menu__item');
 
     const link = createElement('a', 'mobile-menu__link', text);
@@ -40,6 +40,10 @@ export function createMobileMenu(): HTMLElement {
 
     if (navData) {
       link.setAttribute('data-nav', navData);
+    }
+
+    if (className) {
+      link.classList.add(className);
     }
 
     item.append(link);
