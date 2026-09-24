@@ -29,11 +29,9 @@ export function createHeader(): HTMLElement {
   libraryLink.setAttribute('data-text', 'Library');
   const tournamentsLink = createElement('a', 'header__link', 'Tournaments');
   tournamentsLink.href = '/';
-  tournamentsLink.setAttribute('data-nav', 'home');
   tournamentsLink.setAttribute('data-text', 'Tournaments');
   const communityLink = createElement('a', 'header__link', 'Community');
   communityLink.href = '/';
-  communityLink.setAttribute('data-nav', 'home');
   communityLink.setAttribute('data-text', 'Community');
   navigation.append(homeLink, libraryLink, tournamentsLink, communityLink);
 

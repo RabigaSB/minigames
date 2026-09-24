@@ -27,8 +27,8 @@ export function createMobileMenu(): HTMLElement {
   const links = [
     ['Home', '/', 'home'],
     ['Library', '/library', 'library'],
-    ['Tournaments', '/', 'home'],
-    ['Community', '/', 'home'],
+    ['Tournaments', '/'],
+    ['Community', '/'],
   ];
 
   for (const [text, href, navData] of links) {
@@ -38,7 +38,9 @@ export function createMobileMenu(): HTMLElement {
 
     link.href = href;
 
-    link.setAttribute('data-nav', navData);
+    if (navData) {
+      link.setAttribute('data-nav', navData);
+    }
 
     item.append(link);
     navigationList.append(item);
