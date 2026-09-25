@@ -4,6 +4,7 @@
 @use 'components/mobile-menu.scss' as *;
 @use 'components/footer.scss' as *;
 @use 'pages/library.scss' as *;
+@use 'components/sort-dropdown.scss' as *;
 
 body {
   background-color: $bg;

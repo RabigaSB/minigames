@@ -52,7 +52,6 @@ $extra-bold: 800;
 $Inter: 'Inter', sans-serif;
 $Roboto: 'Roboto', sans-serif;
 
-$size-005: 2px;
 $size-05: 4px;
 $size-1: 8px;
 $size-2: 16px;
@@ -74,6 +73,7 @@ $btn-large: 16px 24px;
 $btn-medium: 10px 20px;
 $btn-small: 8px 16px;
 $btn-icon: 8px;
+$dropdown-small: 12px 16px;
 
 $corner-extra-small: 4px;
 $corner-small: 8px;
@@ -86,6 +86,7 @@ $level-1: 4px 4px $on-primary;
 $level-2: 6px 6px $on-primary;
 $level-3: 8px 8px $on-primary;
 
+$border-solid-1: 1px solid;
 $border-solid: 2px solid;
 
 $container-max: 1760px;
@@ -93,3 +94,5 @@ $z-index-upper: 1000;
 
 $width-1: 400px;
 $full-width: 100%;
+$dropdown-width: 190px;
+$dropdown-list-width: 200px;

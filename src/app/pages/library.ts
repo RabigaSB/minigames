@@ -1,4 +1,5 @@
 import { createElement } from '../create-element';
+import { createSortDropdown } from '../components/sort-dropdown';
 
 export function createLibraryPage(): HTMLElement {
   const main = createElement('main', 'library');
@@ -34,7 +35,12 @@ export function createLibraryPage(): HTMLElement {
     chipsContainer.append(chip);
   });
 
-  controlsWrapper.append(chipsContainer);
+  const sortControl = createSortDropdown((selectedSort) => {
+    // TODO: sorting action
+    console.log(selectedSort);
+  });
+
+  controlsWrapper.append(chipsContainer, sortControl);
   section.append(headerWrapper, controlsWrapper);
   container.append(section);
   main.append(container);
