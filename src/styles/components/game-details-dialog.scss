@@ -2,27 +2,46 @@
 @use '../abstracts/breakpoints' as *;
 $dialog-width: 600px;
 
-.game-details-dialog {
+.game-dialog {
   position: fixed;
   z-index: $z-index-dialog;
   inset: 0;
   align-items: center;
   justify-content: center;
-  padding: $size-2;
   background-color: $bg-footer;
-  display: flex;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+
+  &--open {
+    opacity: 1;
+    visibility: visible;
+
+    & .game-dialog__content {
+      transform: scale(1);
+    }
+  }
 
   &__content {
     box-sizing: border-box;
     width: $dialog-width;
-    height: 400px;
     max-width: 100%;
     overflow-y: auto;
     padding: $size-5;
     border: $border-solid $on-primary;
     border-radius: $corner-large;
-    background-color: $white;
-    color: $black;
-    margin: 0 auto;
+    background-color: $surface-low;
+    box-shadow: $level-3;
+    display: flex;
+    flex-direction: column;
+    gap: $size-4;
+    position: relative;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+  }
+
+  .game-dialog {
+    opacity: 0;
+    visibility: hidden;
   }
 }

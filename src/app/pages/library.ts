@@ -90,8 +90,10 @@ export function createLibraryPage(): HTMLElement {
     detailsBtn.type = 'button';
 
     detailsBtn.addEventListener('click', () => {
-      const dialogElement = createGameDetailsDialog();
-      document.body.append(dialogElement);
+      const dialog = document.querySelector('.game-dialog');
+
+      dialog?.classList.add('game-dialog--open');
+      document.body.classList.add('dialog-open');
     });
 
     footerRow.append(stats, detailsBtn);
@@ -105,6 +107,12 @@ export function createLibraryPage(): HTMLElement {
   section.append(headerWrapper, controlsWrapper, gridContainer, paginationComponent);
   container.append(section);
   main.append(container);
+
+  const app = document.querySelector('#app');
+
+  const gameDialog = createGameDetailsDialog();
+
+  app?.append(gameDialog);
 
   return main;
 }
