@@ -1,6 +1,8 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/breakpoints' as *;
 
+$game-card-gap: 20px;
+
 .library {
   background-color: $bg;
 
@@ -22,6 +24,11 @@
     display: flex;
     flex-direction: column;
     gap: $size-4;
+
+    @media (min-width: $breakpoint-desktop) {
+      padding: 0 $size-5;
+      gap: $size-2;
+    }
   }
 
   &__header-wrapper {
@@ -31,7 +38,6 @@
   }
 
   &__title {
-    font-family: $Inter;
     font-size: $headline-large;
     font-weight: $bold;
     color: $on-primary;
@@ -40,13 +46,19 @@
     @media (min-width: $breakpoint-tablet) {
       font-size: $display-medium;
     }
+    @media (min-width: $breakpoint-desktop) {
+      font-size: $display-large;
+    }
   }
 
   &__subtitle {
-    font-family: $Inter;
     font-size: $body-medium;
     color: $on-bg;
     margin: 0;
+
+    @media (min-width: $breakpoint-desktop) {
+      font-size: $headline-small;
+    }
   }
 
   &__controls {
@@ -60,6 +72,7 @@
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
+      margin-top: $size-5;
     }
   }
 
@@ -73,7 +86,6 @@
 
   &__chip {
     flex-shrink: 0;
-    font-family: $Inter;
     font-size: $label-large;
     font-weight: $bold;
     padding: $btn-small;
@@ -90,6 +102,18 @@
 
     &.active {
       background-color: $primary;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: $full-width;
+    gap: $game-card-gap;
+    margin-top: $size-4;
+
+    @media (min-width: $breakpoint-desktop) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 0;
     }
   }
 }

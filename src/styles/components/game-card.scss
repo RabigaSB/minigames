@@ -1,0 +1,187 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+
+$game-card-height: 200px;
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  background-color: $white;
+  border: $border-solid $on-primary;
+  border-radius: $corner-large;
+  overflow: hidden;
+  box-shadow: $level-1;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $level-2;
+  }
+
+  @media (min-width: $breakpoint-tablet) {
+    flex-direction: row;
+    height: $game-card-height;
+  }
+
+  &__image-wrapper {
+    width: $full-width;
+    height: 180px;
+    flex-shrink: 0;
+
+    @media (min-width: $breakpoint-tablet) {
+      max-width: 318px;
+      height: auto;
+    }
+  }
+
+  &__image {
+    width: $full-width;
+    height: $full-height;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: $size-2;
+    flex-grow: 1;
+    gap: $size-1;
+
+    @media (min-width: $breakpoint-tablet) {
+      gap: $size-2;
+    }
+  }
+
+  &__top-row {
+    position: relative;
+  }
+
+  &__title {
+    font-size: $headline-small;
+    font-weight: $bold;
+    color: $on-primary;
+    margin: 0;
+    flex-grow: 1;
+
+    @media (min-width: $breakpoint-desktop) {
+      font-size: $headline-medium;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  &__category {
+    font-size: $label-medium;
+    font-weight: $bold;
+    padding: $size-05 $size-1;
+    background-color: $secondary;
+    border: $border-solid $on-primary;
+    border-radius: $corner-full;
+    color: $on-primary;
+    text-transform: capitalize;
+
+    @media (min-width: $breakpoint-tablet) {
+      display: inline-block;
+      margin-left: $size-3;
+    }
+  }
+
+  &__price {
+    font-size: $label-large;
+    font-weight: $bold;
+    color: $on-primary;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    @media (min-width: $breakpoint-desktop) {
+      font-size: $headline-medium;
+    }
+
+    &--free {
+      color: $price-free;
+
+      @media (min-width: $breakpoint-desktop) {
+        font-size: $headline-medium;
+      }
+    }
+  }
+
+  &__description {
+    font-size: $body-small;
+    color: $on-bg;
+    margin: 0;
+    overflow: hidden;
+
+    @media (min-width: $breakpoint-desktop) {
+      font-size: $body-medium;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: $size-3;
+    font-size: $body-small;
+    font-weight: $bold;
+    color: $on-primary;
+  }
+
+  &__rating,
+  &__likes {
+    display: flex;
+    align-items: center;
+    gap: $size-05;
+  }
+
+  &__rating::before,
+  &__likes::before {
+    content: '';
+    display: inline-block;
+    width: $size-3;
+    height: $size-3;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+  &__rating::before {
+    background-image: url('../../assets/icon_star.svg');
+  }
+
+  &__likes::before {
+    background-image: url('../../assets/icon_heart.svg');
+  }
+
+  &__details-btn {
+    font-size: $label-large;
+    font-weight: $bold;
+    padding: $btn-small;
+    background-color: $primary;
+    border: $border-solid $on-primary;
+    border-radius: $corner-small;
+    color: $on-primary;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $primary-high;
+    }
+
+    &:active {
+      transform: translate(2px, 2px);
+      box-shadow: none;
+    }
+  }
+}

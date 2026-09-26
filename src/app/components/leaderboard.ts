@@ -1,5 +1,6 @@
 import { createElement } from '../create-element';
 import type { Player } from '../../data/player';
+import { formatToK } from '../utils/formatters';
 
 export function createLeaderboard(players: Player[]): HTMLElement {
   const section = createElement('section', 'leaderboard');
@@ -127,11 +128,4 @@ function getInitials(playerName: string): string {
   }
 
   return playerName.slice(0, 2).toUpperCase();
-}
-
-function formatToK(num: number): string {
-  if (num >= 1_000) {
-    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
-  }
-  return num.toString();
 }
