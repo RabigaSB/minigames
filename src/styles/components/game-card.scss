@@ -138,6 +138,7 @@ $stats-icon-size: 20px;
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-clamp: 2;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -148,6 +149,7 @@ $stats-icon-size: 20px;
 
     @media (min-width: $breakpoint-desktop) {
       font-size: $body-medium;
+      line-clamp: 3;
       -webkit-line-clamp: 3;
     }
   }
