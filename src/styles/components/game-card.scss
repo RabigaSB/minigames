@@ -32,11 +32,6 @@ $size-005: 2px;
     height: $game-card-height-desktop;
   }
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $level-2;
-  }
-
   &__image-wrapper {
     width: $full-width;
     flex-shrink: 0;
