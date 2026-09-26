@@ -2,6 +2,7 @@
 @use '../abstracts/breakpoints' as *;
 
 $game-card-gap: 20px;
+$chips-gap: 6px;
 
 .library {
   background-color: $bg;
@@ -12,7 +13,7 @@ $game-card-gap: 20px;
     padding: $size-3 $size-2;
 
     @media (min-width: $breakpoint-tablet) {
-      padding: $size-5 $size-4;
+      padding: $size-3 $size-5;
     }
 
     @media (min-width: $breakpoint-desktop) {
@@ -25,6 +26,10 @@ $game-card-gap: 20px;
     flex-direction: column;
     gap: $size-4;
 
+    @media (min-width: $breakpoint-tablet) {
+      gap: $size-2;
+    }
+
     @media (min-width: $breakpoint-desktop) {
       padding: 0 $size-5;
       gap: $size-2;
@@ -35,6 +40,15 @@ $game-card-gap: 20px;
     display: flex;
     flex-direction: column;
     gap: $size-05;
+
+    @media (min-width: $breakpoint-tablet) {
+      gap: $size-1;
+      margin-bottom: $size-3;
+    }
+    @media (min-width: $breakpoint-desktop) {
+      gap: $size-05;
+      margin-bottom: 0;
+    }
   }
 
   &__title {
@@ -68,11 +82,16 @@ $game-card-gap: 20px;
     align-items: stretch;
     width: $full-width;
 
+    @media (min-width: $breakpoint-tablet) {
+      gap: $size-1;
+    }
+
     @media (min-width: $breakpoint-desktop) {
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
       margin-top: $size-5;
+      gap: $size-3;
     }
   }
 
@@ -82,6 +101,14 @@ $game-card-gap: 20px;
     overflow-x: auto;
     white-space: nowrap;
     padding-bottom: $size-05;
+
+    @media (min-width: $breakpoint-tablet) {
+      gap: $chips-gap;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      gap: $size-2;
+    }
   }
 
   &__chip {
@@ -111,9 +138,12 @@ $game-card-gap: 20px;
     gap: $game-card-gap;
     margin-top: $size-4;
 
+    @media (min-width: $breakpoint-tablet) {
+      margin-top: 0;
+    }
+
     @media (min-width: $breakpoint-desktop) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin-top: 0;
     }
   }
 }

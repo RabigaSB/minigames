@@ -1,11 +1,20 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/breakpoints' as *;
 
+$dropdown-small: 12px 16px;
+$dropdown-width: 200px;
+$dropdown-width-desktop: 190px;
+$dropdown-width-tablet: 182px;
+
 .sort-dropdown {
   position: relative;
 
   @media (min-width: $breakpoint-tablet) {
-    width: $dropdown-width;
+    width: $dropdown-width-tablet;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    width: $dropdown-width-desktop;
   }
 
   &__button {
@@ -21,10 +30,6 @@
     color: $on-primary;
     cursor: pointer;
     width: $full-width;
-
-    @media (min-width: $breakpoint-tablet) {
-      width: $dropdown-width;
-    }
 
     &:hover {
       background-color: $surface;
@@ -47,7 +52,7 @@
 
     @media (min-width: $breakpoint-tablet) {
       left: 0;
-      width: $dropdown-list-width;
+      width: $dropdown-width;
     }
 
     @media (min-width: $breakpoint-desktop) {

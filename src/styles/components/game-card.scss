@@ -1,7 +1,10 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/breakpoints' as *;
 
-$game-card-height: 200px;
+$game-card-height-desktop: 200px;
+$game-card-height-tablet: 152px;
+$stats-gap: 20px;
+$stats-icon-size: 20px;
 
 .game-card {
   display: flex;
@@ -23,7 +26,11 @@ $game-card-height: 200px;
 
   @media (min-width: $breakpoint-tablet) {
     flex-direction: row;
-    height: $game-card-height;
+    height: $game-card-height-tablet;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    height: $game-card-height-desktop;
   }
 
   &__image-wrapper {
@@ -32,6 +39,11 @@ $game-card-height: 200px;
     flex-shrink: 0;
 
     @media (min-width: $breakpoint-tablet) {
+      max-width: 268px;
+      height: auto;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
       max-width: 318px;
       height: auto;
     }
@@ -53,6 +65,10 @@ $game-card-height: 200px;
     gap: $size-1;
 
     @media (min-width: $breakpoint-tablet) {
+      gap: $size-1;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
       gap: $size-2;
     }
   }
@@ -106,6 +122,10 @@ $game-card-height: 200px;
     &--free {
       color: $price-free;
 
+      @media (min-width: $breakpoint-tablet) {
+        font-size: $headline-small;
+      }
+
       @media (min-width: $breakpoint-desktop) {
         font-size: $headline-medium;
       }
@@ -117,9 +137,18 @@ $game-card-height: 200px;
     color: $on-bg;
     margin: 0;
     overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+
+    @media (min-width: $breakpoint-tablet) {
+      font-size: $body-small;
+    }
 
     @media (min-width: $breakpoint-desktop) {
       font-size: $body-medium;
+      -webkit-line-clamp: 3;
     }
   }
 
@@ -133,10 +162,14 @@ $game-card-height: 200px;
   &__stats {
     display: flex;
     align-items: center;
-    gap: $size-3;
+    gap: $stats-gap;
     font-size: $body-small;
     font-weight: $bold;
     color: $on-primary;
+
+    @media (min-width: $breakpoint-desktop) {
+      gap: $size-3;
+    }
   }
 
   &__rating,
@@ -150,8 +183,8 @@ $game-card-height: 200px;
   &__likes::before {
     content: '';
     display: inline-block;
-    width: $size-3;
-    height: $size-3;
+    width: $stats-icon-size;
+    height: $stats-icon-size;
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
