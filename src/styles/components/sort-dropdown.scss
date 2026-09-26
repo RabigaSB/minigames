@@ -1,7 +1,7 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/breakpoints' as *;
 
-$dropdown-small: 12px 16px;
+$dropdown-small: 10px 16px;
 $dropdown-width: 200px;
 $dropdown-width-desktop: 190px;
 $dropdown-width-tablet: 182px;
@@ -25,11 +25,15 @@ $dropdown-width-tablet: 182px;
     background-color: $white;
     border: $border-solid $on-primary;
     border-radius: $corner-extra-large;
-    font-size: $label-large;
+    font-size: $label-medium;
     font-weight: $bold;
     color: $on-primary;
     cursor: pointer;
     width: $full-width;
+
+    @media (min-width: $breakpoint-tablet) {
+      font-size: $label-large;
+    }
 
     &:hover {
       background-color: $surface;

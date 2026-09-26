@@ -3,8 +3,10 @@
 
 $game-card-height-desktop: 200px;
 $game-card-height-tablet: 152px;
+$game-card-height-mobile: 392px;
 $stats-gap: 20px;
 $stats-icon-size: 20px;
+$size-005: 2px;
 
 .game-card {
   display: flex;
@@ -18,11 +20,8 @@ $stats-icon-size: 20px;
     transform 0.2s ease,
     box-shadow 0.2s ease;
   cursor: pointer;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $level-2;
-  }
+  height: $game-card-height-mobile;
+  box-sizing: border-box;
 
   @media (min-width: $breakpoint-tablet) {
     flex-direction: row;
@@ -33,9 +32,13 @@ $stats-icon-size: 20px;
     height: $game-card-height-desktop;
   }
 
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $level-2;
+  }
+
   &__image-wrapper {
     width: $full-width;
-    height: 180px;
     flex-shrink: 0;
 
     @media (min-width: $breakpoint-tablet) {
@@ -62,7 +65,8 @@ $stats-icon-size: 20px;
     justify-content: space-between;
     padding: $size-2;
     flex-grow: 1;
-    gap: $size-1;
+    gap: $size-2;
+    position: relative;
 
     @media (min-width: $breakpoint-tablet) {
       gap: $size-1;
@@ -74,7 +78,9 @@ $stats-icon-size: 20px;
   }
 
   &__top-row {
-    position: relative;
+    @media (min-width: $breakpoint-tablet) {
+      position: relative;
+    }
   }
 
   &__title {
@@ -82,11 +88,17 @@ $stats-icon-size: 20px;
     font-weight: $bold;
     color: $on-primary;
     margin: 0;
-    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+
+    @media (min-width: $breakpoint-tablet) {
+      flex-direction: row;
+      gap: 0;
+    }
 
     @media (min-width: $breakpoint-desktop) {
       font-size: $headline-medium;
-      display: flex;
       align-items: center;
     }
   }
@@ -94,12 +106,13 @@ $stats-icon-size: 20px;
   &__category {
     font-size: $label-medium;
     font-weight: $bold;
-    padding: $size-05 $size-1;
+    padding: $size-005 $size-1;
     background-color: $secondary;
     border: $border-solid $on-primary;
     border-radius: $corner-full;
     color: $on-primary;
     text-transform: capitalize;
+    width: fit-content;
 
     @media (min-width: $breakpoint-tablet) {
       display: inline-block;
@@ -108,12 +121,18 @@ $stats-icon-size: 20px;
   }
 
   &__price {
-    font-size: $label-large;
+    font-size: $headline-small;
     font-weight: $bold;
     color: $on-primary;
     position: absolute;
-    right: 0;
-    top: 0;
+    right: $size-2;
+    bottom: $size-8;
+
+    @media (min-width: $breakpoint-tablet) {
+      right: 0;
+      top: 0;
+      bottom: unset;
+    }
 
     @media (min-width: $breakpoint-desktop) {
       font-size: $headline-medium;
@@ -121,14 +140,6 @@ $stats-icon-size: 20px;
 
     &--free {
       color: $price-free;
-
-      @media (min-width: $breakpoint-tablet) {
-        font-size: $headline-small;
-      }
-
-      @media (min-width: $breakpoint-desktop) {
-        font-size: $headline-medium;
-      }
     }
   }
 
@@ -156,21 +167,27 @@ $stats-icon-size: 20px;
 
   &__footer {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: auto;
+    flex-direction: column;
+    gap: $size-2;
+
+    @media (min-width: $breakpoint-tablet) {
+      gap: 0;
+      align-items: center;
+      justify-content: space-between;
+      flex-direction: row;
+    }
   }
 
   &__stats {
     display: flex;
     align-items: center;
-    gap: $stats-gap;
+    gap: $size-3;
     font-size: $body-small;
     font-weight: $bold;
     color: $on-primary;
 
     @media (min-width: $breakpoint-desktop) {
-      gap: $size-3;
+      gap: $size-4;
     }
   }
 
@@ -209,6 +226,10 @@ $stats-icon-size: 20px;
     border-radius: $corner-small;
     color: $on-primary;
     cursor: pointer;
+
+    @media (min-width: $breakpoint-desktop) {
+      padding: $btn-medium;
+    }
 
     &:hover {
       background-color: $primary-high;
