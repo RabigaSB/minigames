@@ -5,22 +5,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: $size-2;
+  gap: $size-1;
+  margin-top: $size-1;
+
+  @media (min-width: $breakpoint-tablet) {
+    margin-top: $size-3;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    gap: $size-2;
+  }
 
   &__pages {
     display: flex;
     gap: $size-1;
 
-    @media (min-width: $breakpoint-tablet) {
+    @media (min-width: $breakpoint-desktop) {
       gap: $size-2;
     }
   }
 
   &__page-btn,
   &__arrow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: $size-5;
     height: $size-5;
     font-size: $label-large;
@@ -46,5 +52,9 @@
       cursor: not-allowed;
       background-color: $outline;
     }
+  }
+
+  &__arrow {
+    font-size: $headline-medium;
   }
 }

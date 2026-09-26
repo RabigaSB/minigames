@@ -1,5 +1,9 @@
 import { createElement } from '../create-element';
 
+const TABLET_BREAKPOINT = 768;
+const MAX_VISIBLE_PAGES_DESKTOP = 4;
+const MAX_VISIBLE_PAGES_MOBILE = 3;
+
 export function createPagination(): HTMLElement {
   const nav = createElement('nav', 'pagination');
   nav.setAttribute('aria-label', 'Library Pagination');
@@ -16,7 +20,8 @@ export function createPagination(): HTMLElement {
 
   let currentPage = 1;
   const startPage = 1;
-  const endPage = 4;
+  const endPage =
+    window.innerWidth < TABLET_BREAKPOINT ? MAX_VISIBLE_PAGES_MOBILE : MAX_VISIBLE_PAGES_DESKTOP;
 
   for (let i = startPage; i <= endPage; i++) {
     const pageBtn = createElement(
