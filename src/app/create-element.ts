@@ -2,6 +2,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
   className?: string,
   textContent?: string,
+  id?: string,
 ): HTMLElementTagNameMap[K] {
   const element = document.createElement(tagName);
 
@@ -11,6 +12,10 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
 
   if (textContent) {
     element.textContent = textContent;
+  }
+
+  if (id) {
+    element.id = id;
   }
 
   return element;

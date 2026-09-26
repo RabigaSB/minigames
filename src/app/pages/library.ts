@@ -3,6 +3,7 @@ import { createSortDropdown } from '../components/sort-dropdown';
 import seedData from '../../data/all-games-seed.json';
 import type { Game } from '../../data/game';
 import { formatToK } from '../utils/formatters';
+import { createPagination } from '../components/pagination';
 
 export function createLibraryPage(): HTMLElement {
   const main = createElement('main', 'library');
@@ -50,7 +51,9 @@ export function createLibraryPage(): HTMLElement {
 
   const games: Game[] = seedData.data;
 
-  games.forEach((game) => {
+  const visibleGames = games.slice(0, 6);
+
+  visibleGames.forEach((game) => {
     const card = createElement('article', 'game-card');
 
     const imgWrapper = createElement('div', 'game-card__image-wrapper');
@@ -92,7 +95,9 @@ export function createLibraryPage(): HTMLElement {
     gridContainer.append(card);
   });
 
-  section.append(headerWrapper, controlsWrapper, gridContainer);
+  const paginationComponent = createPagination();
+
+  section.append(headerWrapper, controlsWrapper, gridContainer, paginationComponent);
   container.append(section);
   main.append(container);
 

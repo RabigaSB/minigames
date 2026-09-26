@@ -6,6 +6,7 @@
 @use 'pages/library.scss' as *;
 @use 'components/sort-dropdown.scss' as *;
 @use 'components/game-card.scss' as *;
+@use 'components/pagination.scss' as *;
 
 body {
   background-color: $bg;
