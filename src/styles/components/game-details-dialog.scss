@@ -1,0 +1,28 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+$dialog-width: 600px;
+
+.game-details-dialog {
+  position: fixed;
+  z-index: $z-index-dialog;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  padding: $size-2;
+  background-color: $bg-footer;
+  display: flex;
+
+  &__content {
+    box-sizing: border-box;
+    width: $dialog-width;
+    height: 400px;
+    max-width: 100%;
+    overflow-y: auto;
+    padding: $size-5;
+    border: $border-solid $on-primary;
+    border-radius: $corner-large;
+    background-color: $white;
+    color: $black;
+    margin: 0 auto;
+  }
+}
