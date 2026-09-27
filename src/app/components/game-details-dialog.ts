@@ -158,6 +158,12 @@ export function createGameDetailsDialog(): HTMLElement {
   commentsSection.append(commentsTitle, commentForm, commentsList);
 
   //helpers and event listeners
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) {
+      closeDialog();
+    }
+  });
+
   favoriteBtn.addEventListener('click', () => {
     favoriteBtn.classList.toggle('active');
     const isActive = favoriteBtn.classList.contains('active');
