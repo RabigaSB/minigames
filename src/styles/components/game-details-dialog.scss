@@ -1,6 +1,19 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/breakpoints' as *;
+
 $dialog-width: 600px;
+$badges-width-mobile: 150px;
+$badges-width-tablet: 126px;
+$breakpoint-modal: 600px;
+
+$level-05: 2px 2px $on-primary;
+$level-055: 3px 3px $on-primary;
+
+$line-height: 20px;
+
+$icon-height: 20px;
+
+$play-now-btn-width: 263px;
 
 .game-dialog {
   display: flex;
@@ -31,12 +44,12 @@ $dialog-width: 600px;
     height: $size-4;
     width: $size-4;
     border: $border-solid $on-primary;
-    box-shadow: $level-1;
+    box-shadow: $level-05;
     display: flex;
     align-items: center;
     justify-content: center;
 
-    @media (min-width: $breakpoint-tablet) {
+    @media (min-width: $breakpoint-modal) {
       height: $size-5;
       width: $size-5;
     }
@@ -62,8 +75,8 @@ $dialog-width: 600px;
     width: $dialog-width;
     max-width: $full-width;
     overflow-y: auto;
-    border: $border-solid $outline-variant;
-    border-radius: $corner-large;
+    border: $border-solid-1 $outline-variant;
+    border-radius: $corner-extra-large;
     background-color: $surface-low;
     transform: scale(0.9);
     transition: transform 0.3s ease;
@@ -72,5 +85,177 @@ $dialog-width: 600px;
 
   &__hero {
     position: relative;
+  }
+
+  &__info {
+    padding: $size-3;
+    display: flex;
+    flex-direction: column;
+    gap: $size-3;
+  }
+
+  &__top-row {
+    color: $on-primary;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: $size-1;
+
+    @media (min-width: $breakpoint-modal) {
+      flex-direction: row;
+    }
+  }
+
+  &__title {
+    font-size: $display-medium;
+    margin: 0;
+  }
+
+  &__stats {
+    font-size: $label-large;
+    font-weight: $bold;
+    display: flex;
+    align-items: center;
+    gap: $size-2;
+  }
+
+  &__rating,
+  &__likes {
+    display: flex;
+    align-items: center;
+    gap: $size-05;
+  }
+
+  &__rating::before,
+  &__likes::before {
+    content: '';
+    display: inline-block;
+    width: $size-3;
+    height: $size-3;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+  &__rating::before {
+    background-image: url('../../assets/icon_star.svg');
+  }
+
+  &__likes::before {
+    background-image: url('../../assets/icon_heart.svg');
+  }
+
+  &__description {
+    color: $on-bg;
+    margin: 0;
+    line-height: $line-height;
+    word-spacing: 2px;
+  }
+
+  &__badges {
+    display: flex;
+    gap: $size-2;
+    flex-wrap: wrap;
+
+    @media (min-width: $breakpoint-modal) {
+      flex-wrap: nowrap;
+    }
+  }
+
+  &__badge {
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+    box-sizing: border-box;
+    width: $badges-width-mobile;
+    border: $border-solid-1 $outline-variant;
+    border-radius: $corner-small;
+    padding: $btn-small;
+    box-shadow: $level-055;
+    background-color: $white;
+
+    @media (min-width: $breakpoint-modal) {
+      width: $badges-width-tablet;
+    }
+
+    &-label {
+      font-size: $label-medium;
+      color: $on-bg;
+      margin: 0;
+    }
+
+    &-value {
+      font-size: $label-large;
+      font-weight: $bold;
+      color: $on-primary;
+      margin: 0;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $size-2;
+  }
+
+  &__play-btn,
+  &__favorite-btn {
+    font-size: $label-extra-large;
+    font-weight: $bold;
+    box-shadow: $level-1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $corner-medium;
+    height: $size-6;
+  }
+
+  &__play-btn {
+    background-color: $primary;
+    border: $border-solid $on-primary;
+    flex: 1;
+
+    &:hover {
+      background-color: $primary-high;
+    }
+  }
+
+  &__favorite-btn {
+    gap: $size-1;
+    background-color: $white;
+    border: $border-solid-1 $outline-variant;
+    min-width: $size-6;
+    flex: 0;
+
+    @media (min-width: $breakpoint-modal) {
+      flex: 1;
+    }
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: $icon-height;
+      height: $icon-height;
+      background-color: $on-primary;
+      mask-image: url('../../assets/icon_heart.svg');
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+    }
+
+    &-text {
+      display: none;
+
+      @media (min-width: $breakpoint-modal) {
+        display: inline;
+      }
+    }
+
+    &.active::before {
+      background-color: $like;
+    }
+
+    &:hover {
+      background-color: $surface;
+    }
   }
 }
