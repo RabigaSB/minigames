@@ -4,7 +4,6 @@
 $game-card-height-desktop: 200px;
 $game-card-height-tablet: 152px;
 $game-card-height-mobile: 392px;
-$stats-gap: 20px;
 $stats-icon-size: 20px;
 $size-005: 2px;
 
@@ -19,7 +18,6 @@ $size-005: 2px;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
-  cursor: pointer;
   height: $game-card-height-mobile;
   box-sizing: border-box;
 
@@ -30,11 +28,6 @@ $size-005: 2px;
 
   @media (min-width: $breakpoint-desktop) {
     height: $game-card-height-desktop;
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $level-2;
   }
 
   &__image-wrapper {

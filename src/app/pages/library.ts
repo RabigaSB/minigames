@@ -4,6 +4,7 @@ import seedData from '../../data/all-games-seed.json';
 import type { Game } from '../../data/game';
 import { formatToK } from '../utils/formatters';
 import { createPagination } from '../components/pagination';
+import { createGameDetailsDialog } from '../components/game-details-dialog';
 
 export function createLibraryPage(): HTMLElement {
   const main = createElement('main', 'library');
@@ -88,8 +89,14 @@ export function createLibraryPage(): HTMLElement {
     const detailsBtn = createElement('button', 'game-card__details-btn', 'Details');
     detailsBtn.type = 'button';
 
-    footerRow.append(stats, detailsBtn);
+    detailsBtn.addEventListener('click', () => {
+      const dialog = document.querySelector('.game-dialog');
 
+      dialog?.classList.add('game-dialog--open');
+      document.body.classList.add('dialog-open');
+    });
+
+    footerRow.append(stats, detailsBtn);
     content.append(topRow, desc, footerRow);
     card.append(imgWrapper, content);
     gridContainer.append(card);
@@ -100,6 +107,12 @@ export function createLibraryPage(): HTMLElement {
   section.append(headerWrapper, controlsWrapper, gridContainer, paginationComponent);
   container.append(section);
   main.append(container);
+
+  const app = document.querySelector('.app');
+
+  const gameDialog = createGameDetailsDialog();
+
+  app?.append(gameDialog);
 
   return main;
 }

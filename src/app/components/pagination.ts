@@ -20,27 +20,33 @@ export function createPagination(): HTMLElement {
 
   let currentPage = 1;
   const startPage = 1;
-  const endPage =
-    window.innerWidth < TABLET_BREAKPOINT ? MAX_VISIBLE_PAGES_MOBILE : MAX_VISIBLE_PAGES_DESKTOP;
+  let endPage: number = MAX_VISIBLE_PAGES_DESKTOP;
 
-  for (let i = startPage; i <= endPage; i++) {
-    const pageBtn = createElement(
-      'button',
-      'pagination__page-btn',
-      i.toString(),
-      `pagination__page-btn-${i}`,
-    );
-    pageBtn.type = 'button';
+  function renderPageBtns() {
+    endPage =
+      window.innerWidth < TABLET_BREAKPOINT ? MAX_VISIBLE_PAGES_MOBILE : MAX_VISIBLE_PAGES_DESKTOP;
 
-    if (i === startPage) {
-      pageBtn.classList.add('active');
+    pagesContainer.innerHTML = '';
+
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = createElement(
+        'button',
+        'pagination__page-btn',
+        i.toString(),
+        `pagination__page-btn-${i}`,
+      );
+      pageBtn.type = 'button';
+
+      if (i === startPage) {
+        pageBtn.classList.add('active');
+      }
+
+      pageBtn.addEventListener('click', () => {
+        setPage(i);
+      });
+
+      pagesContainer.append(pageBtn);
     }
-
-    pageBtn.addEventListener('click', () => {
-      setPage(i);
-    });
-
-    pagesContainer.append(pageBtn);
   }
 
   function setActiveClass(currentPage: number) {
@@ -87,6 +93,13 @@ export function createPagination(): HTMLElement {
       setPage(currentPage + 1);
     }
   });
+
+  window.addEventListener('resize', () => {
+    renderPageBtns();
+    setDisabled(startPage);
+  });
+
+  renderPageBtns();
 
   nav.append(prevBtn, pagesContainer, nextBtn);
   return nav;
