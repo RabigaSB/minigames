@@ -1,0 +1,124 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+
+$dropdown-small: 10px 16px;
+$dropdown-width: 200px;
+$dropdown-width-desktop: 190px;
+$dropdown-width-tablet: 182px;
+
+.sort-dropdown {
+  position: relative;
+
+  @media (min-width: $breakpoint-tablet) {
+    width: $dropdown-width-tablet;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    width: $dropdown-width-desktop;
+  }
+
+  &__button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $dropdown-small;
+    background-color: $white;
+    border: $border-solid $on-primary;
+    border-radius: $corner-extra-large;
+    font-size: $label-medium;
+    font-weight: $bold;
+    color: $on-primary;
+    cursor: pointer;
+    width: $full-width;
+
+    @media (min-width: $breakpoint-tablet) {
+      font-size: $label-large;
+    }
+
+    &:hover {
+      background-color: $surface;
+    }
+  }
+
+  &__menu {
+    position: absolute;
+    top: calc($full-width + $size-05);
+    width: $full-width;
+    background-color: $white;
+    border: $border-solid $on-primary;
+    border-radius: $corner-large;
+    box-shadow: $level-1;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: $z-index-upper;
+    box-sizing: border-box;
+
+    @media (min-width: $breakpoint-tablet) {
+      left: 0;
+      width: $dropdown-width;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      right: 0;
+      left: unset;
+    }
+
+    &--hidden {
+      display: none;
+    }
+  }
+
+  &__item {
+    padding: $size-2;
+    padding-left: $size-4;
+    font-size: $label-large;
+    font-weight: $medium;
+    color: $on-primary;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: $size-1;
+    border-bottom: $border-solid-1 $outline;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: $surface;
+    }
+
+    &:first-child:hover,
+    &:first-child.sort-dropdown__item--active {
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
+    }
+
+    &:last-child:hover,
+    &:last-child.sort-dropdown__item--active {
+      border-bottom-left-radius: inherit;
+      border-bottom-right-radius: inherit;
+    }
+
+    &--active {
+      background-color: $primary;
+      font-weight: $bold;
+      position: relative;
+
+      &::before {
+        content: '✓';
+        display: block;
+        width: $size-1;
+        height: $size-1;
+        position: absolute;
+        left: $size-2;
+        top: $size-2;
+      }
+    }
+  }
+
+  &__check {
+    font-weight: bold;
+  }
+}

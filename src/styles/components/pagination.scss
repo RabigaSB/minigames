@@ -1,0 +1,60 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $size-1;
+  margin-top: $size-1;
+
+  @media (min-width: $breakpoint-tablet) {
+    margin-top: $size-3;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    gap: $size-2;
+  }
+
+  &__pages {
+    display: flex;
+    gap: $size-1;
+
+    @media (min-width: $breakpoint-desktop) {
+      gap: $size-2;
+    }
+  }
+
+  &__page-btn,
+  &__arrow {
+    width: $size-5;
+    height: $size-5;
+    font-size: $label-large;
+    font-weight: $bold;
+    background-color: $white;
+    border: $border-solid $black;
+    border-radius: $corner-full;
+    color: $on-primary;
+    cursor: pointer;
+
+    &:hover:not(.disabled) {
+      background-color: $surface;
+      color: $on-primary;
+    }
+
+    &.active {
+      background-color: $bg-footer-low;
+      color: $white;
+    }
+
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background-color: $outline;
+    }
+  }
+
+  &__arrow {
+    font-size: $headline-medium;
+  }
+}

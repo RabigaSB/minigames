@@ -1,0 +1,139 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+
+.library {
+  background-color: $bg;
+
+  &__container {
+    max-width: $container-max;
+    margin: 0 auto;
+    padding: $size-2;
+
+    @media (min-width: $breakpoint-tablet) {
+      padding: $size-3 $size-5;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      padding: $size-6;
+    }
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: $size-2;
+
+    @media (min-width: $breakpoint-desktop) {
+      padding: 0 $size-5;
+    }
+  }
+
+  &__header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+    margin-bottom: $size-2;
+
+    @media (min-width: $breakpoint-tablet) {
+      margin-bottom: $size-3;
+    }
+    @media (min-width: $breakpoint-desktop) {
+      gap: $size-05;
+      margin-bottom: 0;
+    }
+  }
+
+  &__title {
+    font-size: $display-small;
+    font-weight: $bold;
+    color: $on-primary;
+    margin: 0;
+
+    @media (min-width: $breakpoint-tablet) {
+      font-size: $display-medium;
+    }
+    @media (min-width: $breakpoint-desktop) {
+      font-size: $display-large;
+    }
+  }
+
+  &__subtitle {
+    font-size: $body-small;
+    color: $on-bg;
+    margin: 0;
+
+    @media (min-width: $breakpoint-tablet) {
+      font-size: $body-medium;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      font-size: $body-large;
+    }
+  }
+
+  &__controls {
+    display: flex;
+    flex-direction: column;
+    gap: $size-2;
+    align-items: stretch;
+    width: $full-width;
+
+    @media (min-width: $breakpoint-desktop) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: $size-6;
+      gap: $size-3;
+    }
+  }
+
+  &__chips {
+    display: flex;
+    gap: $size-1;
+    overflow-x: auto;
+    white-space: nowrap;
+
+    @media (min-width: $breakpoint-desktop) {
+      gap: $size-2;
+    }
+  }
+
+  &__chip {
+    flex-shrink: 0;
+    font-size: $label-medium;
+    font-weight: $bold;
+    padding: $btn-small;
+    background-color: $white;
+    border: $border-solid $on-primary;
+    border-radius: $corner-full;
+    color: $on-primary;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    @media (min-width: $breakpoint-tablet) {
+      font-size: $label-large;
+    }
+
+    &:hover {
+      background-color: $surface;
+    }
+
+    &.active {
+      background-color: $primary;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: $full-width;
+    gap: $size-2;
+
+    @media (min-width: $breakpoint-tablet) {
+      gap: $size-3;
+    }
+
+    @media (min-width: $breakpoint-desktop) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}

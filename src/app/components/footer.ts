@@ -11,7 +11,7 @@ export function createFooter(): HTMLElement {
 
   const logoContainer = createElement('div', 'footer__logo-container');
   const logoIcon = createElement('img', 'footer__logo-icon');
-  logoIcon.src = '/src/assets/minigames_logo.png';
+  logoIcon.src = './assets/minigames_logo.png';
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'footer__logo', 'MiniGames');
   logo.href = '/';
@@ -29,8 +29,8 @@ export function createFooter(): HTMLElement {
   const links = createElement('div', 'footer__links');
 
   const explore = createFooterColumn('Explore', [
-    ['Home', '/'],
-    ['Library', '/library'],
+    ['Home', '/', 'home'],
+    ['Library', '/library', 'library'],
     ['Categories', '#'],
     ['Tournaments', '#'],
   ]);
@@ -62,11 +62,14 @@ function createFooterColumn(titleText: string, items: string[][]): HTMLElement {
 
   const list = createElement('ul', 'footer__list');
 
-  for (const [text, href] of items) {
+  for (const [text, href, navData] of items) {
     const item = createElement('li', 'footer__item');
 
     const link = createElement('a', 'footer__link', text);
     link.href = href;
+    if (navData) {
+      link.setAttribute('data-nav', navData);
+    }
 
     item.append(link);
     list.append(item);

@@ -1,12 +1,13 @@
 import { createElement } from '../create-element';
 import gamesData from '../../data/all-games-seed.json';
 import leaderboardData from '../../data/leaderboard.json';
-import { createCarouselCard } from '../components/carouselCard';
+import { createNewGamesSection } from '../components/carousel-card';
 import { createLeaderboard } from '../components/leaderboard';
 import { createDeveloperCta } from '../components/developer-cta';
+import type { Game } from '../../data/game';
 
 export function createHomePage(): HTMLElement {
-  const main = createElement('main', 'home');
+  const main = createElement('div', 'home');
 
   const description = createElement('section', 'home__description');
   const descriptionContainer = createElement('div', 'home__description-container');
@@ -31,31 +32,10 @@ export function createHomePage(): HTMLElement {
   descriptionContainer.append(descriptionTitle, descriptionText, descriptionAction);
   description.append(descriptionContainer);
 
-  const newGames = createElement('section', 'home__newgames');
-  const titleWrapper = createElement('div', 'home__newgames-wrapper');
-  const newGamesTitle = createElement('h2', 'home__newgames-title', 'New Games');
-  const arrowWrapper = createElement('div', 'home__newgames-tools');
-  const arrowForward = createElement('img', 'home__newgames-arrow--forward');
-  const arrowBackward = createElement('img', 'home__newgames-arrow--backward');
-  arrowForward.src = 'src/assets/arrow.png';
-  arrowForward.alt = 'arrow';
-  arrowBackward.src = 'src/assets/arrow.png';
-  arrowBackward.alt = 'arrow';
-  arrowWrapper.append(arrowBackward, arrowForward);
-  titleWrapper.append(newGamesTitle, arrowWrapper);
-
-  const carouselContainer = createElement('div', 'home__newgames-carousel');
-  const games = gamesData.data.slice(0, 5);
-
-  for (const game of games) {
-    const card = createCarouselCard(game);
-    carouselContainer.append(card);
-  }
-
+  const newGames = createNewGamesSection(gamesData.data as Game[]);
   const leaderboard = createLeaderboard(leaderboardData.data);
   const developerCta = createDeveloperCta();
 
-  newGames.append(titleWrapper, carouselContainer);
   main.append(description, newGames, leaderboard, developerCta);
 
   return main;
