@@ -142,10 +142,6 @@ $size-005: 2px;
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-clamp: 2;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
 
     @media (min-width: $breakpoint-tablet) {
       font-size: $body-small;
@@ -153,8 +149,6 @@ $size-005: 2px;
 
     @media (min-width: $breakpoint-desktop) {
       font-size: $body-medium;
-      line-clamp: 3;
-      -webkit-line-clamp: 3;
     }
   }
 
