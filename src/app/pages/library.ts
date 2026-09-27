@@ -40,10 +40,7 @@ export function createLibraryPage(): HTMLElement {
     chipsContainer.append(chip);
   });
 
-  const sortControl = createSortDropdown((selectedSort) => {
-    // TODO: sorting action
-    console.log(selectedSort);
-  });
+  const sortControl = createSortDropdown();
 
   controlsWrapper.append(chipsContainer, sortControl);
 
