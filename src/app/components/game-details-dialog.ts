@@ -8,6 +8,13 @@ export function createGameDetailsDialog(): HTMLElement {
   const closeBtn = createElement('button', 'game-dialog__close');
   closeBtn.type = 'button';
 
+  const hero = createElement('section', 'game-dialog__hero');
+
+  const image = createElement('img', 'game-dialog__image');
+  image.src = './assets/tukoni-banner.png';
+
+  hero.append(image, closeBtn);
+
   const closeDialog = () => {
     dialog.classList.remove('game-dialog--open');
     document.body.classList.remove('dialog-open');
@@ -21,6 +28,7 @@ export function createGameDetailsDialog(): HTMLElement {
     }
   });
 
+  content.append(hero);
   dialog.append(content);
 
   return dialog;

@@ -108,7 +108,7 @@ export function createLibraryPage(): HTMLElement {
   container.append(section);
   main.append(container);
 
-  const app = document.querySelector('#app');
+  const app = document.querySelector('.app');
 
   const gameDialog = createGameDetailsDialog();
 

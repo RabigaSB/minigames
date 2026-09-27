@@ -3,6 +3,7 @@
 $dialog-width: 600px;
 
 .game-dialog {
+  display: flex;
   position: fixed;
   z-index: $z-index-dialog;
   inset: 0;
@@ -22,26 +23,54 @@ $dialog-width: 600px;
     }
   }
 
+  &__close {
+    position: absolute;
+    top: $size-2;
+    right: $size-2;
+    border-radius: $corner-full;
+    height: $size-4;
+    width: $size-4;
+    border: $border-solid $on-primary;
+    box-shadow: $level-1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: $breakpoint-tablet) {
+      height: $size-5;
+      width: $size-5;
+    }
+
+    &:hover {
+      background-color: $surface;
+    }
+
+    &::before {
+      content: '';
+      height: $size-3;
+      width: $size-3;
+      display: inline-block;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-image: url('../../assets/close.svg');
+    }
+  }
+
   &__content {
     box-sizing: border-box;
     width: $dialog-width;
-    max-width: 100%;
+    max-width: $full-width;
     overflow-y: auto;
-    padding: $size-5;
-    border: $border-solid $on-primary;
+    border: $border-solid $outline-variant;
     border-radius: $corner-large;
     background-color: $surface-low;
-    box-shadow: $level-3;
-    display: flex;
-    flex-direction: column;
-    gap: $size-4;
-    position: relative;
-    transform: scale(0.95);
+    transform: scale(0.9);
     transition: transform 0.3s ease;
+    box-shadow: $level-3;
   }
 
-  .game-dialog {
-    opacity: 0;
-    visibility: hidden;
+  &__hero {
+    position: relative;
   }
 }
