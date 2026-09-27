@@ -5,6 +5,7 @@ export function createGameDetailsDialog(): HTMLElement {
 
   const content = createElement('div', 'game-dialog__content');
 
+  //hero section
   const closeBtn = createElement('button', 'game-dialog__close');
   closeBtn.type = 'button';
 
@@ -13,6 +14,7 @@ export function createGameDetailsDialog(): HTMLElement {
   image.src = './assets/tukoni-banner.png';
   hero.append(image, closeBtn);
 
+  //info section
   const infoSection = createElement('section', 'game-dialog__info');
 
   const topRow = createElement('div', 'game-dialog__top-row');
@@ -55,6 +57,36 @@ export function createGameDetailsDialog(): HTMLElement {
 
   infoSection.append(topRow, description, badges, actionsRow);
 
+  //records section
+  const recordsSection = createElement('section', 'game-dialog__records-section');
+  const recordsTitleIcon = createElement('span', 'game-dialog__title-icon', '🏆');
+  const recordsTitle = createElement('h3', 'game-dialog__section-title', 'Top Records');
+  const recordsList = createElement('div', 'game-dialog__records-list');
+  recordsTitle.prepend(recordsTitleIcon);
+
+  const recordsData = [
+    { rank: '🥇', user: 'ForestSpirit', score: '356,700 pts', time: '2 days ago' },
+    { rank: '🥈', user: 'TeaBrewer', score: '332,400 pts', time: '5 days ago' },
+    { rank: '🥉', user: 'HerbalistPath', score: '308,900 pts', time: '1 week ago' },
+  ];
+
+  recordsData.forEach((rec) => {
+    const item = createElement('div', 'game-dialog__record-item');
+    const numberWrapper = createElement('div', 'game-dialog__record-wrapper');
+    const userWrapper = createElement('div', 'game-dialog__user-wrapper');
+    const userRank = createElement('span', 'game-dialog__record-rank', rec.rank);
+    const userInfo = createElement('span', 'game-dialog__record-user', rec.user);
+    const scoreInfo = createElement('span', 'game-dialog__record-score', rec.score);
+    const timeInfo = createElement('span', 'game-dialog__record-time', rec.time);
+    userWrapper.append(userRank, userInfo);
+    numberWrapper.append(scoreInfo, timeInfo);
+    item.append(userWrapper, numberWrapper);
+    recordsList.append(item);
+  });
+
+  recordsSection.append(recordsTitle, recordsList);
+
+  //helpers and event listeners
   favoriteBtn.addEventListener('click', () => {
     favoriteBtn.classList.toggle('active');
     const isActive = favoriteBtn.classList.contains('active');
@@ -86,7 +118,7 @@ export function createGameDetailsDialog(): HTMLElement {
     return badge;
   }
 
-  content.append(hero, infoSection);
+  content.append(hero, infoSection, recordsSection);
   dialog.append(content);
 
   return dialog;

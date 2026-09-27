@@ -26,6 +26,7 @@ $play-now-btn-width: 263px;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease;
+  overflow-y: auto;
 
   &--open {
     opacity: 1;
@@ -74,7 +75,6 @@ $play-now-btn-width: 263px;
     box-sizing: border-box;
     width: $dialog-width;
     max-width: $full-width;
-    overflow-y: auto;
     border: $border-solid-1 $outline-variant;
     border-radius: $corner-extra-large;
     background-color: $surface-low;
@@ -257,5 +257,62 @@ $play-now-btn-width: 263px;
     &:hover {
       background-color: $surface;
     }
+  }
+
+  &__records-section {
+    padding: 0 $size-3;
+    display: flex;
+    gap: $size-2;
+    flex-direction: column;
+  }
+
+  &__section-title {
+    font-size: $body-medium;
+    font-weight: $bold;
+    color: $on-primary;
+    margin: 0;
+    display: flex;
+    gap: $size-1;
+  }
+
+  &__records-list {
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+  }
+
+  &__record-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: $white;
+    border-radius: $corner-small;
+    padding: $size-2;
+    font-size: $body-small;
+    font-weight: $bold;
+    color: $on-primary;
+  }
+
+  &__record-wrapper {
+    display: flex;
+    gap: $size-2;
+  }
+
+  &__user-wrapper {
+    display: flex;
+    gap: $size-1;
+    @media (min-width: $breakpoint-modal) {
+      gap: $size-2;
+    }
+  }
+
+  &__record-score {
+    word-spacing: 2px;
+  }
+
+  &__record-time {
+    font-size: $label-medium;
+    color: $on-bg;
+    font-weight: normal;
   }
 }
