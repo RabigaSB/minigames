@@ -86,11 +86,86 @@ export function createGameDetailsDialog(): HTMLElement {
 
   recordsSection.append(recordsTitle, recordsList);
 
+  // Comments Section
+  const commentsSection = createElement('div', 'game-dialog__comments-section');
+  const commentsTitle = createElement('h3', 'game-dialog__section-title', 'Comments (3)');
+
+  const commentForm = createElement('div', 'game-dialog__comment-form');
+  const userAvatar = createElement('div', 'game-dialog__avatar', 'U');
+  const commentInput = createElement(
+    'textarea',
+    'game-dialog__comment-input',
+  ) as HTMLTextAreaElement;
+  commentInput.rows = 2;
+  commentInput.placeholder = 'Write a comment...';
+  commentInput.name = 'game-dialog__comment';
+  const sendBtn = createElement('button', 'game-dialog__send-btn');
+  sendBtn.type = 'button';
+  commentForm.append(userAvatar, commentInput, sendBtn);
+
+  const commentsList = createElement('div', 'game-dialog__comments-list');
+
+  const commentsData = [
+    {
+      avatar: 'F',
+      user: 'ForestDweller',
+      time: '3 hours ago',
+      text: "The hand-drawn art is absolutely magical 🍄 Every location feels like a page from a children's storybook. The mushroom village made me cry happy tears!",
+      likes: '12',
+    },
+    {
+      avatar: 'H',
+      user: 'HerbalTeaLover',
+      time: '1 day ago',
+      text: 'Perfect cozy evening game — brew a cup of chamomile, wrap in a blanket and help the little Tukoni prepare for winter. The puzzles are gentle but satisfying.',
+      likes: '5',
+    },
+    {
+      avatar: 'C',
+      user: 'CottageCoreMia',
+      time: '3 days ago',
+      text: 'I want to live inside this game forever 🌿 The NPCs are so charming, the tea recipes are real, and the atmosphere is pure warmth and calm.',
+      likes: '8',
+    },
+  ];
+
+  commentsData.forEach((comment) => {
+    const card = createElement('div', 'game-dialog__comment-card');
+
+    const cardHeader = createElement('div', 'game-dialog__comment-header');
+    const avatar = createElement('div', 'game-dialog__comment-avatar', comment.avatar);
+    const userInfo = createElement('div', 'game-dialog__comment-user-info');
+    const userName = createElement('span', 'game-dialog__comment-user', comment.user);
+    const commentTime = createElement('span', 'game-dialog__comment-time', comment.time);
+    userInfo.append(userName, commentTime);
+    cardHeader.append(avatar, userInfo);
+
+    const commentText = createElement('p', 'game-dialog__comment-text', comment.text);
+
+    const cardFooter = createElement('div', 'game-dialog__comment-footer');
+    const likeBtn = createElement('button', 'game-dialog__comment-like', comment.likes);
+    likeBtn.type = 'button';
+    cardFooter.append(likeBtn);
+
+    likeBtn.addEventListener('click', () => {
+      likeBtn.classList.toggle('active');
+    });
+
+    card.append(cardHeader, commentText, cardFooter);
+    commentsList.append(card);
+  });
+
+  commentsSection.append(commentsTitle, commentForm, commentsList);
+
   //helpers and event listeners
   favoriteBtn.addEventListener('click', () => {
     favoriteBtn.classList.toggle('active');
     const isActive = favoriteBtn.classList.contains('active');
     favoriteBtnText.textContent = isActive ? 'Remove from Favorites' : 'Add to Favorites';
+  });
+
+  sendBtn.addEventListener('click', () => {
+    commentInput.value = '';
   });
 
   const closeDialog = () => {
@@ -118,7 +193,12 @@ export function createGameDetailsDialog(): HTMLElement {
     return badge;
   }
 
-  content.append(hero, infoSection, recordsSection);
+  commentInput.addEventListener('input', () => {
+    commentInput.style.height = 'auto';
+    commentInput.style.height = `${commentInput.scrollHeight}px`;
+  });
+
+  content.append(hero, infoSection, recordsSection, commentsSection);
   dialog.append(content);
 
   return dialog;

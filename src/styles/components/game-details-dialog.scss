@@ -4,12 +4,18 @@
 $dialog-width: 600px;
 $badges-width-mobile: 150px;
 $badges-width-tablet: 126px;
+$comment-avatar-size: 28px;
+$comment-icon-size: 13px;
 $breakpoint-modal: 600px;
 
 $level-05: 2px 2px $on-primary;
 $level-055: 3px 3px $on-primary;
+$comment-like-btn: 0 0 0 3px $surface;
 
 $line-height: 20px;
+$comment-line-height: 18px;
+$comment-card-mobile: 164px;
+$comment-card-tablet: 128px;
 
 $icon-height: 20px;
 
@@ -314,5 +320,192 @@ $play-now-btn-width: 263px;
     font-size: $label-medium;
     color: $on-bg;
     font-weight: normal;
+  }
+
+  &__comments-section {
+    padding: $size-3;
+    display: flex;
+    flex-direction: column;
+    gap: $size-2;
+  }
+
+  &__comment-form {
+    display: flex;
+    align-items: center;
+    gap: $size-2;
+  }
+
+  &__avatar,
+  &__comment-avatar {
+    width: $size-5;
+    height: $size-5;
+    border-radius: $corner-full;
+    background-color: $primary;
+    color: $on-primary;
+    border: $border-solid-1 $on-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: $bold;
+    font-size: $label-large;
+    flex-shrink: 0;
+  }
+
+  &__comment-avatar {
+    width: $comment-avatar-size;
+    height: $comment-avatar-size;
+  }
+
+  &__comment-input {
+    flex: 1;
+    border: $border-solid-1 $on-primary;
+    border-radius: $corner-small;
+    background-color: $white;
+    color: $on-primary;
+    font-size: $label-large;
+    padding: $size-1;
+    min-height: $size-6;
+    max-height: $size-11;
+    resize: none;
+    overflow-y: auto;
+    box-sizing: border-box;
+
+    &::placeholder {
+      font-family: $Inter;
+    }
+    &:focus {
+      outline: none;
+      border: $border-solid $on-primary;
+    }
+  }
+
+  &__send-btn {
+    width: $size-5;
+    height: $size-5;
+    border-radius: $corner-small;
+    background-color: $bg-footer-low;
+    color: $on-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: $size-3;
+      height: $size-3;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-image: url('../../assets/send.svg');
+    }
+
+    &:hover {
+      background-color: $tertiary;
+    }
+  }
+
+  &__comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: $size-2;
+  }
+
+  &__comment-card {
+    background-color: $white;
+    border-radius: $corner-large;
+    padding: $size-2;
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+    box-shadow: $level-055;
+    box-sizing: border-box;
+    height: $comment-card-mobile;
+
+    &:first-child .game-dialog__comment-header .game-dialog__comment-avatar {
+      background-color: $avatar-random-3;
+    }
+
+    &:last-child .game-dialog__comment-header .game-dialog__comment-avatar {
+      background-color: $avatar-random-1;
+    }
+
+    @media (min-width: $breakpoint-modal) {
+      height: $comment-card-tablet;
+    }
+  }
+
+  &__comment-header {
+    display: flex;
+    align-items: center;
+  }
+
+  &__comment-user-info {
+    display: flex;
+    margin-left: $size-1;
+    justify-content: space-between;
+    align-items: center;
+    width: $full-width;
+  }
+
+  &__comment-user {
+    font-size: $label-large;
+    font-weight: $bold;
+    color: $on-primary;
+  }
+
+  &__comment-time {
+    font-size: $label-medium;
+    color: $on-bg;
+  }
+
+  &__comment-text {
+    margin: 0;
+    font-size: $label-large;
+    color: $on-primary;
+    line-height: $comment-line-height;
+    word-spacing: 2px;
+  }
+
+  &__comment-like {
+    background: transparent;
+    border: none;
+    color: $on-primary;
+    font-size: $label-medium;
+    font-weight: $bold;
+    display: flex;
+    align-items: center;
+    gap: $size-05;
+    border-radius: $corner-medium;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: $comment-icon-size;
+      height: $comment-icon-size;
+      background-color: $on-bg;
+      mask-image: url('../../assets/icon_heart.svg');
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      box-sizing: border-box;
+
+      &:hover {
+        color: $on-primary;
+      }
+    }
+
+    &.active {
+      color: $like;
+    }
+    &.active::before {
+      background-color: $like;
+    }
+
+    &:hover {
+      background-color: $surface;
+      box-shadow: $comment-like-btn;
+    }
   }
 }
