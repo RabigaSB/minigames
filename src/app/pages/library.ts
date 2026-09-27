@@ -7,7 +7,7 @@ import { createPagination } from '../components/pagination';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
 
 export function createLibraryPage(): HTMLElement {
-  const main = createElement('main', 'library');
+  const main = createElement('div', 'library');
   const section = createElement('section', 'library__section');
   const container = createElement('div', 'library__container');
 
@@ -40,10 +40,7 @@ export function createLibraryPage(): HTMLElement {
     chipsContainer.append(chip);
   });
 
-  const sortControl = createSortDropdown((selectedSort) => {
-    // TODO: sorting action
-    console.log(selectedSort);
-  });
+  const sortControl = createSortDropdown();
 
   controlsWrapper.append(chipsContainer, sortControl);
 
@@ -66,7 +63,7 @@ export function createLibraryPage(): HTMLElement {
 
     const content = createElement('div', 'game-card__content');
     const topRow = createElement('div', 'game-card__top-row');
-    const gameTitle = createElement('h3', 'game-card__title', game.name);
+    const gameTitle = createElement('h2', 'game-card__title', game.name);
     const categoryBadge = createElement('span', 'game-card__category', game.category);
     const priceTag = createElement('span', 'game-card__price', game.price);
     if (game.price === 'Free') {

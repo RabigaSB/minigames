@@ -1,6 +1,6 @@
 import { createElement } from '../create-element';
 
-export function createSortDropdown(onSelect: (sortValue: string) => void): HTMLElement {
+export function createSortDropdown(): HTMLElement {
   const wrapper = createElement('div', 'sort-dropdown');
 
   const button = createElement('button', 'sort-dropdown__button', 'Sort by: Rating ↓');
@@ -16,8 +16,6 @@ export function createSortDropdown(onSelect: (sortValue: string) => void): HTMLE
     { label: 'Name Z→A', value: 'name-desc' },
   ];
 
-  let currentSelected = 'rating-desc';
-
   options.forEach((opt) => {
     const li = createElement('li', 'sort-dropdown__item');
     if (opt.selected) li.classList.add('sort-dropdown__item--active');
@@ -27,7 +25,6 @@ export function createSortDropdown(onSelect: (sortValue: string) => void): HTMLE
 
     li.addEventListener('click', (e) => {
       e.stopPropagation();
-      currentSelected = opt.value;
       button.textContent = `Sort by: ${opt.label}`;
 
       menu.querySelectorAll('.sort-dropdown__item').forEach((el) => {
@@ -36,7 +33,6 @@ export function createSortDropdown(onSelect: (sortValue: string) => void): HTMLE
 
       li.classList.add('sort-dropdown__item--active');
       menu.classList.add('sort-dropdown__menu--hidden');
-      onSelect(currentSelected);
     });
 
     menu.append(li);

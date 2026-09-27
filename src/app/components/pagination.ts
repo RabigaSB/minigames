@@ -8,8 +8,13 @@ export function createPagination(): HTMLElement {
   const nav = createElement('nav', 'pagination');
   nav.setAttribute('aria-label', 'Library Pagination');
 
-  const prevBtn = createElement('button', 'pagination__arrow pagination__arrow--prev', '‹');
+  const prevBtn = createElement(
+    'button',
+    'pagination__arrow pagination__arrow--prev disabled',
+    '‹',
+  );
   prevBtn.type = 'button';
+  prevBtn.disabled = true;
   prevBtn.setAttribute('aria-label', 'Previous page');
 
   const pagesContainer = createElement('div', 'pagination__pages');
@@ -67,7 +72,7 @@ export function createPagination(): HTMLElement {
   function setDisabled(currentPage: number) {
     if (currentPage === startPage) {
       prevBtn.classList.add('disabled');
-      prevBtn.setAttribute('disabled', 'true');
+      prevBtn.disabled = true;
     } else {
       prevBtn.classList.remove('disabled');
       prevBtn.removeAttribute('disabled');
@@ -75,7 +80,7 @@ export function createPagination(): HTMLElement {
 
     if (currentPage === endPage) {
       nextBtn.classList.add('disabled');
-      nextBtn.setAttribute('disabled', 'true');
+      nextBtn.disabled = true;
     } else {
       nextBtn.classList.remove('disabled');
       nextBtn.removeAttribute('disabled');

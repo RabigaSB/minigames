@@ -9,9 +9,10 @@ export function createGameDetailsDialog(): HTMLElement {
   const closeBtn = createElement('button', 'game-dialog__close');
   closeBtn.type = 'button';
 
-  const hero = createElement('section', 'game-dialog__hero');
+  const hero = createElement('div', 'game-dialog__hero');
   const image = createElement('img', 'game-dialog__image');
   image.src = './assets/tukoni-banner.png';
+  image.alt = 'banner';
   hero.append(image, closeBtn);
 
   //info section
@@ -30,7 +31,7 @@ export function createGameDetailsDialog(): HTMLElement {
     'game-dialog__description',
     'Tukoni: Forest Keepers — a cozy hand-drawn puzzle-adventure. You are Traveller, a little forest spirit on an important mission. Wander storybook meadows, visit mushroom villages, meet adorable inhabitants, solve gentle hand-crafted puzzles, brew herbal teas and help the Tukoni forest prepare peacefully for the coming winter.',
   );
-  const badges = createElement('section', 'game-dialog__badges');
+  const badges = createElement('div', 'game-dialog__badges');
 
   badges.append(
     createBadge('Genre', 'Puzzle'),
