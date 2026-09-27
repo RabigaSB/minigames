@@ -177,6 +177,14 @@ export function createGameDetailsDialog(): HTMLElement {
   const closeDialog = () => {
     dialog.classList.remove('game-dialog--open');
     document.body.classList.remove('dialog-open');
+    content.scrollTop = 0;
+    commentInput.value = '';
+    commentInput.style.height = 'auto';
+    favoriteBtn.classList.remove('active');
+    favoriteBtnText.textContent = 'Add to Favorites';
+    commentsList.querySelectorAll('.game-dialog__comment-like').forEach((btn) => {
+      btn.classList.remove('active');
+    });
   };
 
   closeBtn.addEventListener('click', closeDialog);
