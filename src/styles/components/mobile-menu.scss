@@ -16,7 +16,7 @@ body.menu-open {
   display: flex;
   flex-direction: column;
   padding: $size-3;
-  background-color: $bg-footer;
+  background-color: $modal-backdrop;
   color: $white;
   transform: translateX(100%);
   transition: transform 300ms ease;

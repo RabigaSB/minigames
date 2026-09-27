@@ -21,18 +21,20 @@ $icon-height: 20px;
 
 $play-now-btn-width: 263px;
 
+body.dialog-open {
+  overflow: hidden;
+}
+
 .game-dialog {
   display: flex;
   position: fixed;
   z-index: $z-index-dialog;
   inset: 0;
-  align-items: center;
   justify-content: center;
-  background-color: $bg-footer;
+  background-color: $modal-backdrop;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease;
-  overflow-y: auto;
 
   &--open {
     opacity: 1;
@@ -41,6 +43,11 @@ $play-now-btn-width: 263px;
     & .game-dialog__content {
       transform: scale(1);
     }
+  }
+
+  &__image {
+    border-top-right-radius: $size-3;
+    border-top-left-radius: $size-3;
   }
 
   &__close {
@@ -87,6 +94,7 @@ $play-now-btn-width: 263px;
     transform: scale(0.9);
     transition: transform 0.3s ease;
     box-shadow: $level-3;
+    overflow-y: scroll;
   }
 
   &__hero {
