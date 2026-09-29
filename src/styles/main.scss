@@ -9,6 +9,7 @@
 @use 'components/pagination.scss' as *;
 @use 'components/game-details-dialog.scss' as *;
 @use 'components/carousel.scss' as *;
+@use 'components/snackbar.scss' as *;
 
 body {
   background-color: $bg;

@@ -1,0 +1,42 @@
+@use '../abstracts/variables' as *;
+
+$snackbar-width: 480px;
+.snackbar {
+  position: fixed;
+  bottom: $size-3;
+  right: $size-3;
+  min-width: $width-1;
+  max-width: $snackbar-width;
+  padding: $size-2 $size-3;
+  border-radius: $corner-medium;
+  font-size: $body-medium;
+  font-weight: $medium;
+  color: $white;
+  box-shadow: $level-2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: $z-index-dialog;
+  opacity: 0;
+  transform: translateY($size-3);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  pointer-events: none;
+
+  &--visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  &--success {
+    background-color: $on-primary;
+    border-left: $border-solid $primary;
+  }
+
+  &--error {
+    background-color: $error;
+    border-left: $border-solid $white;
+  }
+}
