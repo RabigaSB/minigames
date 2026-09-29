@@ -1,9 +1,78 @@
 import { createElement } from '../create-element';
-import type { Game } from '../../data/game';
-import { createGameDetailsDialog } from './game-details-dialog';
+import { fetchFeaturedGames } from '../utils/api';
+import type { ApiGame } from '../utils/api';
+import { showSnackbar } from '../utils/snackbar';
 
-export function createNewGamesSection(games: Game[]): HTMLElement {
-  const newGames = createElement('section', 'carousel__section');
+export function createNewGamesSection(): HTMLElement {
+  const section = createElement('section', 'carousel__section');
+
+  // Render skeleton state immediately
+  section.innerHTML = `
+    <div class="carousel__wrapper">
+      <h2 class="carousel__title">New Games</h2>
+    </div>
+    <div class="carousel__container skeleton-container" style="display: flex; gap: 16px; overflow: hidden;">
+      <div class="skeleton-card" style="min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;"></div>
+      <div class="skeleton-card" style="min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;"></div>
+      <div class="skeleton-card" style="min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;"></div>
+    </div>
+  `;
+
+  loadGamesData(section);
+
+  return section;
+}
+
+async function loadGamesData(section: HTMLElement): Promise<void> {
+  try {
+    const games = await fetchFeaturedGames();
+    section.innerHTML = ''; // Clear skeleton
+
+    if (games.length === 0) {
+      renderEmptyState(section);
+      return;
+    }
+
+    renderPopulatedCarousel(section, games);
+  } catch (error) {
+    section.innerHTML = ''; // Clear skeleton
+    const errorMsg = error instanceof Error ? error.message : 'Failed to load featured games';
+    renderErrorState(section, errorMsg);
+    showSnackbar(errorMsg, 'error');
+  }
+}
+
+function renderEmptyState(section: HTMLElement): void {
+  const emptyBanner = createElement(
+    'div',
+    'carousel__empty-banner',
+    'No Featured Games Available.',
+  );
+  section.append(emptyBanner);
+}
+
+function renderErrorState(section: HTMLElement, message: string): void {
+  const errorBanner = createElement('div', 'carousel__error-banner');
+  const errorText = createElement('p', 'carousel__error-text', `Error: ${message}`);
+  const retryBtn = createElement('button', 'carousel__retry-btn', 'Retry');
+
+  retryBtn.addEventListener('click', () => {
+    section.innerHTML = `
+      <div class="carousel__wrapper">
+        <h2 class="carousel__title">New Games</h2>
+      </div>
+      <div class="carousel__container skeleton-container">
+        <div class="skeleton-card" style="min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;"></div>
+      </div>
+    `;
+    loadGamesData(section);
+  });
+
+  errorBanner.append(errorText, retryBtn);
+  section.append(errorBanner);
+}
+
+function renderPopulatedCarousel(section: HTMLElement, games: ApiGame[]): void {
   const titleWrapper = createElement('div', 'carousel__wrapper');
   const newGamesTitle = createElement('h2', 'carousel__title', 'New Games');
 
@@ -19,25 +88,20 @@ export function createNewGamesSection(games: Game[]): HTMLElement {
 
   const carouselContainer = createElement('div', 'carousel__container');
 
-  const featuredGames = games.filter((game) => game.featured).slice(0, 9);
-
-  for (const game of featuredGames) {
+  for (const game of games.slice(0, 9)) {
     carouselContainer.append(createCarouselCard(game));
   }
 
   initCarouselLogic(carouselContainer, arrowBackward, arrowForward);
-
-  newGames.append(titleWrapper, carouselContainer);
-
-  return newGames;
+  section.append(titleWrapper, carouselContainer);
 }
 
-function createCarouselCard(game: Game): HTMLElement {
+function createCarouselCard(game: ApiGame): HTMLElement {
   const card = createElement('article', 'carousel__card');
   card.style.transition = 'all 0.4s ease-in-out';
 
   const image = createElement('img', 'carousel__img');
-  image.src = './' + game.cardImage;
+  image.src = game.cardImage.startsWith('/') ? `.${game.cardImage}` : `./${game.cardImage}`;
   image.alt = game.name;
 
   const content = createElement('div', 'carousel__content');
@@ -57,10 +121,8 @@ function createCarouselCard(game: Game): HTMLElement {
   card.append(image, content);
 
   card.addEventListener('click', () => {
-    const dialog = createGameDetailsDialog();
-    document.body.append(dialog);
-    requestAnimationFrame(() => dialog.classList.add('game-dialog--open'));
-    document.body.classList.add('dialog-open');
+    window.history.pushState({}, '', `/?game=${game.slug}`);
+    window.dispatchEvent(new Event('popstate'));
   });
 
   const observer = new ResizeObserver((entries) => {

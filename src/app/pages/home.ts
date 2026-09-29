@@ -1,10 +1,8 @@
 import { createElement } from '../create-element';
-import gamesData from '../../data/all-games-seed.json';
 import leaderboardData from '../../data/leaderboard.json';
 import { createNewGamesSection } from '../components/carousel-card';
 import { createLeaderboard } from '../components/leaderboard';
 import { createDeveloperCta } from '../components/developer-cta';
-import type { Game } from '../../data/game';
 
 export function createHomePage(): HTMLElement {
   const main = createElement('div', 'home');
@@ -32,7 +30,7 @@ export function createHomePage(): HTMLElement {
   descriptionContainer.append(descriptionTitle, descriptionText, descriptionAction);
   description.append(descriptionContainer);
 
-  const newGames = createNewGamesSection(gamesData.data as Game[]);
+  const newGames = createNewGamesSection();
   const leaderboard = createLeaderboard(leaderboardData.data);
   const developerCta = createDeveloperCta();
 
