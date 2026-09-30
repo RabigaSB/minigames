@@ -8,7 +8,6 @@ export interface ApiGame {
   likesCount: number;
   cardImage: string;
 }
-
 export interface GamesResponse {
   data: ApiGame[];
   meta: {
@@ -22,7 +21,6 @@ export interface GamesResponse {
     };
   };
 }
-
 export interface LeaderboardPlayer {
   rank: number;
   playerName: string;
@@ -31,6 +29,39 @@ export interface LeaderboardPlayer {
   streakDays: number;
   favoriteGameSlug: string;
   favoriteGameName: string;
+}
+export interface ApiCategory {
+  slug: string;
+  label: string;
+  isDefault: boolean;
+}
+export interface CategoriesResponse {
+  data: ApiCategory[];
+  meta: {
+    totalItems: number;
+    description: string;
+    additionalProp1?: Record<string, unknown>;
+  };
+}
+
+export async function fetchCategories(): Promise<CategoriesResponse> {
+  const url = 'https://faxb76kxra.execute-api.eu-central-1.amazonaws.com/api/categories';
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    let errorMessage = `HTTP Error: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch {
+      // Fallback if error body is not json
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
 }
 
 export async function fetchLeaderboard(): Promise<LeaderboardPlayer[]> {
