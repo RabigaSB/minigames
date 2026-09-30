@@ -1,6 +1,6 @@
 import { createElement } from '../create-element';
 
-export function createSortDropdown(): HTMLElement {
+export function createSortDropdown(onSortChange: (sortValue: string) => void): HTMLElement {
   const wrapper = createElement('div', 'sort-dropdown');
 
   const button = createElement('button', 'sort-dropdown__button', 'Sort by: Rating ↓');
@@ -33,6 +33,8 @@ export function createSortDropdown(): HTMLElement {
 
       li.classList.add('sort-dropdown__item--active');
       menu.classList.add('sort-dropdown__menu--hidden');
+
+      onSortChange(opt.value);
     });
 
     menu.append(li);
