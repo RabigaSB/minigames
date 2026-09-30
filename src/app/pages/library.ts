@@ -27,23 +27,25 @@ export function createLibraryPage(): HTMLElement {
 
   const controlsWrapper = createElement('div', 'library__controls');
   const chipsContainer = createElement('div', 'library__chips');
-
   const gridContainer = createElement('div', 'library__grid');
 
-  loadCategories(chipsContainer, gridContainer);
+  const paginationComponent = createPagination((newPage) => {
+    currentPage = newPage;
+    loadLibraryGames(gridContainer, paginationComponent);
+  }) as HTMLElement & { updatePagination: (total: number, page: number) => void };
+
+  loadCategories(chipsContainer, gridContainer, paginationComponent);
 
   const sortControl = createSortDropdown((newSort) => {
     currentSort = newSort;
     currentPage = 1;
-    loadLibraryGames(gridContainer);
+    loadLibraryGames(gridContainer, paginationComponent);
   });
 
   controlsWrapper.append(chipsContainer, sortControl);
 
   // Trigger initial fetch
-  loadLibraryGames(gridContainer);
-
-  const paginationComponent = createPagination();
+  loadLibraryGames(gridContainer, paginationComponent);
 
   section.append(headerWrapper, controlsWrapper, gridContainer, paginationComponent);
   container.append(section);
@@ -59,6 +61,7 @@ export function createLibraryPage(): HTMLElement {
 async function loadCategories(
   chipsContainer: HTMLElement,
   gridContainer: HTMLElement,
+  paginationComponent: HTMLElement & { updatePagination: (total: number, page: number) => void },
 ): Promise<void> {
   try {
     const response = await fetchCategories();
@@ -84,7 +87,7 @@ async function loadCategories(
 
         currentCategory = cat.slug;
         currentPage = 1;
-        loadLibraryGames(gridContainer);
+        loadLibraryGames(gridContainer, paginationComponent);
       });
 
       chipsContainer.append(chip);
@@ -93,7 +96,6 @@ async function loadCategories(
     const errorMsg = error instanceof Error ? error.message : 'Failed to load categories';
     showSnackbar(errorMsg, 'error');
 
-    //if API fails
     chipsContainer.innerHTML = '';
     const fallbackChip = createElement('button', 'library__chip active', 'All Games');
     fallbackChip.type = 'button';
@@ -102,14 +104,17 @@ async function loadCategories(
     fallbackChip.addEventListener('click', () => {
       currentCategory = 'all';
       currentPage = 1;
-      loadLibraryGames(gridContainer);
+      loadLibraryGames(gridContainer, paginationComponent);
     });
 
     chipsContainer.append(fallbackChip);
   }
 }
 
-async function loadLibraryGames(gridContainer: HTMLElement): Promise<void> {
+async function loadLibraryGames(
+  gridContainer: HTMLElement,
+  paginationComponent: HTMLElement & { updatePagination: (total: number, page: number) => void },
+): Promise<void> {
   renderSkeleton(gridContainer);
 
   try {
@@ -122,6 +127,10 @@ async function loadLibraryGames(gridContainer: HTMLElement): Promise<void> {
 
     gridContainer.innerHTML = '';
 
+    if (response.meta) {
+      paginationComponent.updatePagination(response.meta.totalPages, response.meta.page);
+    }
+
     if (!response.data || response.data.length === 0) {
       renderEmptyState(gridContainer);
       return;
@@ -131,7 +140,9 @@ async function loadLibraryGames(gridContainer: HTMLElement): Promise<void> {
   } catch (error) {
     gridContainer.innerHTML = '';
     const errorMsg = error instanceof Error ? error.message : 'Failed to load games';
-    renderErrorState(gridContainer, errorMsg, () => loadLibraryGames(gridContainer));
+    renderErrorState(gridContainer, errorMsg, () =>
+      loadLibraryGames(gridContainer, paginationComponent),
+    );
     showSnackbar(errorMsg, 'error');
   }
 }
