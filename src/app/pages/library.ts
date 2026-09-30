@@ -9,6 +9,7 @@ import { showSnackbar } from '../utils/snackbar';
 let currentCategory = 'all';
 let currentPage = 1;
 const currentLimit = 6;
+const currentSort = 'rating-desc';
 
 export function createLibraryPage(): HTMLElement {
   const main = createElement('div', 'library');
@@ -111,6 +112,7 @@ async function loadLibraryGames(gridContainer: HTMLElement): Promise<void> {
       category: currentCategory,
       page: currentPage,
       limit: currentLimit,
+      sort: currentSort,
     });
 
     gridContainer.innerHTML = '';
