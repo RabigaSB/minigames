@@ -1,5 +1,4 @@
 import { createElement } from '../create-element';
-import leaderboardData from '../../data/leaderboard.json';
 import { createNewGamesSection } from '../components/carousel-card';
 import { createLeaderboard } from '../components/leaderboard';
 import { createDeveloperCta } from '../components/developer-cta';
@@ -31,7 +30,7 @@ export function createHomePage(): HTMLElement {
   description.append(descriptionContainer);
 
   const newGames = createNewGamesSection();
-  const leaderboard = createLeaderboard(leaderboardData.data);
+  const leaderboard = createLeaderboard();
   const developerCta = createDeveloperCta();
 
   main.append(description, newGames, leaderboard, developerCta);
