@@ -1,5 +1,5 @@
 import { createElement } from '../create-element';
-import { fetchFeaturedGames } from '../utils/api';
+import { fetchGames } from '../utils/api';
 import type { ApiGame } from '../utils/api';
 import { showSnackbar } from '../utils/snackbar';
 
@@ -25,17 +25,19 @@ export function createNewGamesSection(): HTMLElement {
 
 async function loadGamesData(section: HTMLElement): Promise<void> {
   try {
-    const games = await fetchFeaturedGames();
-    section.innerHTML = ''; // Clear skeleton
+    const response = await fetchGames({ featured: true });
+    section.innerHTML = '';
 
-    if (games.length === 0) {
+    const games = response.data;
+
+    if (!games || games.length === 0) {
       renderEmptyState(section);
       return;
     }
 
     renderPopulatedCarousel(section, games);
   } catch (error) {
-    section.innerHTML = ''; // Clear skeleton
+    section.innerHTML = '';
     const errorMsg = error instanceof Error ? error.message : 'Failed to load featured games';
     renderErrorState(section, errorMsg);
     showSnackbar(errorMsg, 'error');
