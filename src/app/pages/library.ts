@@ -1,10 +1,10 @@
 import { createElement } from '../create-element';
 import { createSortDropdown } from '../components/sort-dropdown';
-import seedData from '../../data/all-games-seed.json';
-import type { Game } from '../../data/game';
+import { fetchGames, type ApiGame } from '../utils/api';
 import { formatToK } from '../utils/formatters';
 import { createPagination } from '../components/pagination';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
+import { showSnackbar } from '../utils/snackbar';
 
 export function createLibraryPage(): HTMLElement {
   const main = createElement('div', 'library');
@@ -29,34 +29,91 @@ export function createLibraryPage(): HTMLElement {
     const chip = createElement('button', 'library__chip', cat);
     chip.type = 'button';
     if (index === 0) chip.classList.add('active');
-
-    chip.addEventListener('click', () => {
-      chipsContainer
-        .querySelectorAll('.library__chip')
-        .forEach((c) => c.classList.remove('active'));
-      chip.classList.add('active');
-    });
-
     chipsContainer.append(chip);
   });
 
   const sortControl = createSortDropdown();
-
   controlsWrapper.append(chipsContainer, sortControl);
 
   // Game Cards
   const gridContainer = createElement('div', 'library__grid');
 
-  const games: Game[] = seedData.data;
+  // Trigger initial fetch
+  loadLibraryGames(gridContainer);
 
-  const visibleGames = games.slice(0, 6);
+  const paginationComponent = createPagination();
 
-  visibleGames.forEach((game) => {
+  section.append(headerWrapper, controlsWrapper, gridContainer, paginationComponent);
+  container.append(section);
+  main.append(container);
+
+  const app = document.querySelector('.app');
+  const gameDialog = createGameDetailsDialog();
+  app?.append(gameDialog);
+
+  return main;
+}
+
+async function loadLibraryGames(gridContainer: HTMLElement): Promise<void> {
+  renderSkeleton(gridContainer);
+
+  try {
+    const response = await fetchGames({
+      limit: 6,
+    });
+
+    gridContainer.innerHTML = '';
+
+    if (!response.data || response.data.length === 0) {
+      renderEmptyState(gridContainer);
+      return;
+    }
+
+    renderGameCards(gridContainer, response.data);
+  } catch (error) {
+    gridContainer.innerHTML = '';
+    const errorMsg = error instanceof Error ? error.message : 'Failed to load games';
+    renderErrorState(gridContainer, errorMsg, () => loadLibraryGames(gridContainer));
+    showSnackbar(errorMsg, 'error');
+  }
+}
+
+function renderSkeleton(container: HTMLElement): void {
+  container.innerHTML = `
+    <div class="library__skeleton" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--on-bg-low, #737380);">
+      Loading games library...
+    </div>
+  `;
+}
+
+function renderEmptyState(container: HTMLElement): void {
+  container.innerHTML = `
+    <div class="library__empty" style="grid-column: 1 / -1; padding: 40px; text-align: center;">
+      No games found.
+    </div>
+  `;
+}
+
+function renderErrorState(container: HTMLElement, message: string, onRetry: () => void): void {
+  const errorBanner = createElement('div', 'library__error');
+  errorBanner.style.gridColumn = '1 / -1';
+
+  const errorText = createElement('p', 'library__error-text', `Error: ${message}`);
+  const retryBtn = createElement('button', 'library__retry-btn', 'Retry');
+
+  retryBtn.addEventListener('click', onRetry);
+
+  errorBanner.append(errorText, retryBtn);
+  container.append(errorBanner);
+}
+
+function renderGameCards(gridContainer: HTMLElement, games: ApiGame[]): void {
+  games.forEach((game) => {
     const card = createElement('article', 'game-card');
 
     const imgWrapper = createElement('div', 'game-card__image-wrapper');
     const img = createElement('img', 'game-card__image') as HTMLImageElement;
-    img.src = './' + game.cardImage;
+    img.src = game.cardImage.startsWith('http') ? game.cardImage : './' + game.cardImage;
     img.alt = game.name;
     img.loading = 'lazy';
     imgWrapper.append(img);
@@ -88,7 +145,6 @@ export function createLibraryPage(): HTMLElement {
 
     detailsBtn.addEventListener('click', () => {
       const dialog = document.querySelector('.game-dialog');
-
       dialog?.classList.add('game-dialog--open');
       document.body.classList.add('dialog-open');
     });
@@ -98,18 +154,4 @@ export function createLibraryPage(): HTMLElement {
     card.append(imgWrapper, content);
     gridContainer.append(card);
   });
-
-  const paginationComponent = createPagination();
-
-  section.append(headerWrapper, controlsWrapper, gridContainer, paginationComponent);
-  container.append(section);
-  main.append(container);
-
-  const app = document.querySelector('.app');
-
-  const gameDialog = createGameDetailsDialog();
-
-  app?.append(gameDialog);
-
-  return main;
 }
