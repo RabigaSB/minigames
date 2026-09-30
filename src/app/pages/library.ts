@@ -9,7 +9,7 @@ import { showSnackbar } from '../utils/snackbar';
 let currentCategory = 'all';
 let currentPage = 1;
 const currentLimit = 6;
-const currentSort = 'rating-desc';
+let currentSort = 'rating-desc';
 
 export function createLibraryPage(): HTMLElement {
   const main = createElement('div', 'library');
@@ -32,7 +32,12 @@ export function createLibraryPage(): HTMLElement {
 
   loadCategories(chipsContainer, gridContainer);
 
-  const sortControl = createSortDropdown();
+  const sortControl = createSortDropdown((newSort) => {
+    currentSort = newSort;
+    currentPage = 1;
+    loadLibraryGames(gridContainer);
+  });
+
   controlsWrapper.append(chipsContainer, sortControl);
 
   // Trigger initial fetch
