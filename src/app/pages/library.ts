@@ -6,6 +6,10 @@ import { createPagination } from '../components/pagination';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
 import { showSnackbar } from '../utils/snackbar';
 
+let currentCategory = 'all';
+let currentPage = 1;
+const currentLimit = 6;
+
 export function createLibraryPage(): HTMLElement {
   const main = createElement('div', 'library');
   const section = createElement('section', 'library__section');
@@ -23,12 +27,14 @@ export function createLibraryPage(): HTMLElement {
   const controlsWrapper = createElement('div', 'library__controls');
   const chipsContainer = createElement('div', 'library__chips');
 
-  loadCategories(chipsContainer);
+  const gridContainer = createElement('div', 'library__grid');
+
+  loadCategories(chipsContainer, gridContainer);
 
   const sortControl = createSortDropdown();
   controlsWrapper.append(chipsContainer, sortControl);
 
-  const gridContainer = createElement('div', 'library__grid');
+  // Trigger initial fetch
   loadLibraryGames(gridContainer);
 
   const paginationComponent = createPagination();
@@ -44,7 +50,10 @@ export function createLibraryPage(): HTMLElement {
   return main;
 }
 
-async function loadCategories(chipsContainer: HTMLElement): Promise<void> {
+async function loadCategories(
+  chipsContainer: HTMLElement,
+  gridContainer: HTMLElement,
+): Promise<void> {
   try {
     const response = await fetchCategories();
     chipsContainer.innerHTML = '';
@@ -55,24 +64,41 @@ async function loadCategories(chipsContainer: HTMLElement): Promise<void> {
       const chip = createElement('button', 'library__chip', cat.label);
       chip.type = 'button';
       chip.dataset.slug = cat.slug;
+
       if (cat.isDefault || index === 0) {
         chip.classList.add('active');
+        currentCategory = cat.slug;
       }
+
       chip.addEventListener('click', () => {
         chipsContainer
           .querySelectorAll('.library__chip')
           .forEach((c) => c.classList.remove('active'));
         chip.classList.add('active');
+
+        currentCategory = cat.slug;
+        currentPage = 1;
+        loadLibraryGames(gridContainer);
       });
+
       chipsContainer.append(chip);
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to load categories';
     showSnackbar(errorMsg, 'error');
 
+    //if API fails
     chipsContainer.innerHTML = '';
     const fallbackChip = createElement('button', 'library__chip active', 'All Games');
     fallbackChip.type = 'button';
+    fallbackChip.dataset.slug = 'all';
+
+    fallbackChip.addEventListener('click', () => {
+      currentCategory = 'all';
+      currentPage = 1;
+      loadLibraryGames(gridContainer);
+    });
+
     chipsContainer.append(fallbackChip);
   }
 }
@@ -82,7 +108,9 @@ async function loadLibraryGames(gridContainer: HTMLElement): Promise<void> {
 
   try {
     const response = await fetchGames({
-      limit: 6,
+      category: currentCategory,
+      page: currentPage,
+      limit: currentLimit,
     });
 
     gridContainer.innerHTML = '';
