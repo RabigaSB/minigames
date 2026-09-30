@@ -1,10 +1,15 @@
 import { createElement } from '../create-element';
 import { createSortDropdown } from '../components/sort-dropdown';
-import { fetchGames, type ApiGame } from '../utils/api';
+import { fetchGames, fetchCategories, type ApiGame, type ApiCategory } from '../utils/api';
 import { formatToK } from '../utils/formatters';
 import { createPagination } from '../components/pagination';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
 import { showSnackbar } from '../utils/snackbar';
+
+let currentCategory = 'all';
+let currentPage = 1;
+const currentLimit = 6;
+const currentSort = 'rating-desc';
 
 export function createLibraryPage(): HTMLElement {
   const main = createElement('div', 'library');
@@ -21,22 +26,14 @@ export function createLibraryPage(): HTMLElement {
   headerWrapper.append(title, subtitle);
 
   const controlsWrapper = createElement('div', 'library__controls');
-
   const chipsContainer = createElement('div', 'library__chips');
-  const categories = ['All Games', 'Puzzle', 'Card', 'Match', 'Farm', 'Strategy', 'Arcade'];
 
-  categories.forEach((cat, index) => {
-    const chip = createElement('button', 'library__chip', cat);
-    chip.type = 'button';
-    if (index === 0) chip.classList.add('active');
-    chipsContainer.append(chip);
-  });
+  const gridContainer = createElement('div', 'library__grid');
+
+  loadCategories(chipsContainer, gridContainer);
 
   const sortControl = createSortDropdown();
   controlsWrapper.append(chipsContainer, sortControl);
-
-  // Game Cards
-  const gridContainer = createElement('div', 'library__grid');
 
   // Trigger initial fetch
   loadLibraryGames(gridContainer);
@@ -54,12 +51,68 @@ export function createLibraryPage(): HTMLElement {
   return main;
 }
 
+async function loadCategories(
+  chipsContainer: HTMLElement,
+  gridContainer: HTMLElement,
+): Promise<void> {
+  try {
+    const response = await fetchCategories();
+    chipsContainer.innerHTML = '';
+
+    const categories: ApiCategory[] = response.data || [];
+
+    categories.forEach((cat, index) => {
+      const chip = createElement('button', 'library__chip', cat.label);
+      chip.type = 'button';
+      chip.dataset.slug = cat.slug;
+
+      if (cat.isDefault || index === 0) {
+        chip.classList.add('active');
+        currentCategory = cat.slug;
+      }
+
+      chip.addEventListener('click', () => {
+        chipsContainer
+          .querySelectorAll('.library__chip')
+          .forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+
+        currentCategory = cat.slug;
+        currentPage = 1;
+        loadLibraryGames(gridContainer);
+      });
+
+      chipsContainer.append(chip);
+    });
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to load categories';
+    showSnackbar(errorMsg, 'error');
+
+    //if API fails
+    chipsContainer.innerHTML = '';
+    const fallbackChip = createElement('button', 'library__chip active', 'All Games');
+    fallbackChip.type = 'button';
+    fallbackChip.dataset.slug = 'all';
+
+    fallbackChip.addEventListener('click', () => {
+      currentCategory = 'all';
+      currentPage = 1;
+      loadLibraryGames(gridContainer);
+    });
+
+    chipsContainer.append(fallbackChip);
+  }
+}
+
 async function loadLibraryGames(gridContainer: HTMLElement): Promise<void> {
   renderSkeleton(gridContainer);
 
   try {
     const response = await fetchGames({
-      limit: 6,
+      category: currentCategory,
+      page: currentPage,
+      limit: currentLimit,
+      sort: currentSort,
     });
 
     gridContainer.innerHTML = '';
