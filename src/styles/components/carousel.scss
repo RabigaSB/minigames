@@ -146,6 +146,7 @@ $card-content-background: linear-gradient(
     box-shadow: none;
     background-color: $surface-low;
     min-height: $carousel-card-height-mobile;
+    cursor: pointer;
 
     transition:
       flex 0.4s ease-in-out,
