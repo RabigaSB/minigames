@@ -179,12 +179,15 @@ function initCarouselLogic(track: HTMLElement, arrowLeft: HTMLElement, arrowRigh
     if (autoplayTimer) window.clearTimeout(autoplayTimer);
     startTime = Date.now();
     autoplayTimer = window.setTimeout(() => {
+      autoplayTimer = null;
       if (!isPaused) nextSlide();
-      startAutoplay();
+      remainingTime = 4000;
+      if (!isPaused) startAutoplay();
     }, remainingTime);
   };
 
   const pauseAutoplay = () => {
+    if (isPaused) return;
     isPaused = true;
     if (autoplayTimer) {
       window.clearTimeout(autoplayTimer);
