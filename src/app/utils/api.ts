@@ -1,3 +1,4 @@
+const BASE_URL = 'https://faxb76kxra.execute-api.eu-central-1.amazonaws.com/api';
 export interface ApiGame {
   slug: string;
   name: string;
@@ -43,9 +44,53 @@ export interface CategoriesResponse {
     additionalProp1?: Record<string, unknown>;
   };
 }
+export interface GameDetails {
+  slug: string;
+  name: string;
+  heroImage: string;
+  rating: number;
+  likesCount: number;
+  isLikedByCurrentUser: boolean;
+  fullDescription: string;
+  specs: {
+    genre: string;
+    players: string;
+    duration: string;
+    price: string;
+  };
+  topRecords?: Array<{
+    position: number;
+    playerName: string;
+    score: number;
+    achievedAt: string;
+  }>;
+}
+export interface GameDetailsResponse {
+  data: GameDetails;
+}
+
+export async function fetchGameDetails(slug: string): Promise<GameDetailsResponse> {
+  const url = `${BASE_URL}/games/${slug}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    let errorMessage = `HTTP Error: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch {
+      // Fallback if error body is not json
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
+}
 
 export async function fetchCategories(): Promise<CategoriesResponse> {
-  const url = 'https://faxb76kxra.execute-api.eu-central-1.amazonaws.com/api/categories';
+  const url = `${BASE_URL}/categories`;
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -65,7 +110,7 @@ export async function fetchCategories(): Promise<CategoriesResponse> {
 }
 
 export async function fetchLeaderboard(): Promise<LeaderboardPlayer[]> {
-  const url = 'https://faxb76kxra.execute-api.eu-central-1.amazonaws.com/api/leaderboard';
+  const url = `${BASE_URL}/leaderboard`;
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -112,7 +157,7 @@ export async function fetchGames(
     queryParams.append('sort', params.sort);
   }
 
-  const url = `https://faxb76kxra.execute-api.eu-central-1.amazonaws.com/api/games?${queryParams.toString()}`;
+  const url = `${BASE_URL}/games?${queryParams.toString()}`;
   const response = await fetch(url);
 
   if (!response.ok) {

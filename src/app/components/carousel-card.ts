@@ -3,7 +3,7 @@ import { fetchGames } from '../utils/api';
 import type { ApiGame } from '../utils/api';
 import { showSnackbar } from '../utils/snackbar';
 
-export function createNewGamesSection(): HTMLElement {
+export function createNewGamesSection(onGameSelected: (slug: string) => void): HTMLElement {
   const section = createElement('section', 'carousel__section');
 
   // Render skeleton state immediately
@@ -18,12 +18,15 @@ export function createNewGamesSection(): HTMLElement {
     </div>
   `;
 
-  loadGamesData(section);
+  loadGamesData(section, onGameSelected);
 
   return section;
 }
 
-async function loadGamesData(section: HTMLElement): Promise<void> {
+async function loadGamesData(
+  section: HTMLElement,
+  onGameSelected: (slug: string) => void,
+): Promise<void> {
   try {
     const response = await fetchGames({ featured: true });
     section.innerHTML = '';
@@ -35,11 +38,11 @@ async function loadGamesData(section: HTMLElement): Promise<void> {
       return;
     }
 
-    renderPopulatedCarousel(section, games);
+    renderPopulatedCarousel(section, games, onGameSelected);
   } catch (error) {
     section.innerHTML = '';
     const errorMsg = error instanceof Error ? error.message : 'Failed to load featured games';
-    renderErrorState(section, errorMsg);
+    renderErrorState(section, errorMsg, onGameSelected);
     showSnackbar(errorMsg, 'error');
   }
 }
@@ -53,7 +56,11 @@ function renderEmptyState(section: HTMLElement): void {
   section.append(emptyBanner);
 }
 
-function renderErrorState(section: HTMLElement, message: string): void {
+function renderErrorState(
+  section: HTMLElement,
+  message: string,
+  onGameSelected: (slug: string) => void,
+): void {
   const errorBanner = createElement('div', 'carousel__error-banner');
   const errorText = createElement('p', 'carousel__error-text', `Error: ${message}`);
   const retryBtn = createElement('button', 'carousel__retry-btn', 'Retry');
@@ -67,14 +74,18 @@ function renderErrorState(section: HTMLElement, message: string): void {
         <div class="skeleton-card" style="min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;"></div>
       </div>
     `;
-    loadGamesData(section);
+    loadGamesData(section, onGameSelected);
   });
 
   errorBanner.append(errorText, retryBtn);
   section.append(errorBanner);
 }
 
-function renderPopulatedCarousel(section: HTMLElement, games: ApiGame[]): void {
+function renderPopulatedCarousel(
+  section: HTMLElement,
+  games: ApiGame[],
+  onGameSelected: (slug: string) => void,
+): void {
   const titleWrapper = createElement('div', 'carousel__wrapper');
   const newGamesTitle = createElement('h2', 'carousel__title', 'New Games');
 
@@ -91,14 +102,14 @@ function renderPopulatedCarousel(section: HTMLElement, games: ApiGame[]): void {
   const carouselContainer = createElement('div', 'carousel__container');
 
   for (const game of games.slice(0, 9)) {
-    carouselContainer.append(createCarouselCard(game));
+    carouselContainer.append(createCarouselCard(game, onGameSelected));
   }
 
   initCarouselLogic(carouselContainer, arrowBackward, arrowForward);
   section.append(titleWrapper, carouselContainer);
 }
 
-function createCarouselCard(game: ApiGame): HTMLElement {
+function createCarouselCard(game: ApiGame, onGameSelected: (slug: string) => void): HTMLElement {
   const card = createElement('article', 'carousel__card');
   card.style.transition = 'all 0.4s ease-in-out';
 
@@ -124,7 +135,7 @@ function createCarouselCard(game: ApiGame): HTMLElement {
 
   card.addEventListener('click', () => {
     window.history.pushState({}, '', `/?game=${game.slug}`);
-    window.dispatchEvent(new Event('popstate'));
+    onGameSelected(game.slug);
   });
 
   const observer = new ResizeObserver((entries) => {
