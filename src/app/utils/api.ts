@@ -69,6 +69,24 @@ export interface GameDetailsResponse {
   data: GameDetails;
 }
 
+export interface GameComment {
+  commentId: string;
+  authorName: string;
+  text: string;
+  likesCount: number;
+  isLikedByCurrentUser: boolean;
+  createdAt: string;
+}
+
+export interface GameCommentsResponse {
+  data: GameComment[];
+  meta: {
+    totalComments: number;
+    returnedCount: number;
+    sort: string;
+  };
+}
+
 export async function fetchGameDetails(slug: string): Promise<GameDetailsResponse> {
   const url = `${BASE_URL}/games/${slug}`;
   const response = await fetch(url);
@@ -82,6 +100,27 @@ export async function fetchGameDetails(slug: string): Promise<GameDetailsRespons
       }
     } catch {
       // Fallback if error body is not json
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
+}
+
+export async function fetchGameComments(slug: string): Promise<GameCommentsResponse> {
+  const queryParams = new URLSearchParams({ limit: '3', sort: 'newest' });
+  const url = `${BASE_URL}/games/${encodeURIComponent(slug)}/comments?${queryParams.toString()}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    let errorMessage = `HTTP Error: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch {
+      // Fallback if the error body is not JSON.
     }
     throw new Error(errorMessage);
   }
