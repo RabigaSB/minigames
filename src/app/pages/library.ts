@@ -28,31 +28,31 @@ export function createLibraryPage(): HTMLElement {
   const controlsWrapper = createElement('div', 'library__controls');
   const chipsContainer = createElement('div', 'library__chips');
   const gridContainer = createElement('div', 'library__grid');
+  const gameDialog = createGameDetailsDialog();
 
   const paginationComponent = createPagination((newPage) => {
     currentPage = newPage;
-    loadLibraryGames(gridContainer, paginationComponent);
+    loadLibraryGames(gridContainer, paginationComponent, gameDialog);
   }) as HTMLElement & { updatePagination: (total: number, page: number) => void };
 
-  loadCategories(chipsContainer, gridContainer, paginationComponent);
+  loadCategories(chipsContainer, gridContainer, paginationComponent, gameDialog);
 
   const sortControl = createSortDropdown((newSort) => {
     currentSort = newSort;
     currentPage = 1;
-    loadLibraryGames(gridContainer, paginationComponent);
+    loadLibraryGames(gridContainer, paginationComponent, gameDialog);
   });
 
   controlsWrapper.append(chipsContainer, sortControl);
 
   // Trigger initial fetch
-  loadLibraryGames(gridContainer, paginationComponent);
+  loadLibraryGames(gridContainer, paginationComponent, gameDialog);
 
   section.append(headerWrapper, controlsWrapper, gridContainer, paginationComponent);
   container.append(section);
   main.append(container);
 
   const app = document.querySelector('.app');
-  const gameDialog = createGameDetailsDialog();
   app?.append(gameDialog);
 
   return main;
@@ -62,6 +62,7 @@ async function loadCategories(
   chipsContainer: HTMLElement,
   gridContainer: HTMLElement,
   paginationComponent: HTMLElement & { updatePagination: (total: number, page: number) => void },
+  gameDialog: ReturnType<typeof createGameDetailsDialog>,
 ): Promise<void> {
   try {
     const response = await fetchCategories();
@@ -87,7 +88,7 @@ async function loadCategories(
 
         currentCategory = cat.slug;
         currentPage = 1;
-        loadLibraryGames(gridContainer, paginationComponent);
+        loadLibraryGames(gridContainer, paginationComponent, gameDialog);
       });
 
       chipsContainer.append(chip);
@@ -104,7 +105,7 @@ async function loadCategories(
     fallbackChip.addEventListener('click', () => {
       currentCategory = 'all';
       currentPage = 1;
-      loadLibraryGames(gridContainer, paginationComponent);
+      loadLibraryGames(gridContainer, paginationComponent, gameDialog);
     });
 
     chipsContainer.append(fallbackChip);
@@ -114,6 +115,7 @@ async function loadCategories(
 async function loadLibraryGames(
   gridContainer: HTMLElement,
   paginationComponent: HTMLElement & { updatePagination: (total: number, page: number) => void },
+  gameDialog: ReturnType<typeof createGameDetailsDialog>,
 ): Promise<void> {
   renderSkeleton(gridContainer);
 
@@ -136,12 +138,12 @@ async function loadLibraryGames(
       return;
     }
 
-    renderGameCards(gridContainer, response.data);
+    renderGameCards(gridContainer, response.data, gameDialog);
   } catch (error) {
     gridContainer.innerHTML = '';
     const errorMsg = error instanceof Error ? error.message : 'Failed to load games';
     renderErrorState(gridContainer, errorMsg, () =>
-      loadLibraryGames(gridContainer, paginationComponent),
+      loadLibraryGames(gridContainer, paginationComponent, gameDialog),
     );
     showSnackbar(errorMsg, 'error');
   }
@@ -176,7 +178,11 @@ function renderErrorState(container: HTMLElement, message: string, onRetry: () =
   container.append(errorBanner);
 }
 
-function renderGameCards(gridContainer: HTMLElement, games: ApiGame[]): void {
+function renderGameCards(
+  gridContainer: HTMLElement,
+  games: ApiGame[],
+  gameDialog: ReturnType<typeof createGameDetailsDialog>,
+): void {
   games.forEach((game) => {
     const card = createElement('article', 'game-card');
 
@@ -213,9 +219,7 @@ function renderGameCards(gridContainer: HTMLElement, games: ApiGame[]): void {
     detailsBtn.type = 'button';
 
     detailsBtn.addEventListener('click', () => {
-      const dialog = document.querySelector('.game-dialog');
-      dialog?.classList.add('game-dialog--open');
-      document.body.classList.add('dialog-open');
+      gameDialog.openGame(game.slug);
     });
 
     footerRow.append(stats, detailsBtn);

@@ -1,7 +1,21 @@
 import { createElement } from '../create-element';
+import {
+  fetchGameComments,
+  fetchGameDetails,
+  type GameComment,
+  type GameDetails,
+} from '../utils/api';
+import { formatRelativeTime, formatToK } from '../utils/formatters';
+import { showSnackbar } from '../utils/snackbar';
 
-export function createGameDetailsDialog(): HTMLElement {
-  const dialog = createElement('div', 'game-dialog');
+export interface GameDetailsDialog extends HTMLElement {
+  openGame(slug: string): void;
+}
+
+export function createGameDetailsDialog(): GameDetailsDialog {
+  const dialog = Object.assign(createElement('div', 'game-dialog'), {
+    openGame: (slug: string): void => void slug,
+  });
 
   const content = createElement('div', 'game-dialog__content');
 
@@ -11,34 +25,25 @@ export function createGameDetailsDialog(): HTMLElement {
 
   const hero = createElement('div', 'game-dialog__hero');
   const image = createElement('img', 'game-dialog__image');
-  image.src = './assets/tukoni-banner.png';
-  image.alt = 'banner';
   hero.append(image, closeBtn);
+
+  const state = createElement('div', 'game-dialog__state');
+  state.setAttribute('role', 'status');
+  state.setAttribute('aria-live', 'polite');
 
   //info section
   const infoSection = createElement('section', 'game-dialog__info');
 
   const topRow = createElement('div', 'game-dialog__top-row');
-  const title = createElement('h2', 'game-dialog__title', 'Tukoni: Forest Keepers');
+  const title = createElement('h2', 'game-dialog__title');
   const stats = createElement('div', 'game-dialog__stats');
-  const rating = createElement('span', 'game-dialog__rating', '4.9');
-  const likes = createElement('span', 'game-dialog__likes', '31.2K');
+  const rating = createElement('span', 'game-dialog__rating');
+  const likes = createElement('span', 'game-dialog__likes');
   stats.append(rating, likes);
   topRow.append(title, stats);
 
-  const description = createElement(
-    'p',
-    'game-dialog__description',
-    'Tukoni: Forest Keepers — a cozy hand-drawn puzzle-adventure. You are Traveller, a little forest spirit on an important mission. Wander storybook meadows, visit mushroom villages, meet adorable inhabitants, solve gentle hand-crafted puzzles, brew herbal teas and help the Tukoni forest prepare peacefully for the coming winter.',
-  );
+  const description = createElement('p', 'game-dialog__description');
   const badges = createElement('div', 'game-dialog__badges');
-
-  badges.append(
-    createBadge('Genre', 'Puzzle'),
-    createBadge('Players', 'Solo'),
-    createBadge('Duration', '40–90 min'),
-    createBadge('Price', 'Free'),
-  );
 
   const actionsRow = createElement('div', 'game-dialog__actions');
   const playNowBtn = createElement('button', 'game-dialog__play-btn', 'Play Now');
@@ -65,31 +70,11 @@ export function createGameDetailsDialog(): HTMLElement {
   const recordsList = createElement('div', 'game-dialog__records-list');
   recordsTitle.prepend(recordsTitleIcon);
 
-  const recordsData = [
-    { rank: '🥇', user: 'ForestSpirit', score: '356,700 pts', time: '2 days ago' },
-    { rank: '🥈', user: 'TeaBrewer', score: '332,400 pts', time: '5 days ago' },
-    { rank: '🥉', user: 'HerbalistPath', score: '308,900 pts', time: '1 week ago' },
-  ];
-
-  recordsData.forEach((rec) => {
-    const item = createElement('div', 'game-dialog__record-item');
-    const numberWrapper = createElement('div', 'game-dialog__record-wrapper');
-    const userWrapper = createElement('div', 'game-dialog__user-wrapper');
-    const userRank = createElement('span', 'game-dialog__record-rank', rec.rank);
-    const userInfo = createElement('span', 'game-dialog__record-user', rec.user);
-    const scoreInfo = createElement('span', 'game-dialog__record-score', rec.score);
-    const timeInfo = createElement('span', 'game-dialog__record-time', rec.time);
-    userWrapper.append(userRank, userInfo);
-    numberWrapper.append(scoreInfo, timeInfo);
-    item.append(userWrapper, numberWrapper);
-    recordsList.append(item);
-  });
-
   recordsSection.append(recordsTitle, recordsList);
 
   // Comments Section
   const commentsSection = createElement('div', 'game-dialog__comments-section');
-  const commentsTitle = createElement('h3', 'game-dialog__section-title', 'Comments (3)');
+  const commentsTitle = createElement('h3', 'game-dialog__section-title', 'Comments (0)');
 
   const commentForm = createElement('div', 'game-dialog__comment-form');
   const userAvatar = createElement('div', 'game-dialog__avatar', 'U');
@@ -105,58 +90,12 @@ export function createGameDetailsDialog(): HTMLElement {
   commentForm.append(userAvatar, commentInput, sendBtn);
 
   const commentsList = createElement('div', 'game-dialog__comments-list');
+  const commentsState = createElement('div', 'game-dialog__state game-dialog__comments-state');
+  commentsState.setAttribute('role', 'status');
+  commentsState.setAttribute('aria-live', 'polite');
+  commentsState.hidden = true;
 
-  const commentsData = [
-    {
-      avatar: 'F',
-      user: 'ForestDweller',
-      time: '3 hours ago',
-      text: "The hand-drawn art is absolutely magical 🍄 Every location feels like a page from a children's storybook. The mushroom village made me cry happy tears!",
-      likes: '12',
-    },
-    {
-      avatar: 'H',
-      user: 'HerbalTeaLover',
-      time: '1 day ago',
-      text: 'Perfect cozy evening game — brew a cup of chamomile, wrap in a blanket and help the little Tukoni prepare for winter. The puzzles are gentle but satisfying.',
-      likes: '5',
-    },
-    {
-      avatar: 'C',
-      user: 'CottageCoreMia',
-      time: '3 days ago',
-      text: 'I want to live inside this game forever 🌿 The NPCs are so charming, the tea recipes are real, and the atmosphere is pure warmth and calm.',
-      likes: '8',
-    },
-  ];
-
-  commentsData.forEach((comment) => {
-    const card = createElement('div', 'game-dialog__comment-card');
-
-    const cardHeader = createElement('div', 'game-dialog__comment-header');
-    const avatar = createElement('div', 'game-dialog__comment-avatar', comment.avatar);
-    const userInfo = createElement('div', 'game-dialog__comment-user-info');
-    const userName = createElement('span', 'game-dialog__comment-user', comment.user);
-    const commentTime = createElement('span', 'game-dialog__comment-time', comment.time);
-    userInfo.append(userName, commentTime);
-    cardHeader.append(avatar, userInfo);
-
-    const commentText = createElement('p', 'game-dialog__comment-text', comment.text);
-
-    const cardFooter = createElement('div', 'game-dialog__comment-footer');
-    const likeBtn = createElement('button', 'game-dialog__comment-like', comment.likes);
-    likeBtn.type = 'button';
-    cardFooter.append(likeBtn);
-
-    likeBtn.addEventListener('click', () => {
-      likeBtn.classList.toggle('active');
-    });
-
-    card.append(cardHeader, commentText, cardFooter);
-    commentsList.append(card);
-  });
-
-  commentsSection.append(commentsTitle, commentForm, commentsList);
+  commentsSection.append(commentsTitle, commentForm, commentsState, commentsList);
 
   //helpers and event listeners
   dialog.addEventListener('click', (event) => {
@@ -213,8 +152,208 @@ export function createGameDetailsDialog(): HTMLElement {
     commentInput.style.height = `${commentInput.scrollHeight}px`;
   });
 
-  content.append(hero, infoSection, recordsSection, commentsSection);
+  content.append(hero, state, infoSection, recordsSection, commentsSection);
   dialog.append(content);
+
+  const loadedSections = [infoSection, recordsSection, commentsSection];
+
+  const renderState = (kind: 'loading' | 'error' | 'empty', message: string): void => {
+    state.replaceChildren();
+    state.className = `game-dialog__state game-dialog__state--${kind}`;
+    state.hidden = false;
+    state.append(createElement('p', 'game-dialog__state-message', message));
+    image.hidden = true;
+    loadedSections.forEach((section) => {
+      section.hidden = true;
+    });
+
+    if (kind === 'loading') {
+      const skeleton = createElement('div', 'game-dialog__skeleton');
+      skeleton.setAttribute('aria-hidden', 'true');
+      skeleton.append(
+        createElement('span', 'game-dialog__skeleton-line'),
+        createElement('span', 'game-dialog__skeleton-line'),
+        createElement('span', 'game-dialog__skeleton-line'),
+      );
+      state.append(skeleton);
+    }
+
+    if (kind === 'error') {
+      const retryButton = createElement('button', 'game-dialog__retry', 'Retry');
+      retryButton.type = 'button';
+      retryButton.addEventListener('click', () => void loadGame(currentSlug));
+      state.append(retryButton);
+    }
+  };
+
+  const renderGame = (game: GameDetails): void => {
+    title.textContent = game.name;
+    rating.textContent = String(game.rating);
+    likes.textContent = formatToK(game.likesCount);
+    description.textContent = game.fullDescription;
+    favoriteBtn.classList.toggle('active', game.isLikedByCurrentUser);
+    favoriteBtnText.textContent = game.isLikedByCurrentUser
+      ? 'Remove from Favorites'
+      : 'Add to Favorites';
+    image.src = game.heroImage.startsWith('http')
+      ? game.heroImage
+      : game.heroImage.startsWith('/')
+        ? `.${game.heroImage}`
+        : `./${game.heroImage}`;
+    image.alt = `${game.name} hero image`;
+    image.hidden = false;
+    badges.replaceChildren(
+      createBadge('Genre', game.specs.genre),
+      createBadge('Players', game.specs.players),
+      createBadge('Duration', game.specs.duration),
+      createBadge('Price', game.specs.price),
+    );
+
+    recordsList.replaceChildren();
+    if (!game.topRecords?.length) {
+      recordsList.append(createElement('p', 'game-dialog__empty', 'No records yet.'));
+    } else {
+      game.topRecords.forEach((record) => {
+        const item = createElement('div', 'game-dialog__record-item');
+        const numberWrapper = createElement('div', 'game-dialog__record-wrapper');
+        const userWrapper = createElement('div', 'game-dialog__user-wrapper');
+        const userRank = createElement('span', 'game-dialog__record-rank', `#${record.position}`);
+        const userInfo = createElement('span', 'game-dialog__record-user', record.playerName);
+        const scoreInfo = createElement(
+          'span',
+          'game-dialog__record-score',
+          `${record.score.toLocaleString()} pts`,
+        );
+        const achievedDate = new Date(record.achievedAt);
+        const timeInfo = createElement(
+          'span',
+          'game-dialog__record-time',
+          Number.isNaN(achievedDate.getTime())
+            ? record.achievedAt
+            : achievedDate.toLocaleDateString(),
+        );
+        userWrapper.append(userRank, userInfo);
+        numberWrapper.append(scoreInfo, timeInfo);
+        item.append(userWrapper, numberWrapper);
+        recordsList.append(item);
+      });
+    }
+
+    state.hidden = true;
+    image.hidden = false;
+    loadedSections.forEach((section) => {
+      section.hidden = false;
+    });
+  };
+
+  const renderCommentsState = (kind: 'loading' | 'error' | 'empty', message: string): void => {
+    commentsList.replaceChildren();
+    commentsState.replaceChildren();
+    commentsState.className = `game-dialog__state game-dialog__comments-state game-dialog__state--${kind}`;
+    commentsState.hidden = false;
+    commentsState.append(createElement('p', 'game-dialog__state-message', message));
+
+    if (kind === 'loading') {
+      const skeleton = createElement('div', 'game-dialog__skeleton');
+      skeleton.setAttribute('aria-hidden', 'true');
+      skeleton.append(
+        createElement('span', 'game-dialog__skeleton-line'),
+        createElement('span', 'game-dialog__skeleton-line'),
+      );
+      commentsState.append(skeleton);
+    }
+
+    if (kind === 'error') {
+      const retryButton = createElement('button', 'game-dialog__retry', 'Retry');
+      retryButton.type = 'button';
+      retryButton.addEventListener('click', () => void loadComments(currentSlug));
+      commentsState.append(retryButton);
+    }
+  };
+
+  const renderComment = (comment: GameComment): HTMLElement => {
+    const card = createElement('article', 'game-dialog__comment-card');
+    const cardHeader = createElement('div', 'game-dialog__comment-header');
+    const avatarText = comment.authorName.trim().charAt(0).toUpperCase() || '?';
+    const avatar = createElement('div', 'game-dialog__comment-avatar', avatarText);
+    const userInfo = createElement('div', 'game-dialog__comment-user-info');
+    const userName = createElement('span', 'game-dialog__comment-user', comment.authorName);
+    const commentTime = createElement(
+      'time',
+      'game-dialog__comment-time',
+      formatRelativeTime(comment.createdAt),
+    );
+    commentTime.dateTime = comment.createdAt;
+    userInfo.append(userName, commentTime);
+    cardHeader.append(avatar, userInfo);
+
+    const commentText = createElement('p', 'game-dialog__comment-text', comment.text);
+    const cardFooter = createElement('div', 'game-dialog__comment-footer');
+    const likes = createElement('span', 'game-dialog__comment-like', String(comment.likesCount));
+    likes.classList.toggle('active', comment.isLikedByCurrentUser);
+    cardFooter.append(likes);
+    card.append(cardHeader, commentText, cardFooter);
+    return card;
+  };
+
+  let activeCommentsRequest = 0;
+
+  const loadComments = async (slug: string): Promise<void> => {
+    const requestId = ++activeCommentsRequest;
+    commentsTitle.textContent = 'Comments';
+    renderCommentsState('loading', 'Loading comments...');
+
+    try {
+      const response = await fetchGameComments(slug);
+      if (requestId !== activeCommentsRequest) return;
+
+      commentsTitle.textContent = `Comments (${response.meta.totalComments})`;
+      commentsState.hidden = true;
+      commentsList.replaceChildren();
+
+      if (!response.data.length) {
+        renderCommentsState('empty', 'No comments yet.');
+        return;
+      }
+
+      response.data.forEach((comment) => commentsList.append(renderComment(comment)));
+    } catch (error) {
+      if (requestId !== activeCommentsRequest) return;
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load comments';
+      renderCommentsState('error', `Could not load comments. ${errorMessage}`);
+      showSnackbar(errorMessage, 'error');
+    }
+  };
+
+  let currentSlug = '';
+  let activeRequest = 0;
+
+  const loadGame = async (slug: string): Promise<void> => {
+    const requestId = ++activeRequest;
+    renderState('loading', 'Loading game details...');
+    try {
+      const response = await fetchGameDetails(slug);
+      if (requestId !== activeRequest) return;
+      if (!response.data) {
+        renderState('empty', 'Game details are not available.');
+        return;
+      }
+      renderGame(response.data);
+    } catch (error) {
+      if (requestId !== activeRequest) return;
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load game details';
+      renderState('error', `Could not load game details. ${errorMessage}`);
+      showSnackbar(errorMessage, 'error');
+    }
+  };
+
+  dialog.openGame = (slug: string): void => {
+    currentSlug = slug;
+    dialog.classList.add('game-dialog--open');
+    document.body.classList.add('dialog-open');
+    void loadGame(slug);
+    void loadComments(slug);
+  };
 
   return dialog;
 }
