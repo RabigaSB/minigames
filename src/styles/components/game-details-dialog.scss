@@ -18,6 +18,7 @@ $comment-card-mobile: 164px;
 $comment-card-tablet: 128px;
 
 $icon-height: 20px;
+$details-image-height: 220px;
 
 $play-now-btn-width: 263px;
 
@@ -50,6 +51,9 @@ body.dialog-open {
   &__image {
     border-top-right-radius: $size-3;
     border-top-left-radius: $size-3;
+    height: $details-image-height;
+    width: $full-width;
+    object-fit: cover;
   }
 
   &__close {
@@ -101,6 +105,63 @@ body.dialog-open {
 
   &__hero {
     position: relative;
+  }
+
+  &__state {
+    padding: $size-4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $size-3;
+    text-align: center;
+  }
+
+  &__state-message {
+    margin: 0;
+    color: $on-bg;
+  }
+
+  &__skeleton {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: $size-2;
+  }
+
+  &__skeleton-line {
+    height: $size-3;
+    border-radius: $corner-small;
+    background: linear-gradient(90deg, $surface 25%, $surface-low 50%, $surface 75%);
+    background-size: 200% 100%;
+    animation: game-dialog-skeleton 1.3s ease-in-out infinite;
+
+    &:last-child {
+      width: 65%;
+    }
+  }
+
+  &__retry {
+    padding: $btn-small;
+    border: $border-solid-1 $outline-variant;
+    border-radius: $corner-small;
+    background-color: $white;
+    color: $on-primary;
+    font-weight: $bold;
+  }
+
+  &__empty {
+    margin: 0;
+    padding: $size-2;
+    color: $on-bg;
+    text-align: center;
+  }
+
+  &__image[hidden],
+  &__state[hidden],
+  &__info[hidden],
+  &__records-section[hidden],
+  &__comments-section[hidden] {
+    display: none;
   }
 
   &__info {
@@ -517,5 +578,11 @@ body.dialog-open {
       background-color: $surface;
       box-shadow: $comment-like-btn;
     }
+  }
+}
+
+@keyframes game-dialog-skeleton {
+  to {
+    background-position: -200% 0;
   }
 }

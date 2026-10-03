@@ -4,6 +4,12 @@
 $carousel-card-height-mobile: 200px;
 $carousel-card-height-tablet: 280px;
 $carousel-card-height-desktop: 385px;
+$card-content-background: linear-gradient(
+  180deg,
+  rgba(0, 0, 0, 0) 0%,
+  rgba(0, 0, 0, 0.4) 17.308%,
+  rgba(0, 0, 0, 0.85) 46.154%
+);
 
 .carousel {
   &__section {
@@ -13,11 +19,11 @@ $carousel-card-height-desktop: 385px;
     box-sizing: border-box;
 
     @media (min-width: $breakpoint-tablet) {
-      padding: 22px 42px;
+      padding: $size-3 $size-5;
     }
 
     @media (min-width: $breakpoint-tablet) {
-      padding: 42px;
+      padding: $size-5;
     }
   }
 
@@ -25,13 +31,13 @@ $carousel-card-height-desktop: 385px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 17px;
+    margin-bottom: $size-2;
 
     @media (min-width: $breakpoint-tablet) {
-      margin-bottom: 23px;
+      margin-bottom: $size-3;
     }
     @media (min-width: $breakpoint-desktop) {
-      margin-bottom: 32px;
+      margin-bottom: $size-4;
     }
   }
 
@@ -49,15 +55,15 @@ $carousel-card-height-desktop: 385px;
     &::before {
       content: '';
       display: inline-block;
-      width: 6px;
+      width: $size-05;
       border-radius: $size-05;
       background-color: $primary;
-      border: 1px solid $on-primary;
-      height: 23px;
+      border: $border-solid $on-primary;
+      height: $size-3;
       margin-right: $size-1;
 
       @media (min-width: $breakpoint-desktop) {
-        height: 30px;
+        height: $size-4;
       }
     }
   }
@@ -73,13 +79,13 @@ $carousel-card-height-desktop: 385px;
     &--forward,
     &--backward {
       display: inline-block;
-      padding: 10px;
+      padding: $size-1;
       border-radius: $corner-full;
       border: $border-solid $on-primary;
       cursor: pointer;
 
       @media (min-width: $breakpoint-desktop) {
-        padding: 14px;
+        padding: $size-2;
       }
       &:hover {
         background-color: $primary;
@@ -96,14 +102,13 @@ $carousel-card-height-desktop: 385px;
     display: flex;
     overflow: hidden;
     width: $full-width;
-    padding: 4px;
   }
 
   &__rating,
   &__likes {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: $size-05;
     font-size: $label-medium;
     font-weight: $bold;
   }
@@ -134,19 +139,19 @@ $carousel-card-height-desktop: 385px;
     opacity: 0;
     visibility: hidden;
     margin-right: 0;
-    border: 0 solid $on-primary;
+    border: $border-solid $on-primary;
     padding: 0;
     overflow: hidden;
     border-radius: $corner-large;
     box-shadow: none;
     background-color: $surface-low;
     min-height: $carousel-card-height-mobile;
+    cursor: pointer;
 
     transition:
       flex 0.4s ease-in-out,
       opacity 0.4s ease-in-out,
-      margin 0.4s ease-in-out,
-      border-width 0.4s ease-in-out;
+      margin 0.4s ease-in-out;
 
     .carousel__content {
       opacity: 0;
@@ -176,17 +181,16 @@ $carousel-card-height-desktop: 385px;
     &:nth-child(3) {
       opacity: 1;
       visibility: visible;
-      border-width: 2px;
       box-shadow: $level-2;
     }
 
     &:nth-child(1) {
       flex: 1;
-      margin-right: $size-3;
+      margin-right: $size-1;
     }
     &:nth-child(2) {
       flex: 3;
-      margin-right: $size-3;
+      margin-right: $size-1;
     }
     &:nth-child(3) {
       flex: 1;
@@ -201,35 +205,34 @@ $carousel-card-height-desktop: 385px;
 
     @media (min-width: $breakpoint-desktop) {
       &:nth-child(3) {
-        margin-right: $size-3;
+        margin-right: $size-1;
       }
 
       &:nth-child(4),
       &:nth-child(5) {
         opacity: 1;
         visibility: visible;
-        border-width: 2px;
         box-shadow: $level-2;
       }
 
       &:nth-child(1) {
-        flex: 1;
-        margin-right: $size-3;
+        flex: 5;
+        margin-right: $size-1;
       }
       &:nth-child(2) {
-        flex: 2;
-        margin-right: $size-3;
+        flex: 13;
+        margin-right: $size-1;
       }
       &:nth-child(3) {
-        flex: 6;
-        margin-right: $size-3;
+        flex: 34;
+        margin-right: $size-1;
       }
       &:nth-child(4) {
-        flex: 2;
-        margin-right: $size-3;
+        flex: 13;
+        margin-right: $size-1;
       }
       &:nth-child(5) {
-        flex: 1;
+        flex: 5;
         margin-right: 0;
       }
     }
@@ -250,7 +253,7 @@ $carousel-card-height-desktop: 385px;
     bottom: 0;
     left: 0;
     padding: $size-2;
-    background: rgb(36 33 69 / 80%);
+    background: $card-content-background;
     color: white;
   }
 
