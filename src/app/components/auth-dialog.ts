@@ -1,7 +1,22 @@
 import { createElement } from '../create-element';
 
-export function createAuthDialog(): HTMLElement {
-  const authDialog = createElement('div', 'auth-dialog');
+export type AuthMode = 'login' | 'register';
+
+export interface AuthDialog extends HTMLElement {
+  openAuth(mode: AuthMode, syncUrl?: boolean): void;
+  closeAuth(syncUrl?: boolean): void;
+}
+
+export function createAuthDialog(
+  onAuthChange: (mode: AuthMode | null) => void = () => undefined,
+): AuthDialog {
+  const authDialog = Object.assign(createElement('div', 'auth-dialog'), {
+    openAuth: (mode: AuthMode, syncUrl?: boolean): void => {
+      void mode;
+      void syncUrl;
+    },
+    closeAuth: (syncUrl?: boolean): void => void syncUrl,
+  });
 
   const content = createElement('div', 'auth-dialog__content');
 
@@ -163,18 +178,30 @@ export function createAuthDialog(): HTMLElement {
   content.append(tabsContainer, loginForm, registerForm);
   authDialog.append(content);
 
-  const showLogin = () => {
-    loginTab.classList.add('auth-dialog__tab--active');
-    registerTab.classList.remove('auth-dialog__tab--active');
-    loginForm.classList.remove('auth-dialog__form--hidden');
-    registerForm.classList.add('auth-dialog__form--hidden');
+  const setMode = (mode: AuthMode, syncUrl = true): void => {
+    const isLogin = mode === 'login';
+    loginTab.classList.toggle('auth-dialog__tab--active', isLogin);
+    registerTab.classList.toggle('auth-dialog__tab--active', !isLogin);
+    loginForm.classList.toggle('auth-dialog__form--hidden', !isLogin);
+    registerForm.classList.toggle('auth-dialog__form--hidden', isLogin);
+    if (syncUrl && authDialog.classList.contains('auth-dialog--open')) {
+      onAuthChange(mode);
+    }
   };
 
-  const showRegister = () => {
-    registerTab.classList.add('auth-dialog__tab--active');
-    loginTab.classList.remove('auth-dialog__tab--active');
-    registerForm.classList.remove('auth-dialog__form--hidden');
-    loginForm.classList.add('auth-dialog__form--hidden');
+  const showLogin = (): void => setMode('login');
+  const showRegister = (): void => setMode('register');
+
+  authDialog.openAuth = (mode: AuthMode, syncUrl = true): void => {
+    setMode(mode, false);
+    authDialog.classList.add('auth-dialog--open');
+    if (syncUrl) onAuthChange(mode);
+  };
+
+  authDialog.closeAuth = (syncUrl = true): void => {
+    const wasOpen = authDialog.classList.contains('auth-dialog--open');
+    authDialog.classList.remove('auth-dialog--open');
+    if (syncUrl && wasOpen) onAuthChange(null);
   };
 
   loginTab.addEventListener('click', showLogin);
@@ -190,7 +217,7 @@ export function createAuthDialog(): HTMLElement {
 
   authDialog.addEventListener('click', (event) => {
     if (event.target === authDialog) {
-      authDialog.classList.remove('auth-dialog--open');
+      authDialog.closeAuth();
     }
   });
 

@@ -9,12 +9,22 @@ import { formatRelativeTime, formatToK } from '../utils/formatters';
 import { showSnackbar } from '../utils/snackbar';
 
 export interface GameDetailsDialog extends HTMLElement {
-  openGame(slug: string): void;
+  openGame(slug: string, syncUrl?: boolean): void;
+  closeGame(syncUrl?: boolean): void;
+  dispose(): void;
 }
 
-export function createGameDetailsDialog(): GameDetailsDialog {
+export function createGameDetailsDialog(
+  onGameChange: (slug: string | null) => void = () => undefined,
+  initialSlug?: string,
+): GameDetailsDialog {
   const dialog = Object.assign(createElement('div', 'game-dialog'), {
-    openGame: (slug: string): void => void slug,
+    openGame: (slug: string, syncUrl?: boolean): void => {
+      void slug;
+      void syncUrl;
+    },
+    closeGame: (syncUrl?: boolean): void => void syncUrl,
+    dispose: (): void => undefined,
   });
 
   const content = createElement('div', 'game-dialog__content');
@@ -114,7 +124,9 @@ export function createGameDetailsDialog(): GameDetailsDialog {
     commentInput.value = '';
   });
 
-  const closeDialog = () => {
+  const closeDialog = (syncUrl = true) => {
+    activeRequest++;
+    activeCommentsRequest++;
     dialog.classList.remove('game-dialog--open');
     document.body.classList.remove('dialog-open');
     content.scrollTop = 0;
@@ -125,15 +137,17 @@ export function createGameDetailsDialog(): GameDetailsDialog {
     commentsList.querySelectorAll('.game-dialog__comment-like').forEach((btn) => {
       btn.classList.remove('active');
     });
+    if (syncUrl) onGameChange(null);
   };
 
-  closeBtn.addEventListener('click', closeDialog);
+  closeBtn.addEventListener('click', () => closeDialog());
 
-  document.addEventListener('keydown', (e) => {
+  const handleEscape = (e: KeyboardEvent): void => {
     if (e.key === 'Escape' && dialog.classList.contains('game-dialog--open')) {
       closeDialog();
     }
-  });
+  };
+  document.addEventListener('keydown', handleEscape);
 
   function createBadge(label: string, value: string) {
     const badge = createElement('div', 'game-dialog__badge');
@@ -347,13 +361,22 @@ export function createGameDetailsDialog(): GameDetailsDialog {
     }
   };
 
-  dialog.openGame = (slug: string): void => {
+  dialog.openGame = (slug: string, syncUrl = true): void => {
     currentSlug = slug;
     dialog.classList.add('game-dialog--open');
     document.body.classList.add('dialog-open');
+    if (syncUrl) onGameChange(slug);
     void loadGame(slug);
     void loadComments(slug);
   };
+
+  dialog.closeGame = (syncUrl = true): void => closeDialog(syncUrl);
+  dialog.dispose = (): void => {
+    closeDialog(false);
+    document.removeEventListener('keydown', handleEscape);
+  };
+
+  if (initialSlug) dialog.openGame(initialSlug, false);
 
   return dialog;
 }

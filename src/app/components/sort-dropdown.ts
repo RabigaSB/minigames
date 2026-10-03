@@ -1,6 +1,9 @@
 import { createElement } from '../create-element';
 
-export function createSortDropdown(onSortChange: (sortValue: string) => void): HTMLElement {
+export function createSortDropdown(
+  onSortChange: (sortValue: string) => void,
+  initialSort = 'rating-desc',
+): HTMLElement {
   const wrapper = createElement('div', 'sort-dropdown');
 
   const button = createElement('button', 'sort-dropdown__button', 'Sort by: Rating ↓');
@@ -11,14 +14,17 @@ export function createSortDropdown(onSortChange: (sortValue: string) => void): H
 
   const options = [
     { label: 'Rating ↑', value: 'rating-asc' },
-    { label: 'Rating ↓', value: 'rating-desc', selected: true },
+    { label: 'Rating ↓', value: 'rating-desc' },
     { label: 'Name A→Z', value: 'name-asc' },
     { label: 'Name Z→A', value: 'name-desc' },
   ];
 
+  const selectedOption = options.find((option) => option.value === initialSort) ?? options[1];
+  button.textContent = `Sort by: ${selectedOption.label}`;
+
   options.forEach((opt) => {
     const li = createElement('li', 'sort-dropdown__item');
-    if (opt.selected) li.classList.add('sort-dropdown__item--active');
+    if (opt.value === selectedOption.value) li.classList.add('sort-dropdown__item--active');
 
     const textNode = document.createTextNode(opt.label);
     li.append(textNode);

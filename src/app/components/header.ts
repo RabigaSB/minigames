@@ -1,9 +1,11 @@
 import { createElement } from '../create-element';
 import { createMobileMenu } from './mobile-menu';
-import { createAuthDialog } from './auth-dialog';
+import { createAuthDialog, type AuthMode } from './auth-dialog';
 import { ROUTES } from '../constants';
 
-export function createHeader(): HTMLElement {
+export function createHeader(
+  onAuthChange: (mode: AuthMode | null) => void = () => undefined,
+): HTMLElement {
   const header = createElement('header', 'header');
 
   const container = createElement('div', 'header__container');
@@ -48,7 +50,7 @@ export function createHeader(): HTMLElement {
   burgerButton.type = 'button';
   const mobileMenu = createMobileMenu();
 
-  const authDialog = createAuthDialog();
+  const authDialog = createAuthDialog(onAuthChange);
 
   headerBtnsWrapper.append(navigation, actions);
   actions.append(signInButton, signUpButton, burgerButton);
@@ -75,7 +77,7 @@ export function createHeader(): HTMLElement {
     }
 
     if (authDialog.classList.contains('auth-dialog--open')) {
-      authDialog.classList.remove('auth-dialog--open');
+      authDialog.closeAuth();
     }
   });
 
@@ -88,26 +90,23 @@ export function createHeader(): HTMLElement {
     });
   });
 
-  const openAuthDialog = () => {
-    authDialog.classList.add('auth-dialog--open');
-  };
-  signInButton.addEventListener('click', openAuthDialog);
-  signUpButton.addEventListener('click', openAuthDialog);
+  signInButton.addEventListener('click', () => authDialog.openAuth('login'));
+  signUpButton.addEventListener('click', () => authDialog.openAuth('register'));
 
   const mobileLoginButton = mobileMenu.querySelector('.mobile-menu__login');
 
   const mobileSignUpButton = mobileMenu.querySelector('.mobile-menu__signup');
 
-  const openAuthFromMobile = () => {
+  const openAuthFromMobile = (mode: AuthMode) => {
     mobileMenu.classList.remove('mobile-menu--open');
     document.body.classList.remove('menu-open');
 
-    authDialog.classList.add('auth-dialog--open');
+    authDialog.openAuth(mode);
   };
 
-  mobileLoginButton?.addEventListener('click', openAuthFromMobile);
+  mobileLoginButton?.addEventListener('click', () => openAuthFromMobile('login'));
 
-  mobileSignUpButton?.addEventListener('click', openAuthFromMobile);
+  mobileSignUpButton?.addEventListener('click', () => openAuthFromMobile('register'));
 
   return header;
 }
