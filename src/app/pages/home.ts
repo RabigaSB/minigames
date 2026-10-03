@@ -4,7 +4,12 @@ import { createLeaderboard } from '../components/leaderboard';
 import { createDeveloperCta } from '../components/developer-cta';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
 
-export function createHomePage(): HTMLElement {
+export interface HomePageOptions {
+  gameSlug?: string;
+  onGameChange?: (slug: string | null) => void;
+}
+
+export function createHomePage(options: HomePageOptions = {}): HTMLElement {
   const main = createElement('div', 'home');
 
   const description = createElement('section', 'home__description');
@@ -30,7 +35,7 @@ export function createHomePage(): HTMLElement {
   descriptionContainer.append(descriptionTitle, descriptionText, descriptionAction);
   description.append(descriptionContainer);
 
-  const gameDialog = createGameDetailsDialog();
+  const gameDialog = createGameDetailsDialog(options.onGameChange, options.gameSlug);
   const newGames = createNewGamesSection((slug) => gameDialog.openGame(slug));
   const leaderboard = createLeaderboard();
   const developerCta = createDeveloperCta();

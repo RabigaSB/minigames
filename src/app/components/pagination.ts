@@ -4,7 +4,7 @@ const TABLET_BREAKPOINT = 768;
 const MAX_VISIBLE_PAGES_DESKTOP = 4;
 const MAX_VISIBLE_PAGES_MOBILE = 3;
 
-export function createPagination(onPageChange: (page: number) => void) {
+export function createPagination(onPageChange: (page: number) => void, initialPage = 1) {
   const nav = createElement('nav', 'pagination');
   nav.setAttribute('aria-label', 'Library Pagination');
 
@@ -23,18 +23,22 @@ export function createPagination(onPageChange: (page: number) => void) {
   nextBtn.type = 'button';
   nextBtn.setAttribute('aria-label', 'Next page');
 
-  let currentPage = 1;
+  let currentPage = Math.max(1, initialPage);
   let totalPages = 4;
 
   function renderPageBtns(total: number) {
-    totalPages = total;
+    totalPages = Math.max(1, total);
     const maxVisible =
       window.innerWidth < TABLET_BREAKPOINT ? MAX_VISIBLE_PAGES_MOBILE : MAX_VISIBLE_PAGES_DESKTOP;
-    const endPage = Math.min(maxVisible, totalPages);
+    const startPage = Math.max(
+      1,
+      Math.min(currentPage - Math.floor((maxVisible - 1) / 2), totalPages - maxVisible + 1),
+    );
+    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
     pagesContainer.innerHTML = '';
 
-    for (let i = 1; i <= endPage; i++) {
+    for (let i = startPage; i <= endPage; i++) {
       const pageBtn = createElement(
         'button',
         'pagination__page-btn',

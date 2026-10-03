@@ -134,7 +134,6 @@ function createCarouselCard(game: ApiGame, onGameSelected: (slug: string) => voi
   card.append(image, content);
 
   card.addEventListener('click', () => {
-    window.history.pushState({}, '', `/?game=${game.slug}`);
     onGameSelected(game.slug);
   });
 
