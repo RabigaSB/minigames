@@ -1,9 +1,12 @@
 import { createElement } from '../create-element';
 import { createMobileMenu } from './mobile-menu';
-import { createAuthDialog } from './auth-dialog';
+import { createAuthDialog, type AuthMode } from './auth-dialog';
 import { ROUTES } from '../constants';
+import { getAppPath } from '../constants';
 
-export function createHeader(): HTMLElement {
+export function createHeader(
+  onAuthChange: (mode: AuthMode | null) => void = () => undefined,
+): HTMLElement {
   const header = createElement('header', 'header');
 
   const container = createElement('div', 'header__container');
@@ -13,7 +16,7 @@ export function createHeader(): HTMLElement {
   logoIcon.src = './assets/minigames_logo.png';
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'header__logo', 'MiniGames');
-  logo.href = '/';
+  logo.href = getAppPath('home');
   logo.setAttribute('data-nav', ROUTES.HOME);
   logoContainer.append(logoIcon, logo);
 
@@ -21,18 +24,18 @@ export function createHeader(): HTMLElement {
 
   const headerBtnsWrapper = createElement('div', 'header__btns-wrapper');
   const homeLink = createElement('a', 'header__link active', 'Home');
-  homeLink.href = '/';
+  homeLink.href = getAppPath('home');
   homeLink.setAttribute('data-nav', ROUTES.HOME);
   homeLink.setAttribute('data-text', 'Home');
   const libraryLink = createElement('a', 'header__link', 'Library');
-  libraryLink.href = '/library';
+  libraryLink.href = getAppPath('library');
   libraryLink.setAttribute('data-nav', ROUTES.LIBRARY);
   libraryLink.setAttribute('data-text', 'Library');
   const tournamentsLink = createElement('a', 'header__link', 'Tournaments');
-  tournamentsLink.href = '/';
+  tournamentsLink.href = getAppPath('home');
   tournamentsLink.setAttribute('data-text', 'Tournaments');
   const communityLink = createElement('a', 'header__link', 'Community');
-  communityLink.href = '/';
+  communityLink.href = getAppPath('home');
   communityLink.setAttribute('data-text', 'Community');
   navigation.append(homeLink, libraryLink, tournamentsLink, communityLink);
 
@@ -48,7 +51,7 @@ export function createHeader(): HTMLElement {
   burgerButton.type = 'button';
   const mobileMenu = createMobileMenu();
 
-  const authDialog = createAuthDialog();
+  const authDialog = createAuthDialog(onAuthChange);
 
   headerBtnsWrapper.append(navigation, actions);
   actions.append(signInButton, signUpButton, burgerButton);
@@ -75,7 +78,7 @@ export function createHeader(): HTMLElement {
     }
 
     if (authDialog.classList.contains('auth-dialog--open')) {
-      authDialog.classList.remove('auth-dialog--open');
+      authDialog.closeAuth();
     }
   });
 
@@ -88,26 +91,23 @@ export function createHeader(): HTMLElement {
     });
   });
 
-  const openAuthDialog = () => {
-    authDialog.classList.add('auth-dialog--open');
-  };
-  signInButton.addEventListener('click', openAuthDialog);
-  signUpButton.addEventListener('click', openAuthDialog);
+  signInButton.addEventListener('click', () => authDialog.openAuth('login'));
+  signUpButton.addEventListener('click', () => authDialog.openAuth('register'));
 
   const mobileLoginButton = mobileMenu.querySelector('.mobile-menu__login');
 
   const mobileSignUpButton = mobileMenu.querySelector('.mobile-menu__signup');
 
-  const openAuthFromMobile = () => {
+  const openAuthFromMobile = (mode: AuthMode) => {
     mobileMenu.classList.remove('mobile-menu--open');
     document.body.classList.remove('menu-open');
 
-    authDialog.classList.add('auth-dialog--open');
+    authDialog.openAuth(mode);
   };
 
-  mobileLoginButton?.addEventListener('click', openAuthFromMobile);
+  mobileLoginButton?.addEventListener('click', () => openAuthFromMobile('login'));
 
-  mobileSignUpButton?.addEventListener('click', openAuthFromMobile);
+  mobileSignUpButton?.addEventListener('click', () => openAuthFromMobile('register'));
 
   return header;
 }

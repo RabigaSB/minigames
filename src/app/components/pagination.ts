@@ -4,7 +4,7 @@ const TABLET_BREAKPOINT = 768;
 const MAX_VISIBLE_PAGES_DESKTOP = 4;
 const MAX_VISIBLE_PAGES_MOBILE = 3;
 
-export function createPagination(): HTMLElement {
+export function createPagination(onPageChange: (page: number) => void, initialPage = 1) {
   const nav = createElement('nav', 'pagination');
   nav.setAttribute('aria-label', 'Library Pagination');
 
@@ -23,13 +23,18 @@ export function createPagination(): HTMLElement {
   nextBtn.type = 'button';
   nextBtn.setAttribute('aria-label', 'Next page');
 
-  let currentPage = 1;
-  const startPage = 1;
-  let endPage: number = MAX_VISIBLE_PAGES_DESKTOP;
+  let currentPage = Math.max(1, initialPage);
+  let totalPages = 4;
 
-  function renderPageBtns() {
-    endPage =
+  function renderPageBtns(total: number) {
+    totalPages = Math.max(1, total);
+    const maxVisible =
       window.innerWidth < TABLET_BREAKPOINT ? MAX_VISIBLE_PAGES_MOBILE : MAX_VISIBLE_PAGES_DESKTOP;
+    const startPage = Math.max(
+      1,
+      Math.min(currentPage - Math.floor((maxVisible - 1) / 2), totalPages - maxVisible + 1),
+    );
+    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
     pagesContainer.innerHTML = '';
 
@@ -42,7 +47,7 @@ export function createPagination(): HTMLElement {
       );
       pageBtn.type = 'button';
 
-      if (i === startPage) {
+      if (i === currentPage) {
         pageBtn.classList.add('active');
       }
 
@@ -52,25 +57,27 @@ export function createPagination(): HTMLElement {
 
       pagesContainer.append(pageBtn);
     }
+    setDisabled(currentPage);
   }
 
-  function setActiveClass(currentPage: number) {
-    const currentActiveBtn = pagesContainer.querySelector(`#pagination__page-btn-${currentPage}`);
+  function setActiveClass(page: number) {
     pagesContainer
       .querySelectorAll('.pagination__page-btn')
       .forEach((c) => c.classList.remove('active'));
+    const currentActiveBtn = pagesContainer.querySelector(`#pagination__page-btn-${page}`);
     currentActiveBtn?.classList.add('active');
   }
 
   function setPage(page: number) {
-    if (page < startPage || page > endPage) return;
+    if (page < 1 || page > totalPages) return;
     currentPage = page;
-    setDisabled(currentPage);
     setActiveClass(currentPage);
+    setDisabled(currentPage);
+    onPageChange(currentPage);
   }
 
-  function setDisabled(currentPage: number) {
-    if (currentPage === startPage) {
+  function setDisabled(page: number) {
+    if (page <= 1) {
       prevBtn.classList.add('disabled');
       prevBtn.disabled = true;
     } else {
@@ -78,7 +85,7 @@ export function createPagination(): HTMLElement {
       prevBtn.removeAttribute('disabled');
     }
 
-    if (currentPage === endPage) {
+    if (page >= totalPages) {
       nextBtn.classList.add('disabled');
       nextBtn.disabled = true;
     } else {
@@ -88,24 +95,27 @@ export function createPagination(): HTMLElement {
   }
 
   prevBtn.addEventListener('click', () => {
-    if (currentPage > startPage) {
+    if (currentPage > 1) {
       setPage(currentPage - 1);
     }
   });
 
   nextBtn.addEventListener('click', () => {
-    if (currentPage < endPage) {
+    if (currentPage < totalPages) {
       setPage(currentPage + 1);
     }
   });
 
   window.addEventListener('resize', () => {
-    renderPageBtns();
-    setDisabled(startPage);
+    renderPageBtns(totalPages);
   });
 
-  renderPageBtns();
-
   nav.append(prevBtn, pagesContainer, nextBtn);
-  return nav;
+
+  return Object.assign(nav, {
+    updatePagination: (newTotalPages: number, newCurrentPage: number) => {
+      currentPage = newCurrentPage;
+      renderPageBtns(newTotalPages);
+    },
+  });
 }

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting...</title>
+  </head>
+  <body>
+    <p>Redirecting to MiniGames...</p>
+    <script>
+      const appBase = '/minigames/';
+      const requestedUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      const fallbackUrl = new URL(appBase, window.location.origin);
+      fallbackUrl.searchParams.set('__gh_pages_redirect', requestedUrl);
+      window.location.replace(fallbackUrl.href);
+    </script>
+  </body>
+</html>

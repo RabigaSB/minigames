@@ -1,12 +1,16 @@
 import { createElement } from '../create-element';
-import gamesData from '../../data/all-games-seed.json';
-import leaderboardData from '../../data/leaderboard.json';
 import { createNewGamesSection } from '../components/carousel-card';
 import { createLeaderboard } from '../components/leaderboard';
 import { createDeveloperCta } from '../components/developer-cta';
-import type { Game } from '../../data/game';
+import { createGameDetailsDialog } from '../components/game-details-dialog';
+import { getAppPath } from '../constants';
 
-export function createHomePage(): HTMLElement {
+export interface HomePageOptions {
+  gameSlug?: string;
+  onGameChange?: (slug: string | null) => void;
+}
+
+export function createHomePage(options: HomePageOptions = {}): HTMLElement {
   const main = createElement('div', 'home');
 
   const description = createElement('section', 'home__description');
@@ -28,15 +32,16 @@ export function createHomePage(): HTMLElement {
   );
   descriptionText.append(descriptionTextSpan);
   const descriptionAction = createElement('a', 'home__description-button', 'Browse Library');
-  descriptionAction.href = '/library';
+  descriptionAction.href = getAppPath('library');
   descriptionContainer.append(descriptionTitle, descriptionText, descriptionAction);
   description.append(descriptionContainer);
 
-  const newGames = createNewGamesSection(gamesData.data as Game[]);
-  const leaderboard = createLeaderboard(leaderboardData.data);
+  const gameDialog = createGameDetailsDialog(options.onGameChange, options.gameSlug);
+  const newGames = createNewGamesSection((slug) => gameDialog.openGame(slug));
+  const leaderboard = createLeaderboard();
   const developerCta = createDeveloperCta();
 
-  main.append(description, newGames, leaderboard, developerCta);
+  main.append(description, newGames, leaderboard, developerCta, gameDialog);
 
   return main;
 }

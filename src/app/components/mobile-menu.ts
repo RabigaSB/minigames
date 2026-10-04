@@ -1,4 +1,5 @@
 import { createElement } from '../create-element';
+import { getAppPath } from '../constants';
 
 export function createMobileMenu(): HTMLElement {
   const menu = createElement('div', 'mobile-menu');
@@ -10,7 +11,7 @@ export function createMobileMenu(): HTMLElement {
   logoIcon.src = './assets/minigames_logo.png';
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'mobile-menu__logo', 'MiniGames');
-  logo.href = '/';
+  logo.href = getAppPath('home');
   logoContainer.append(logoIcon, logo);
 
   const closeButton = createElement('button', 'mobile-menu__close', '×');
@@ -25,10 +26,10 @@ export function createMobileMenu(): HTMLElement {
   const navigationList = createElement('ul', 'mobile-menu__list');
 
   const links = [
-    ['Home', '/', 'home', 'active'],
-    ['Library', '/library', 'library'],
-    ['Tournaments', '/'],
-    ['Community', '/'],
+    ['Home', getAppPath('home'), 'home', 'active'],
+    ['Library', getAppPath('library'), 'library'],
+    ['Tournaments', getAppPath('home')],
+    ['Community', getAppPath('home')],
   ];
 
   for (const [text, href, navData, className] of links) {
