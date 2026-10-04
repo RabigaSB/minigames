@@ -92,9 +92,9 @@ function renderPopulatedCarousel(
   const arrowWrapper = createElement('div', 'carousel__tools');
   const arrowForward = createElement('img', 'carousel__arrow--forward');
   const arrowBackward = createElement('img', 'carousel__arrow--backward');
-  arrowForward.src = './assets/arrow.png';
+  arrowForward.src = 'public/assets/arrow.png';
   arrowForward.alt = 'arrow';
-  arrowBackward.src = './assets/arrow.png';
+  arrowBackward.src = 'public/assets/arrow.png';
   arrowBackward.alt = 'arrow';
   arrowWrapper.append(arrowBackward, arrowForward);
   titleWrapper.append(newGamesTitle, arrowWrapper);
