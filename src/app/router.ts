@@ -3,6 +3,7 @@ import { createLibraryPage, type LibraryRouteState } from './pages/library';
 import { createNotFoundPage } from './pages/not-found';
 import type { AuthDialog, AuthMode } from './components/auth-dialog';
 import type { GameDetailsDialog } from './components/game-details-dialog';
+import { APP_BASE_PATH, getAppPath } from './constants';
 
 type View = 'home' | 'library' | 'not-found';
 type NavigableView = Exclude<View, 'not-found'>;
@@ -41,9 +42,10 @@ export class Router {
       const view =
         navValue === 'home' || navValue === 'library'
           ? navValue
-          : targetUrl.pathname === '/library'
+          : this.getRoutePath(targetUrl.pathname) === '/library'
             ? 'library'
-            : targetUrl.pathname === '/' || targetUrl.pathname === '/home'
+            : this.getRoutePath(targetUrl.pathname) === '/' ||
+                this.getRoutePath(targetUrl.pathname) === '/home'
               ? 'home'
               : null;
       if (view !== 'home' && view !== 'library') return;
@@ -60,11 +62,41 @@ export class Router {
   }
 
   public start(): void {
+    this.restoreGitHubPagesUrl();
     this.renderLocation();
   }
 
+  private restoreGitHubPagesUrl(): void {
+    const currentUrl = new URL(window.location.href);
+    const requestedUrl = currentUrl.searchParams.get('__gh_pages_redirect');
+    if (!requestedUrl) return;
+
+    const restoredUrl = new URL(requestedUrl, window.location.origin);
+    const isWithinAppBase =
+      restoredUrl.origin === window.location.origin &&
+      (restoredUrl.pathname === APP_BASE_PATH ||
+        restoredUrl.pathname === `${APP_BASE_PATH}/` ||
+        restoredUrl.pathname.startsWith(`${APP_BASE_PATH}/`));
+
+    if (isWithinAppBase) {
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${restoredUrl.pathname}${restoredUrl.search}${restoredUrl.hash}`,
+      );
+      return;
+    }
+
+    currentUrl.searchParams.delete('__gh_pages_redirect');
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`,
+    );
+  }
+
   public navigate(view: NavigableView): void {
-    const path = view === 'home' ? '/' : '/library';
+    const path = getAppPath(view);
     window.history.pushState({}, '', path);
     this.renderLocation();
     window.scrollTo(0, 0);
@@ -111,10 +143,11 @@ export class Router {
 
   private parseLocation(): RouteState {
     const url = new URL(window.location.href);
+    const routePath = this.getRoutePath(url.pathname);
     const view: View =
-      url.pathname === '/library'
+      routePath === '/library'
         ? 'library'
-        : url.pathname === '/' || url.pathname === '/home'
+        : routePath === '/' || routePath === '/home'
           ? 'home'
           : 'not-found';
     const rawPage = Number(url.searchParams.get('page'));
@@ -130,6 +163,13 @@ export class Router {
       game: view === 'not-found' || auth ? undefined : (url.searchParams.get('game') ?? undefined),
       auth: view === 'not-found' ? undefined : auth,
     };
+  }
+
+  private getRoutePath(pathname: string): string {
+    if (!APP_BASE_PATH) return pathname;
+    if (pathname === APP_BASE_PATH || pathname === `${APP_BASE_PATH}/`) return '/';
+    if (pathname.startsWith(`${APP_BASE_PATH}/`)) return pathname.slice(APP_BASE_PATH.length);
+    return pathname;
   }
 
   private renderLocation(): void {

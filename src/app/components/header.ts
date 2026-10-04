@@ -2,6 +2,7 @@ import { createElement } from '../create-element';
 import { createMobileMenu } from './mobile-menu';
 import { createAuthDialog, type AuthMode } from './auth-dialog';
 import { ROUTES } from '../constants';
+import { getAppPath } from '../constants';
 
 export function createHeader(
   onAuthChange: (mode: AuthMode | null) => void = () => undefined,
@@ -15,7 +16,7 @@ export function createHeader(
   logoIcon.src = './assets/minigames_logo.png';
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'header__logo', 'MiniGames');
-  logo.href = '/';
+  logo.href = getAppPath('home');
   logo.setAttribute('data-nav', ROUTES.HOME);
   logoContainer.append(logoIcon, logo);
 
@@ -23,18 +24,18 @@ export function createHeader(
 
   const headerBtnsWrapper = createElement('div', 'header__btns-wrapper');
   const homeLink = createElement('a', 'header__link active', 'Home');
-  homeLink.href = '/';
+  homeLink.href = getAppPath('home');
   homeLink.setAttribute('data-nav', ROUTES.HOME);
   homeLink.setAttribute('data-text', 'Home');
   const libraryLink = createElement('a', 'header__link', 'Library');
-  libraryLink.href = '/library';
+  libraryLink.href = getAppPath('library');
   libraryLink.setAttribute('data-nav', ROUTES.LIBRARY);
   libraryLink.setAttribute('data-text', 'Library');
   const tournamentsLink = createElement('a', 'header__link', 'Tournaments');
-  tournamentsLink.href = '/';
+  tournamentsLink.href = getAppPath('home');
   tournamentsLink.setAttribute('data-text', 'Tournaments');
   const communityLink = createElement('a', 'header__link', 'Community');
-  communityLink.href = '/';
+  communityLink.href = getAppPath('home');
   communityLink.setAttribute('data-text', 'Community');
   navigation.append(homeLink, libraryLink, tournamentsLink, communityLink);
 

@@ -1,4 +1,5 @@
 import { createElement } from '../create-element';
+import { getAppPath } from '../constants';
 
 export function createFooter(): HTMLElement {
   const footer = createElement('footer', 'footer');
@@ -14,7 +15,7 @@ export function createFooter(): HTMLElement {
   logoIcon.src = './assets/minigames_logo.png';
   logoIcon.alt = 'MiniGames logo';
   const logo = createElement('a', 'footer__logo', 'MiniGames');
-  logo.href = '/';
+  logo.href = getAppPath('home');
   logo.setAttribute('aria-label', 'MiniGames home page');
   logoContainer.append(logoIcon, logo);
 
@@ -29,8 +30,8 @@ export function createFooter(): HTMLElement {
   const links = createElement('div', 'footer__links');
 
   const explore = createFooterColumn('Explore', [
-    ['Home', '/', 'home'],
-    ['Library', '/library', 'library'],
+    ['Home', getAppPath('home'), 'home'],
+    ['Library', getAppPath('library'), 'library'],
     ['Categories', '#'],
     ['Tournaments', '#'],
   ]);

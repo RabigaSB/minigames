@@ -3,6 +3,7 @@ import { createNewGamesSection } from '../components/carousel-card';
 import { createLeaderboard } from '../components/leaderboard';
 import { createDeveloperCta } from '../components/developer-cta';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
+import { getAppPath } from '../constants';
 
 export interface HomePageOptions {
   gameSlug?: string;
@@ -31,7 +32,7 @@ export function createHomePage(options: HomePageOptions = {}): HTMLElement {
   );
   descriptionText.append(descriptionTextSpan);
   const descriptionAction = createElement('a', 'home__description-button', 'Browse Library');
-  descriptionAction.href = '/library';
+  descriptionAction.href = getAppPath('library');
   descriptionContainer.append(descriptionTitle, descriptionText, descriptionAction);
   description.append(descriptionContainer);
 

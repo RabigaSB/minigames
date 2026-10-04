@@ -1,4 +1,5 @@
 import { createElement } from '../create-element';
+import { getAppPath } from '../constants';
 
 export function createNotFoundPage(): HTMLElement {
   const main = createElement('section', 'not-found');
@@ -10,7 +11,7 @@ export function createNotFoundPage(): HTMLElement {
     'The page you are looking for does not exist or may have moved.',
   );
   const homeLink = createElement('a', 'not-found__home', 'Return to Home Page');
-  homeLink.href = '/';
+  homeLink.href = getAppPath('home');
   homeLink.dataset.nav = 'home';
 
   main.append(code, title, message, homeLink);
