@@ -3,10 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-    <title>minigames</title>
+    <title>Redirecting...</title>
   </head>
   <body>
-    <script type="module" src="/src/main.ts"></script>
+    <p>Redirecting to MiniGames...</p>
+    <script>
+      const appBase = '/minigames/';
+      const requestedUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      const fallbackUrl = new URL(appBase, window.location.origin);
+      fallbackUrl.searchParams.set('__gh_pages_redirect', requestedUrl);
+      window.location.replace(fallbackUrl.href);
+    </script>
   </body>
 </html>

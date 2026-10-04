@@ -62,7 +62,37 @@ export class Router {
   }
 
   public start(): void {
+    this.restoreGitHubPagesUrl();
     this.renderLocation();
+  }
+
+  private restoreGitHubPagesUrl(): void {
+    const currentUrl = new URL(window.location.href);
+    const requestedUrl = currentUrl.searchParams.get('__gh_pages_redirect');
+    if (!requestedUrl) return;
+
+    const restoredUrl = new URL(requestedUrl, window.location.origin);
+    const isWithinAppBase =
+      restoredUrl.origin === window.location.origin &&
+      (restoredUrl.pathname === APP_BASE_PATH ||
+        restoredUrl.pathname === `${APP_BASE_PATH}/` ||
+        restoredUrl.pathname.startsWith(`${APP_BASE_PATH}/`));
+
+    if (isWithinAppBase) {
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${restoredUrl.pathname}${restoredUrl.search}${restoredUrl.hash}`,
+      );
+      return;
+    }
+
+    currentUrl.searchParams.delete('__gh_pages_redirect');
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`,
+    );
   }
 
   public navigate(view: NavigableView): void {
