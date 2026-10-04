@@ -1,9 +1,11 @@
 import { createHomePage } from './pages/home';
 import { createLibraryPage, type LibraryRouteState } from './pages/library';
+import { createNotFoundPage } from './pages/not-found';
 import type { AuthDialog, AuthMode } from './components/auth-dialog';
 import type { GameDetailsDialog } from './components/game-details-dialog';
 
-type View = 'home' | 'library';
+type View = 'home' | 'library' | 'not-found';
+type NavigableView = Exclude<View, 'not-found'>;
 type RouteState = {
   view: View;
   category: string;
@@ -61,7 +63,7 @@ export class Router {
     this.renderLocation();
   }
 
-  public navigate(view: View): void {
+  public navigate(view: NavigableView): void {
     const path = view === 'home' ? '/' : '/library';
     window.history.pushState({}, '', path);
     this.renderLocation();
@@ -109,7 +111,12 @@ export class Router {
 
   private parseLocation(): RouteState {
     const url = new URL(window.location.href);
-    const view: View = url.pathname === '/library' ? 'library' : 'home';
+    const view: View =
+      url.pathname === '/library'
+        ? 'library'
+        : url.pathname === '/' || url.pathname === '/home'
+          ? 'home'
+          : 'not-found';
     const rawPage = Number(url.searchParams.get('page'));
     const rawSort = url.searchParams.get('sort') ?? 'rating-desc';
     const rawAuth = url.searchParams.get('auth');
@@ -120,8 +127,8 @@ export class Router {
       category: url.searchParams.get('category') ?? 'all',
       sort: VALID_SORTS.has(rawSort) ? rawSort : 'rating-desc',
       page: Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1,
-      game: auth ? undefined : (url.searchParams.get('game') ?? undefined),
-      auth,
+      game: view === 'not-found' || auth ? undefined : (url.searchParams.get('game') ?? undefined),
+      auth: view === 'not-found' ? undefined : auth,
     };
   }
 
@@ -135,21 +142,23 @@ export class Router {
     this.contentContainer.replaceChildren();
 
     const page =
-      state.view === 'home'
-        ? createHomePage({
-            gameSlug: state.game,
-            onGameChange: this.handleGameChange,
-          })
-        : createLibraryPage({
-            state: {
-              category: state.category,
-              sort: state.sort,
-              page: state.page,
-            },
-            gameSlug: state.game,
-            onStateChange: this.handleLibraryStateChange,
-            onGameChange: this.handleGameChange,
-          });
+      state.view === 'not-found'
+        ? createNotFoundPage()
+        : state.view === 'home'
+          ? createHomePage({
+              gameSlug: state.game,
+              onGameChange: this.handleGameChange,
+            })
+          : createLibraryPage({
+              state: {
+                category: state.category,
+                sort: state.sort,
+                page: state.page,
+              },
+              gameSlug: state.game,
+              onStateChange: this.handleLibraryStateChange,
+              onGameChange: this.handleGameChange,
+            });
 
     this.contentContainer.append(page);
     if (state.auth) {

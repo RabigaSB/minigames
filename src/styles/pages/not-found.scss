@@ -1,0 +1,46 @@
+@use '../abstracts/variables' as *;
+
+.not-found {
+  min-height: 55vh;
+  box-sizing: border-box;
+  padding: 64px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  &__code {
+    margin: 0;
+    color: $primary;
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  &__title {
+    margin: 16px 0 8px;
+    color: $on-primary;
+    font-size: 32px;
+  }
+
+  &__message {
+    max-width: 440px;
+    margin: 0 0 24px;
+    line-height: 1.5;
+  }
+
+  &__home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 10px 20px;
+    border: 2px solid $on-primary;
+    border-radius: $corner-small;
+    background-color: $primary;
+    color: $on-primary;
+    font-weight: $bold;
+  }
+}
