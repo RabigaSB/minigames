@@ -41,8 +41,10 @@ export function createAuthDialog(
   const loginEmailWrapper = createElement('div', 'auth-dialog__input-wrapper');
   const loginEmailIcon = createElement('span', 'auth-dialog__icon auth-dialog__icon--mail');
   const loginEmailInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
+  loginEmailInput.id = 'login-email';
   loginEmailInput.type = 'email';
   loginEmailInput.placeholder = 'e.g. alex@minigames.com';
+  loginEmailLabel.htmlFor = loginEmailInput.id;
   loginEmailWrapper.append(loginEmailIcon, loginEmailInput);
   loginEmailGroup.append(loginEmailLabel, loginEmailWrapper);
 
@@ -51,8 +53,10 @@ export function createAuthDialog(
   const loginPasswordWrapper = createElement('div', 'auth-dialog__input-wrapper');
   const loginPasswordIcon = createElement('span', 'auth-dialog__icon auth-dialog__icon--lock');
   const loginPasswordInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
+  loginPasswordInput.id = 'login-password';
   loginPasswordInput.type = 'password';
   loginPasswordInput.placeholder = '••••••••';
+  loginPasswordLabel.htmlFor = loginPasswordInput.id;
   const loginPasswordToggle = createElement('span', 'auth-dialog__eye-icon');
   loginPasswordWrapper.append(loginPasswordIcon, loginPasswordInput, loginPasswordToggle);
   loginPasswordGroup.append(loginPasswordLabel, loginPasswordWrapper);
@@ -62,6 +66,7 @@ export function createAuthDialog(
 
   const loginSubmitButton = createElement('button', 'auth-dialog__submit-btn', 'Login');
   loginSubmitButton.type = 'button';
+  loginSubmitButton.disabled = true;
 
   const loginDivider = createElement('div', 'auth-dialog__divider', 'OR');
 
@@ -106,8 +111,10 @@ export function createAuthDialog(
   const regUserWrapper = createElement('div', 'auth-dialog__input-wrapper');
   const regUserIcon = createElement('span', 'auth-dialog__icon auth-dialog__icon--person');
   const regUserInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
+  regUserInput.id = 'register-username';
   regUserInput.type = 'text';
-  regUserInput.placeholder = 'e.g. CozyGamer_99';
+  regUserInput.placeholder = 'e.g. CozyGamer99';
+  regUserLabel.htmlFor = regUserInput.id;
   regUserWrapper.append(regUserIcon, regUserInput);
   regUserGroup.append(regUserLabel, regUserWrapper);
 
@@ -116,8 +123,10 @@ export function createAuthDialog(
   const regEmailWrapper = createElement('div', 'auth-dialog__input-wrapper');
   const regEmailIcon = createElement('span', 'auth-dialog__icon auth-dialog__icon--mail');
   const regEmailInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
+  regEmailInput.id = 'register-email';
   regEmailInput.type = 'email';
   regEmailInput.placeholder = 'your.email@domain.com';
+  regEmailLabel.htmlFor = regEmailInput.id;
   regEmailWrapper.append(regEmailIcon, regEmailInput);
   regEmailGroup.append(regEmailLabel, regEmailWrapper);
 
@@ -126,8 +135,10 @@ export function createAuthDialog(
   const regPassWrapper = createElement('div', 'auth-dialog__input-wrapper');
   const regPassIcon = createElement('span', 'auth-dialog__icon auth-dialog__icon--lock');
   const regPassInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
+  regPassInput.id = 'register-password';
   regPassInput.type = 'password';
-  regPassInput.placeholder = 'Min. 8 characters';
+  regPassInput.placeholder = 'Min. 6 characters';
+  regPassLabel.htmlFor = regPassInput.id;
   regPassWrapper.append(regPassIcon, regPassInput);
   regPassGroup.append(regPassLabel, regPassWrapper);
 
@@ -136,13 +147,16 @@ export function createAuthDialog(
   const regConfirmWrapper = createElement('div', 'auth-dialog__input-wrapper');
   const regConfirmIcon = createElement('span', 'auth-dialog__icon auth-dialog__icon--lock');
   const regConfirmInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
+  regConfirmInput.id = 'register-confirm-password';
   regConfirmInput.type = 'password';
   regConfirmInput.placeholder = 'Repeat your password';
+  regConfirmLabel.htmlFor = regConfirmInput.id;
   regConfirmWrapper.append(regConfirmIcon, regConfirmInput);
   regConfirmGroup.append(regConfirmLabel, regConfirmWrapper);
 
   const registerSubmitButton = createElement('button', 'auth-dialog__submit-btn', 'Create Account');
   registerSubmitButton.type = 'button';
+  registerSubmitButton.disabled = true;
 
   const registerDivider = createElement('div', 'auth-dialog__divider', 'OR');
 
@@ -178,7 +192,152 @@ export function createAuthDialog(
   content.append(tabsContainer, loginForm, registerForm);
   authDialog.append(content);
 
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const usernamePattern = /^[A-Z][A-Za-z0-9]{1,29}$/;
+  const uppercasePattern = /[A-Z]/;
+  const digitPattern = /\d/;
+  const specialCharacterPattern = /[^A-Za-z0-9]/;
+  const printableAsciiPattern = /^[\x21-\x7E]+$/;
+
+  const errorElements = new Map<HTMLInputElement, HTMLParagraphElement>();
+  const createErrorElement = (input: HTMLInputElement, group: HTMLDivElement): void => {
+    const error = createElement(
+      'p',
+      'auth-dialog__error',
+    ) as HTMLParagraphElement;
+    error.id = `${input.id}-error`;
+    error.setAttribute('aria-live', 'polite');
+    input.setAttribute('aria-describedby', error.id);
+    input.setAttribute('aria-invalid', 'false');
+    group.append(error);
+    errorElements.set(input, error);
+  };
+
+  createErrorElement(loginEmailInput, loginEmailGroup);
+  createErrorElement(loginPasswordInput, loginPasswordGroup);
+  createErrorElement(regUserInput, regUserGroup);
+  createErrorElement(regEmailInput, regEmailGroup);
+  createErrorElement(regPassInput, regPassGroup);
+  createErrorElement(regConfirmInput, regConfirmGroup);
+  const touchedFields = new Set<HTMLInputElement>();
+
+  const setFieldError = (input: HTMLInputElement, message: string): void => {
+    const error = errorElements.get(input);
+    if (!error) return;
+    error.textContent = message;
+    input.setAttribute('aria-invalid', String(Boolean(message)));
+    input.classList.toggle('auth-dialog__input--invalid', Boolean(message));
+  };
+
+  const validateEmail = (input: HTMLInputElement): string => {
+    const value = input.value.trim();
+    if (!value) return 'Email is required.';
+    if (!emailPattern.test(value)) return 'Enter a valid email address.';
+    return '';
+  };
+
+  const validateLoginPassword = (): string => {
+    if (!loginPasswordInput.value) return 'Password is required.';
+    if (loginPasswordInput.value.length < 6) {
+      return 'Password must be at least 6 characters long.';
+    }
+    return '';
+  };
+
+  const validateUsername = (): string => {
+    const value = regUserInput.value;
+    if (!value) return 'Username is required.';
+    if (!usernamePattern.test(value)) {
+      return 'Use 2-30 characters, starting with an uppercase English letter; letters and digits only.';
+    }
+    return '';
+  };
+
+  const validateRegisterPassword = (): string => {
+    const value = regPassInput.value;
+    if (!value) return 'Password is required.';
+    if (value.length < 6) return 'Password must be at least 6 characters long.';
+    if (
+      !printableAsciiPattern.test(value) ||
+      !uppercasePattern.test(value) ||
+      !digitPattern.test(value) ||
+      !specialCharacterPattern.test(value)
+    ) {
+      return 'Use English letters, at least one uppercase letter, one digit, and one special character.';
+    }
+    return '';
+  };
+
+  const validateConfirmPassword = (): string => {
+    if (!regConfirmInput.value) return 'Please confirm your password.';
+    if (regConfirmInput.value !== regPassInput.value) return 'Passwords do not match.';
+    return '';
+  };
+
+  const updateLoginValidation = (): void => {
+    const emailError = validateEmail(loginEmailInput);
+    const passwordError = validateLoginPassword();
+    setFieldError(loginEmailInput, touchedFields.has(loginEmailInput) ? emailError : '');
+    setFieldError(loginPasswordInput, touchedFields.has(loginPasswordInput) ? passwordError : '');
+    loginSubmitButton.disabled = Boolean(emailError || passwordError);
+  };
+
+  const updateRegisterValidation = (): void => {
+    const usernameError = validateUsername();
+    const emailError = validateEmail(regEmailInput);
+    const passwordError = validateRegisterPassword();
+    const confirmError = validateConfirmPassword();
+    setFieldError(regUserInput, touchedFields.has(regUserInput) ? usernameError : '');
+    setFieldError(regEmailInput, touchedFields.has(regEmailInput) ? emailError : '');
+    setFieldError(regPassInput, touchedFields.has(regPassInput) ? passwordError : '');
+    setFieldError(regConfirmInput, touchedFields.has(regConfirmInput) ? confirmError : '');
+    registerSubmitButton.disabled = Boolean(
+      usernameError || emailError || passwordError || confirmError,
+    );
+  };
+
+  const resetForms = (): void => {
+    loginForm.reset();
+    registerForm.reset();
+    touchedFields.clear();
+    for (const input of errorElements.keys()) {
+      setFieldError(input, '');
+    }
+    updateLoginValidation();
+    updateRegisterValidation();
+  };
+
+  const addValidationListeners = (
+    input: HTMLInputElement,
+    validate: () => void,
+    revalidate?: HTMLInputElement,
+  ): void => {
+    const handleValidation = (): void => {
+      touchedFields.add(input);
+      if (revalidate) touchedFields.add(revalidate);
+      validate();
+    };
+    input.addEventListener('input', handleValidation);
+    input.addEventListener('change', handleValidation);
+    input.addEventListener('blur', handleValidation);
+  };
+
+  addValidationListeners(loginEmailInput, updateLoginValidation);
+  addValidationListeners(loginPasswordInput, updateLoginValidation);
+  addValidationListeners(regUserInput, updateRegisterValidation);
+  addValidationListeners(regEmailInput, updateRegisterValidation);
+  addValidationListeners(regPassInput, updateRegisterValidation, regConfirmInput);
+  addValidationListeners(regConfirmInput, updateRegisterValidation);
+
+  updateLoginValidation();
+  updateRegisterValidation();
+
+  let currentMode: AuthMode = 'login';
   const setMode = (mode: AuthMode, syncUrl = true): void => {
+    if (mode !== currentMode) {
+      currentMode = mode;
+      resetForms();
+    }
     const isLogin = mode === 'login';
     loginTab.classList.toggle('auth-dialog__tab--active', isLogin);
     registerTab.classList.toggle('auth-dialog__tab--active', !isLogin);

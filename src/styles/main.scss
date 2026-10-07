@@ -445,6 +445,21 @@ a {
       outline: none;
       border-color: $primary;
     }
+
+    &--invalid {
+      border-color: #c62828;
+    }
+  }
+
+  &__error {
+    margin: 6px 0 0;
+    color: #c62828;
+    font-size: 12px;
+    line-height: 1.4;
+
+    &:empty {
+      display: none;
+    }
   }
 
   &__forgot-link,
@@ -480,6 +495,12 @@ a {
     &:active {
       transform: translateY(2px);
       box-shadow: 0 2px 0 $on-primary;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
     }
   }
 
