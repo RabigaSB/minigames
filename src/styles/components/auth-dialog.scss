@@ -14,6 +14,7 @@ $auth-dialog-width: 460px;
   background-color: $modal-backdrop;
 
   &__content {
+    position: relative;
     box-sizing: border-box;
     width: $auth-dialog-width;
     max-width: $full-width;
@@ -26,12 +27,47 @@ $auth-dialog-width: 460px;
     box-shadow: $level-3;
   }
 
+  &__close {
+    position: absolute;
+    top: $size-1;
+    right: $size-1;
+    width: $size-4;
+    height: $size-4;
+    border: 0;
+    border-radius: $corner-small;
+    background: transparent;
+    color: $on-primary;
+    font-size: $headline-small;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
   &__tabs {
     display: flex;
     background-color: $on-primary;
     border-radius: $corner-large;
     padding: $size-05;
     margin-bottom: $size-4;
+  }
+
+  &__status {
+    margin: 0 0 $size-2;
+    color: $on-bg;
+    font-size: $body-small;
+
+    &:empty {
+      display: none;
+    }
+
+    &--error {
+      color: $error;
+    }
+  }
+
+  &__content--pending a {
+    pointer-events: none;
   }
 
   &__tab {

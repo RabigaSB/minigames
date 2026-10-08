@@ -1,4 +1,8 @@
 import { createElement } from '../create-element';
+import { FirebaseError } from 'firebase/app';
+import { createAppSession, type AppSession } from '../../services/app-session';
+import { signInWithEmail, signUpWithEmail } from '../../services/firebase';
+import { showSnackbar } from '../utils/snackbar';
 
 export type AuthMode = 'login' | 'register';
 
@@ -9,12 +13,11 @@ export interface AuthDialog extends HTMLElement {
 
 export function createAuthDialog(
   onAuthChange: (mode: AuthMode | null) => void = () => undefined,
+  onAuthenticated: (session: AppSession) => void = () => undefined,
+  onPendingChange: (pending: boolean) => void = () => undefined,
 ): AuthDialog {
   const createPasswordToggle = (input: HTMLInputElement): HTMLButtonElement => {
-    const toggle = createElement(
-      'button',
-      'auth-dialog__eye-icon',
-    ) as HTMLButtonElement;
+    const toggle = createElement('button', 'auth-dialog__eye-icon') as HTMLButtonElement;
     toggle.type = 'button';
     toggle.setAttribute('aria-label', 'Show password');
     toggle.setAttribute('aria-controls', input.id);
@@ -39,6 +42,9 @@ export function createAuthDialog(
   });
 
   const content = createElement('div', 'auth-dialog__content');
+  const closeButton = createElement('button', 'auth-dialog__close', '×');
+  closeButton.type = 'button';
+  closeButton.setAttribute('aria-label', 'Close authentication dialog');
 
   const tabsContainer = createElement('div', 'auth-dialog__tabs');
   const loginTab = createElement('button', 'auth-dialog__tab auth-dialog__tab--active', 'Login');
@@ -46,6 +52,9 @@ export function createAuthDialog(
   const registerTab = createElement('button', 'auth-dialog__tab', 'Register');
   registerTab.type = 'button';
   tabsContainer.append(loginTab, registerTab);
+  const authStatus = createElement('p', 'auth-dialog__status') as HTMLParagraphElement;
+  authStatus.setAttribute('role', 'status');
+  authStatus.setAttribute('aria-live', 'polite');
 
   const loginForm = createElement('form', 'auth-dialog__form auth-dialog__form--login');
 
@@ -63,6 +72,7 @@ export function createAuthDialog(
   const loginEmailInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
   loginEmailInput.id = 'login-email';
   loginEmailInput.type = 'email';
+  loginEmailInput.required = true;
   loginEmailInput.placeholder = 'e.g. alex@minigames.com';
   loginEmailLabel.htmlFor = loginEmailInput.id;
   loginEmailWrapper.append(loginEmailIcon, loginEmailInput);
@@ -75,6 +85,7 @@ export function createAuthDialog(
   const loginPasswordInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
   loginPasswordInput.id = 'login-password';
   loginPasswordInput.type = 'password';
+  loginPasswordInput.required = true;
   loginPasswordInput.placeholder = '••••••••';
   loginPasswordLabel.htmlFor = loginPasswordInput.id;
   const loginPasswordToggle = createPasswordToggle(loginPasswordInput);
@@ -85,7 +96,7 @@ export function createAuthDialog(
   forgotPasswordLink.href = '#';
 
   const loginSubmitButton = createElement('button', 'auth-dialog__submit-btn', 'Login');
-  loginSubmitButton.type = 'button';
+  loginSubmitButton.type = 'submit';
   loginSubmitButton.disabled = true;
 
   const loginDivider = createElement('div', 'auth-dialog__divider', 'OR');
@@ -133,6 +144,7 @@ export function createAuthDialog(
   const regUserInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
   regUserInput.id = 'register-username';
   regUserInput.type = 'text';
+  regUserInput.required = true;
   regUserInput.placeholder = 'e.g. CozyGamer99';
   regUserLabel.htmlFor = regUserInput.id;
   regUserWrapper.append(regUserIcon, regUserInput);
@@ -145,6 +157,7 @@ export function createAuthDialog(
   const regEmailInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
   regEmailInput.id = 'register-email';
   regEmailInput.type = 'email';
+  regEmailInput.required = true;
   regEmailInput.placeholder = 'your.email@domain.com';
   regEmailLabel.htmlFor = regEmailInput.id;
   regEmailWrapper.append(regEmailIcon, regEmailInput);
@@ -157,6 +170,7 @@ export function createAuthDialog(
   const regPassInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
   regPassInput.id = 'register-password';
   regPassInput.type = 'password';
+  regPassInput.required = true;
   regPassInput.placeholder = 'Min. 6 characters';
   regPassLabel.htmlFor = regPassInput.id;
   const regPassToggle = createPasswordToggle(regPassInput);
@@ -170,6 +184,7 @@ export function createAuthDialog(
   const regConfirmInput = createElement('input', 'auth-dialog__input') as HTMLInputElement;
   regConfirmInput.id = 'register-confirm-password';
   regConfirmInput.type = 'password';
+  regConfirmInput.required = true;
   regConfirmInput.placeholder = 'Repeat your password';
   regConfirmLabel.htmlFor = regConfirmInput.id;
   const regConfirmToggle = createPasswordToggle(regConfirmInput);
@@ -177,7 +192,7 @@ export function createAuthDialog(
   regConfirmGroup.append(regConfirmLabel, regConfirmWrapper);
 
   const registerSubmitButton = createElement('button', 'auth-dialog__submit-btn', 'Create Account');
-  registerSubmitButton.type = 'button';
+  registerSubmitButton.type = 'submit';
   registerSubmitButton.disabled = true;
 
   const registerDivider = createElement('div', 'auth-dialog__divider', 'OR');
@@ -211,7 +226,7 @@ export function createAuthDialog(
     switchLoginText,
   );
 
-  content.append(tabsContainer, loginForm, registerForm);
+  content.append(closeButton, tabsContainer, authStatus, loginForm, registerForm);
   authDialog.append(content);
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -223,10 +238,7 @@ export function createAuthDialog(
 
   const errorElements = new Map<HTMLInputElement, HTMLParagraphElement>();
   const createErrorElement = (input: HTMLInputElement, group: HTMLDivElement): void => {
-    const error = createElement(
-      'p',
-      'auth-dialog__error',
-    ) as HTMLParagraphElement;
+    const error = createElement('p', 'auth-dialog__error') as HTMLParagraphElement;
     error.id = `${input.id}-error`;
     error.setAttribute('aria-live', 'polite');
     input.setAttribute('aria-describedby', error.id);
@@ -365,7 +377,123 @@ export function createAuthDialog(
   updateRegisterValidation();
 
   let currentMode: AuthMode = 'login';
+  let isPending = false;
+  const priorDisabledStates = new Map<HTMLButtonElement | HTMLInputElement, boolean>();
+  const setPending = (pending: boolean, message = ''): void => {
+    isPending = pending;
+    authDialog.setAttribute('aria-busy', String(pending));
+    content.classList.toggle('auth-dialog__content--pending', pending);
+    authStatus.textContent = message;
+    authStatus.classList.toggle('auth-dialog__status--error', false);
+    authStatus.setAttribute('role', 'status');
+
+    if (pending) {
+      priorDisabledStates.clear();
+      content.querySelectorAll('button, input').forEach((element) => {
+        const control = element as HTMLButtonElement | HTMLInputElement;
+        priorDisabledStates.set(control, control.disabled);
+        control.disabled = true;
+      });
+      onPendingChange(true);
+      return;
+    }
+
+    for (const [control, wasDisabled] of priorDisabledStates) {
+      control.disabled = wasDisabled;
+    }
+    priorDisabledStates.clear();
+    loginSubmitButton.textContent = 'Login';
+    registerSubmitButton.textContent = 'Create Account';
+    updateLoginValidation();
+    updateRegisterValidation();
+    onPendingChange(false);
+  };
+
+  const authErrorMessages: Record<string, string> = {
+    'auth/email-already-in-use': 'An account with this email already exists.',
+    'auth/invalid-credential': 'The email or password is incorrect.',
+    'auth/invalid-email': 'Enter a valid email address.',
+    'auth/network-request-failed': 'Network error. Check your connection and try again.',
+    'auth/too-many-requests': 'Too many attempts. Please wait and try again.',
+    'auth/user-not-found': 'No account was found with this email address.',
+    'auth/wrong-password': 'The email or password is incorrect.',
+    'auth/weak-password': 'Choose a stronger password and try again.',
+  };
+  const getAuthErrorMessage = (error: unknown): string => {
+    if (error instanceof FirebaseError) {
+      return authErrorMessages[error.code] ?? 'Authentication failed. Please try again.';
+    }
+    return 'Authentication failed. Please try again.';
+  };
+
+  const handleAuthentication = async (event: SubmitEvent, mode: AuthMode): Promise<void> => {
+    event.preventDefault();
+    if (isPending) return;
+
+    const inputs =
+      mode === 'login'
+        ? [loginEmailInput, loginPasswordInput]
+        : [regUserInput, regEmailInput, regPassInput, regConfirmInput];
+    for (const input of inputs) touchedFields.add(input);
+    if (mode === 'login') {
+      updateLoginValidation();
+      if (validateEmail(loginEmailInput) || validateLoginPassword()) return;
+    } else {
+      updateRegisterValidation();
+      if (
+        validateUsername() ||
+        validateEmail(regEmailInput) ||
+        validateRegisterPassword() ||
+        validateConfirmPassword()
+      ) {
+        return;
+      }
+    }
+
+    const pendingMessage = mode === 'login' ? 'Signing in...' : 'Creating your account...';
+    setPending(true, pendingMessage);
+    if (mode === 'login') loginSubmitButton.textContent = pendingMessage;
+    else registerSubmitButton.textContent = pendingMessage;
+
+    try {
+      const credential =
+        mode === 'login'
+          ? await signInWithEmail(loginEmailInput.value.trim(), loginPasswordInput.value)
+          : await signUpWithEmail(
+              regEmailInput.value.trim(),
+              regPassInput.value,
+              regUserInput.value,
+            );
+      const session = createAppSession(credential.user);
+      onAuthenticated(session);
+      showSnackbar(
+        mode === 'login' ? 'You are now signed in.' : 'Your account was created.',
+        'success',
+      );
+      setPending(false);
+      resetForms();
+      authDialog.closeAuth();
+    } catch (error) {
+      const message = getAuthErrorMessage(error);
+      setPending(false, message);
+      authStatus.classList.add('auth-dialog__status--error');
+      authStatus.setAttribute('role', 'alert');
+      showSnackbar(message, 'error');
+    }
+  };
+
+  loginForm.addEventListener('submit', (event) => {
+    void handleAuthentication(event, 'login');
+  });
+  registerForm.addEventListener('submit', (event) => {
+    void handleAuthentication(event, 'register');
+  });
+
   const setMode = (mode: AuthMode, syncUrl = true): void => {
+    if (isPending) return;
+    authStatus.textContent = '';
+    authStatus.classList.remove('auth-dialog__status--error');
+    authStatus.setAttribute('role', 'status');
     if (mode !== currentMode) {
       currentMode = mode;
       resetForms();
@@ -384,12 +512,14 @@ export function createAuthDialog(
   const showRegister = (): void => setMode('register');
 
   authDialog.openAuth = (mode: AuthMode, syncUrl = true): void => {
+    if (isPending) return;
     setMode(mode, false);
     authDialog.classList.add('auth-dialog--open');
     if (syncUrl) onAuthChange(mode);
   };
 
   authDialog.closeAuth = (syncUrl = true): void => {
+    if (isPending) return;
     const wasOpen = authDialog.classList.contains('auth-dialog--open');
     authDialog.classList.remove('auth-dialog--open');
     if (syncUrl && wasOpen) onAuthChange(null);
@@ -397,17 +527,21 @@ export function createAuthDialog(
 
   loginTab.addEventListener('click', showLogin);
   registerTab.addEventListener('click', showRegister);
+  closeButton.addEventListener('click', () => authDialog.closeAuth());
   switchRegisterLink.addEventListener('click', (e) => {
     e.preventDefault();
+    if (isPending) return;
     showRegister();
   });
   switchLoginLink.addEventListener('click', (e) => {
     e.preventDefault();
+    if (isPending) return;
     showLogin();
   });
 
+  forgotPasswordLink.addEventListener('click', (event) => event.preventDefault());
   authDialog.addEventListener('click', (event) => {
-    if (event.target === authDialog) {
+    if (!isPending && event.target === authDialog) {
       authDialog.closeAuth();
     }
   });
