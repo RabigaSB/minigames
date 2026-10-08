@@ -10,6 +10,26 @@ export interface AuthDialog extends HTMLElement {
 export function createAuthDialog(
   onAuthChange: (mode: AuthMode | null) => void = () => undefined,
 ): AuthDialog {
+  const createPasswordToggle = (input: HTMLInputElement): HTMLButtonElement => {
+    const toggle = createElement(
+      'button',
+      'auth-dialog__eye-icon',
+    ) as HTMLButtonElement;
+    toggle.type = 'button';
+    toggle.setAttribute('aria-label', 'Show password');
+    toggle.setAttribute('aria-controls', input.id);
+    toggle.setAttribute('aria-pressed', 'false');
+    input.classList.add('auth-dialog__input--with-toggle');
+    toggle.addEventListener('click', () => {
+      const isVisible = input.type === 'password';
+      input.type = isVisible ? 'text' : 'password';
+      toggle.classList.toggle('auth-dialog__eye-icon--visible', isVisible);
+      toggle.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
+      toggle.setAttribute('aria-pressed', String(isVisible));
+    });
+    return toggle;
+  };
+
   const authDialog = Object.assign(createElement('div', 'auth-dialog'), {
     openAuth: (mode: AuthMode, syncUrl?: boolean): void => {
       void mode;
@@ -57,7 +77,7 @@ export function createAuthDialog(
   loginPasswordInput.type = 'password';
   loginPasswordInput.placeholder = '••••••••';
   loginPasswordLabel.htmlFor = loginPasswordInput.id;
-  const loginPasswordToggle = createElement('span', 'auth-dialog__eye-icon');
+  const loginPasswordToggle = createPasswordToggle(loginPasswordInput);
   loginPasswordWrapper.append(loginPasswordIcon, loginPasswordInput, loginPasswordToggle);
   loginPasswordGroup.append(loginPasswordLabel, loginPasswordWrapper);
 
@@ -139,7 +159,8 @@ export function createAuthDialog(
   regPassInput.type = 'password';
   regPassInput.placeholder = 'Min. 6 characters';
   regPassLabel.htmlFor = regPassInput.id;
-  regPassWrapper.append(regPassIcon, regPassInput);
+  const regPassToggle = createPasswordToggle(regPassInput);
+  regPassWrapper.append(regPassIcon, regPassInput, regPassToggle);
   regPassGroup.append(regPassLabel, regPassWrapper);
 
   const regConfirmGroup = createElement('div', 'auth-dialog__input-group');
@@ -151,7 +172,8 @@ export function createAuthDialog(
   regConfirmInput.type = 'password';
   regConfirmInput.placeholder = 'Repeat your password';
   regConfirmLabel.htmlFor = regConfirmInput.id;
-  regConfirmWrapper.append(regConfirmIcon, regConfirmInput);
+  const regConfirmToggle = createPasswordToggle(regConfirmInput);
+  regConfirmWrapper.append(regConfirmIcon, regConfirmInput, regConfirmToggle);
   regConfirmGroup.append(regConfirmLabel, regConfirmWrapper);
 
   const registerSubmitButton = createElement('button', 'auth-dialog__submit-btn', 'Create Account');
@@ -299,6 +321,16 @@ export function createAuthDialog(
   const resetForms = (): void => {
     loginForm.reset();
     registerForm.reset();
+    for (const [input, toggle] of [
+      [loginPasswordInput, loginPasswordToggle],
+      [regPassInput, regPassToggle],
+      [regConfirmInput, regConfirmToggle],
+    ] as const) {
+      input.type = 'password';
+      toggle.classList.remove('auth-dialog__eye-icon--visible');
+      toggle.setAttribute('aria-label', 'Show password');
+      toggle.setAttribute('aria-pressed', 'false');
+    }
     touchedFields.clear();
     for (const input of errorElements.keys()) {
       setFieldError(input, '');
