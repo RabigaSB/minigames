@@ -1,7 +1,7 @@
 import { createElement } from '../create-element';
 import { FirebaseError } from 'firebase/app';
 import { createAppSession, type AppSession } from '../../services/app-session';
-import { signInWithEmail, signUpWithEmail } from '../../services/firebase';
+import { signInWithEmail, signInWithGoogle, signUpWithEmail } from '../../services/firebase';
 import { showSnackbar } from '../utils/snackbar';
 
 export type AuthMode = 'login' | 'register';
@@ -414,6 +414,9 @@ export function createAuthDialog(
     'auth/invalid-credential': 'The email or password is incorrect.',
     'auth/invalid-email': 'Enter a valid email address.',
     'auth/network-request-failed': 'Network error. Check your connection and try again.',
+    'auth/popup-closed-by-user': 'Google sign-in was canceled.',
+    'auth/popup-blocked': 'Allow pop-ups for this site and try again.',
+    'auth/cancelled-popup-request': 'Another sign-in window is already open.',
     'auth/too-many-requests': 'Too many attempts. Please wait and try again.',
     'auth/user-not-found': 'No account was found with this email address.',
     'auth/wrong-password': 'The email or password is incorrect.',
@@ -487,6 +490,40 @@ export function createAuthDialog(
   });
   registerForm.addEventListener('submit', (event) => {
     void handleAuthentication(event, 'register');
+  });
+
+  const handleGoogleAuthentication = async (button: HTMLButtonElement): Promise<void> => {
+    if (isPending) return;
+
+    const initialLabel = button.textContent ?? 'Continue with Google';
+    const pendingMessage = 'Connecting to Google...';
+    setPending(true, pendingMessage);
+    button.textContent = pendingMessage;
+
+    try {
+      const credential = await signInWithGoogle();
+      const session = createAppSession(credential.user);
+      onAuthenticated(session);
+      showSnackbar('You are now signed in with Google.', 'success');
+      button.textContent = initialLabel;
+      setPending(false);
+      resetForms();
+      authDialog.closeAuth();
+    } catch (error) {
+      const message = getAuthErrorMessage(error);
+      button.textContent = initialLabel;
+      setPending(false, message);
+      authStatus.classList.add('auth-dialog__status--error');
+      authStatus.setAttribute('role', 'alert');
+      showSnackbar(message, 'error');
+    }
+  };
+
+  googleLoginBtn.addEventListener('click', () => {
+    void handleGoogleAuthentication(googleLoginBtn);
+  });
+  googleRegisterBtn.addEventListener('click', () => {
+    void handleGoogleAuthentication(googleRegisterBtn);
   });
 
   const setMode = (mode: AuthMode, syncUrl = true): void => {
