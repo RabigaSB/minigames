@@ -104,7 +104,8 @@ body.menu-open {
   }
 
   &__login,
-  &__signup {
+  &__signup,
+  &__logout {
     width: 100%;
     min-height: $size-5;
     border-radius: $corner-small;
@@ -112,6 +113,20 @@ body.menu-open {
     font-size: $label-large;
     font-weight: $bold;
     cursor: pointer;
+  }
+
+  &__login[hidden],
+  &__signup[hidden],
+  &__user[hidden],
+  &__logout[hidden] {
+    display: none;
+  }
+
+  &__user {
+    color: $white;
+    font-size: $body-large;
+    font-weight: $bold;
+    text-align: center;
   }
 
   &__login {
@@ -124,5 +139,11 @@ body.menu-open {
     border: $border-solid $primary;
     background-color: $primary;
     color: $on-primary;
+  }
+
+  &__logout {
+    border: $border-solid $white;
+    background-color: transparent;
+    color: $white;
   }
 }

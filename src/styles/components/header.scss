@@ -133,6 +133,42 @@
     }
   }
 
+  &__sign-in[hidden],
+  &__sign-up[hidden],
+  &__user[hidden],
+  &__logout[hidden] {
+    display: none;
+  }
+
+  &__user,
+  &__logout {
+    display: none;
+
+    @media (min-width: $breakpoint-tablet) {
+      display: inline-block;
+    }
+  }
+
+  &__user {
+    color: $on-primary;
+    font-size: $label-large;
+    font-weight: $bold;
+  }
+
+  &__logout {
+    border: $border-solid $on-primary;
+    border-radius: $size-1;
+    background-color: $bg;
+    color: $on-primary;
+    font-size: $label-large;
+    font-weight: $bold;
+    padding: $btn-medium;
+
+    &:hover {
+      background-color: $surface;
+    }
+  }
+
   &__sign-in {
     background-color: $bg;
 
