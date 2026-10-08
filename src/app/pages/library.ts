@@ -5,6 +5,7 @@ import { formatToK } from '../utils/formatters';
 import { createPagination } from '../components/pagination';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
 import { showSnackbar } from '../utils/snackbar';
+import type { AppSession } from '../../services/app-session';
 
 const currentLimit = 6;
 
@@ -19,6 +20,8 @@ export interface LibraryPageOptions {
   gameSlug?: string;
   onStateChange?: (state: LibraryRouteState, replace?: boolean) => void;
   onGameChange?: (slug: string | null) => void;
+  getSession?: () => AppSession | null;
+  onAuthRequired?: () => void;
 }
 
 export function createLibraryPage(options: LibraryPageOptions = {}): HTMLElement {
@@ -42,7 +45,10 @@ export function createLibraryPage(options: LibraryPageOptions = {}): HTMLElement
   const controlsWrapper = createElement('div', 'library__controls');
   const chipsContainer = createElement('div', 'library__chips');
   const gridContainer = createElement('div', 'library__grid');
-  const gameDialog = createGameDetailsDialog(options.onGameChange, options.gameSlug);
+  const gameDialog = createGameDetailsDialog(options.onGameChange, options.gameSlug, {
+    getSession: options.getSession,
+    onAuthRequired: options.onAuthRequired,
+  });
 
   const getState = (): LibraryRouteState => ({
     category: currentCategory,

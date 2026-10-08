@@ -4,6 +4,7 @@ import { createNotFoundPage } from './pages/not-found';
 import type { AuthDialog, AuthMode } from './components/auth-dialog';
 import type { GameDetailsDialog } from './components/game-details-dialog';
 import { APP_BASE_PATH, getAppPath } from './constants';
+import type { AppSession } from '../services/app-session';
 
 type View = 'home' | 'library' | 'not-found';
 type NavigableView = Exclude<View, 'not-found'>;
@@ -21,6 +22,8 @@ const VALID_SORTS = new Set(['rating-asc', 'rating-desc', 'name-asc', 'name-desc
 export class Router {
   private contentContainer: HTMLElement;
   private authDialog: AuthDialog | null = null;
+  private getAppSession: () => AppSession | null = () => null;
+  private requireAuthentication: () => void = () => undefined;
 
   constructor(contentContainer: HTMLElement) {
     this.contentContainer = contentContainer;
@@ -59,6 +62,14 @@ export class Router {
 
   public setAuthDialog(authDialog: AuthDialog): void {
     this.authDialog = authDialog;
+  }
+
+  public setAuthAccess(
+    getAppSession: () => AppSession | null,
+    requireAuthentication: () => void,
+  ): void {
+    this.getAppSession = getAppSession;
+    this.requireAuthentication = requireAuthentication;
   }
 
   public start(): void {
@@ -188,6 +199,8 @@ export class Router {
           ? createHomePage({
               gameSlug: state.game,
               onGameChange: this.handleGameChange,
+              getSession: this.getAppSession,
+              onAuthRequired: this.requireAuthentication,
             })
           : createLibraryPage({
               state: {
@@ -198,6 +211,8 @@ export class Router {
               gameSlug: state.game,
               onStateChange: this.handleLibraryStateChange,
               onGameChange: this.handleGameChange,
+              getSession: this.getAppSession,
+              onAuthRequired: this.requireAuthentication,
             });
 
     this.contentContainer.append(page);

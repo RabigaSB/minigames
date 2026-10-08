@@ -2,11 +2,13 @@ import { createElement } from '../create-element';
 import {
   fetchGameComments,
   fetchGameDetails,
+  toggleGameFavorite,
   type GameComment,
   type GameDetails,
 } from '../utils/api';
 import { formatRelativeTime, formatToK } from '../utils/formatters';
 import { showSnackbar } from '../utils/snackbar';
+import type { AppSession } from '../../services/app-session';
 
 export interface GameDetailsDialog extends HTMLElement {
   openGame(slug: string, syncUrl?: boolean): void;
@@ -14,9 +16,15 @@ export interface GameDetailsDialog extends HTMLElement {
   dispose(): void;
 }
 
+export interface GameDetailsDialogOptions {
+  getSession?: () => AppSession | null;
+  onAuthRequired?: () => void;
+}
+
 export function createGameDetailsDialog(
   onGameChange: (slug: string | null) => void = () => undefined,
   initialSlug?: string,
+  options: GameDetailsDialogOptions = {},
 ): GameDetailsDialog {
   const dialog = Object.assign(createElement('div', 'game-dialog'), {
     openGame: (slug: string, syncUrl?: boolean): void => {
@@ -112,12 +120,6 @@ export function createGameDetailsDialog(
     if (event.target === dialog) {
       closeDialog();
     }
-  });
-
-  favoriteBtn.addEventListener('click', () => {
-    favoriteBtn.classList.toggle('active');
-    const isActive = favoriteBtn.classList.contains('active');
-    favoriteBtnText.textContent = isActive ? 'Remove from Favorites' : 'Add to Favorites';
   });
 
   sendBtn.addEventListener('click', () => {
@@ -341,17 +343,21 @@ export function createGameDetailsDialog(
 
   let currentSlug = '';
   let activeRequest = 0;
+  let favoriteRequestPending = false;
+  let currentGame: GameDetails | null = null;
 
   const loadGame = async (slug: string): Promise<void> => {
     const requestId = ++activeRequest;
     renderState('loading', 'Loading game details...');
     try {
-      const response = await fetchGameDetails(slug);
+      const session = options.getSession?.() ?? null;
+      const response = await fetchGameDetails(slug, session?.email);
       if (requestId !== activeRequest) return;
       if (!response.data) {
         renderState('empty', 'Game details are not available.');
         return;
       }
+      currentGame = response.data;
       renderGame(response.data);
     } catch (error) {
       if (requestId !== activeRequest) return;
@@ -360,6 +366,61 @@ export function createGameDetailsDialog(
       showSnackbar(errorMessage, 'error');
     }
   };
+
+  const updateFavoriteControl = (): void => {
+    if (!currentGame) return;
+    favoriteBtn.classList.toggle('active', currentGame.isLikedByCurrentUser);
+    favoriteBtnText.textContent = currentGame.isLikedByCurrentUser
+      ? 'Remove from Favorites'
+      : 'Add to Favorites';
+    likes.textContent = formatToK(currentGame.likesCount);
+  };
+
+  favoriteBtn.addEventListener('click', async () => {
+    if (favoriteRequestPending) return;
+    const session = options.getSession?.() ?? null;
+    if (!session) {
+      showSnackbar('Sign in to add games to your favorites.', 'warning');
+      options.onAuthRequired?.();
+      return;
+    }
+    if (!currentGame || !currentSlug) return;
+
+    favoriteRequestPending = true;
+    favoriteBtn.disabled = true;
+    favoriteBtn.setAttribute('aria-busy', 'true');
+    favoriteBtnText.textContent = 'Updating...';
+    try {
+      const requestSlug = currentSlug;
+      const response = await toggleGameFavorite(requestSlug, session.email);
+      if (
+        !response.data ||
+        typeof response.data.isFavorited !== 'boolean' ||
+        !Number.isFinite(response.data.likesCount)
+      ) {
+        throw new Error('The server returned an invalid favorite response.');
+      }
+      if (requestSlug !== currentSlug) return;
+      currentGame = {
+        ...currentGame,
+        isLikedByCurrentUser: response.data.isFavorited,
+        likesCount: response.data.likesCount,
+      };
+      updateFavoriteControl();
+      showSnackbar(
+        response.data.isFavorited ? 'Added to favorites.' : 'Removed from favorites.',
+        'success',
+      );
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update favorite.';
+      updateFavoriteControl();
+      showSnackbar(errorMessage, 'error');
+    } finally {
+      favoriteRequestPending = false;
+      favoriteBtn.disabled = false;
+      favoriteBtn.removeAttribute('aria-busy');
+    }
+  });
 
   dialog.openGame = (slug: string, syncUrl = true): void => {
     currentSlug = slug;

@@ -39,4 +39,10 @@ $snackbar-width: 480px;
     background-color: $error;
     border-left: $border-solid $white;
   }
+
+  &--warning {
+    background-color: $primary;
+    color: $on-primary;
+    border-left: $border-solid $on-primary;
+  }
 }

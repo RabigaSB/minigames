@@ -87,8 +87,14 @@ export interface GameCommentsResponse {
   };
 }
 
-export async function fetchGameDetails(slug: string): Promise<GameDetailsResponse> {
-  const url = `${BASE_URL}/games/${slug}`;
+export async function fetchGameDetails(
+  slug: string,
+  userEmail?: string,
+): Promise<GameDetailsResponse> {
+  const queryParams = new URLSearchParams();
+  if (userEmail) queryParams.set('userEmail', userEmail);
+  const query = queryParams.size ? `?${queryParams.toString()}` : '';
+  const url = `${BASE_URL}/games/${encodeURIComponent(slug)}${query}`;
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -100,6 +106,37 @@ export async function fetchGameDetails(slug: string): Promise<GameDetailsRespons
       }
     } catch {
       // Fallback if error body is not json
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
+}
+
+export interface FavoriteResponse {
+  data: {
+    isFavorited: boolean;
+    likesCount: number;
+  };
+}
+
+export async function toggleGameFavorite(
+  slug: string,
+  userEmail: string,
+): Promise<FavoriteResponse> {
+  const response = await fetch(`${BASE_URL}/games/${encodeURIComponent(slug)}/favorite`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userEmail }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = `HTTP Error: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.error) errorMessage = errorData.error;
+    } catch {
+      // Fallback if error body is not JSON.
     }
     throw new Error(errorMessage);
   }

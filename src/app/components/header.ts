@@ -12,10 +12,18 @@ import {
 import { logOut } from '../../services/firebase';
 import { showSnackbar } from '../utils/snackbar';
 
+export interface AppHeader extends HTMLElement {
+  getAppSession(): AppSession | null;
+  requireAuthentication(): void;
+}
+
 export function createHeader(
   onAuthChange: (mode: AuthMode | null) => void = () => undefined,
-): HTMLElement {
-  const header = createElement('header', 'header');
+): AppHeader {
+  const header = Object.assign(createElement('header', 'header'), {
+    getAppSession: (): AppSession | null => null,
+    requireAuthentication: (): void => undefined,
+  });
 
   const container = createElement('div', 'header__container');
 
@@ -217,6 +225,12 @@ export function createHeader(
     console.error('Failed to restore the MiniGames app session.', error);
     showSnackbar('Unable to restore your session. Please sign in again.', 'error');
   }
+
+  header.getAppSession = (): AppSession | null => {
+    checkSessionExpiration();
+    return activeSession;
+  };
+  header.requireAuthentication = (): void => authDialog.openAuth('login');
 
   return header;
 }

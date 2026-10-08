@@ -4,10 +4,13 @@ import { createLeaderboard } from '../components/leaderboard';
 import { createDeveloperCta } from '../components/developer-cta';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
 import { getAppPath } from '../constants';
+import type { AppSession } from '../../services/app-session';
 
 export interface HomePageOptions {
   gameSlug?: string;
   onGameChange?: (slug: string | null) => void;
+  getSession?: () => AppSession | null;
+  onAuthRequired?: () => void;
 }
 
 export function createHomePage(options: HomePageOptions = {}): HTMLElement {
@@ -36,7 +39,10 @@ export function createHomePage(options: HomePageOptions = {}): HTMLElement {
   descriptionContainer.append(descriptionTitle, descriptionText, descriptionAction);
   description.append(descriptionContainer);
 
-  const gameDialog = createGameDetailsDialog(options.onGameChange, options.gameSlug);
+  const gameDialog = createGameDetailsDialog(options.onGameChange, options.gameSlug, {
+    getSession: options.getSession,
+    onAuthRequired: options.onAuthRequired,
+  });
   const newGames = createNewGamesSection((slug) => gameDialog.openGame(slug));
   const leaderboard = createLeaderboard();
   const developerCta = createDeveloperCta();
