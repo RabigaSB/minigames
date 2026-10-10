@@ -169,6 +169,38 @@ export async function fetchGameComments(
   return await response.json();
 }
 
+export interface CommentLikeResponse {
+  data: {
+    commentId: string;
+    isLikedByCurrentUser: boolean;
+    likesCount: number;
+  };
+}
+
+export async function toggleCommentLike(
+  commentId: string,
+  userEmail: string,
+): Promise<CommentLikeResponse> {
+  const response = await fetch(`${BASE_URL}/comments/${encodeURIComponent(commentId)}/like`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userEmail }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = `HTTP Error: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.error) errorMessage = errorData.error;
+    } catch {
+      // Fallback if the error body is not JSON.
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
+}
+
 export class CommentSubmissionError extends Error {
   public readonly outcomeUnknown: boolean;
 

@@ -3,6 +3,7 @@ import {
   fetchGameComments,
   fetchGameDetails,
   toggleGameFavorite,
+  toggleCommentLike,
   submitGameComment,
   CommentSubmissionError,
   type GameComment,
@@ -339,8 +340,49 @@ export function createGameDetailsDialog(
 
     const commentText = createElement('p', 'game-dialog__comment-text', comment.text);
     const cardFooter = createElement('div', 'game-dialog__comment-footer');
-    const likes = createElement('span', 'game-dialog__comment-like', String(comment.likesCount));
+    const likes = createElement('button', 'game-dialog__comment-like', String(comment.likesCount));
+    likes.type = 'button';
     likes.classList.toggle('active', comment.isLikedByCurrentUser);
+    likes.setAttribute('aria-label', comment.isLikedByCurrentUser ? 'Unlike comment' : 'Like comment');
+    likes.disabled = false;
+    likes.addEventListener('click', async () => {
+      const session = options.getSession?.() ?? null;
+      if (!session) {
+        showSnackbar('Sign in to like comments.', 'warning');
+        options.onAuthRequired?.();
+        return;
+      }
+
+      if (pendingCommentLikes.has(comment.commentId)) return;
+
+      pendingCommentLikes.add(comment.commentId);
+      likes.disabled = true;
+      likes.setAttribute('aria-busy', 'true');
+      likes.textContent = '...';
+
+      try {
+        const response = await toggleCommentLike(comment.commentId, session.email);
+        likes.classList.toggle('active', response.data.isLikedByCurrentUser);
+        likes.textContent = String(response.data.likesCount);
+        likes.setAttribute(
+          'aria-label',
+          response.data.isLikedByCurrentUser ? 'Unlike comment' : 'Like comment',
+        );
+        showSnackbar(
+          response.data.isLikedByCurrentUser ? 'Comment liked.' : 'Comment like removed.',
+          'success',
+        );
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to update like status.';
+        likes.textContent = String(comment.likesCount);
+        likes.classList.toggle('active', comment.isLikedByCurrentUser);
+        showSnackbar(errorMessage, 'error');
+      } finally {
+        pendingCommentLikes.delete(comment.commentId);
+        likes.disabled = false;
+        likes.removeAttribute('aria-busy');
+      }
+    });
     cardFooter.append(likes);
     card.append(cardHeader, commentText, cardFooter);
     return card;
@@ -348,6 +390,7 @@ export function createGameDetailsDialog(
 
   let activeCommentsRequest = 0;
   let commentRequestPending = false;
+  const pendingCommentLikes = new Set<string>();
 
   const updateCommentAccess = (): AppSession | null => {
     const session = options.getSession?.() ?? null;
