@@ -343,7 +343,10 @@ export function createGameDetailsDialog(
     const likes = createElement('button', 'game-dialog__comment-like', String(comment.likesCount));
     likes.type = 'button';
     likes.classList.toggle('active', comment.isLikedByCurrentUser);
-    likes.setAttribute('aria-label', comment.isLikedByCurrentUser ? 'Unlike comment' : 'Like comment');
+    likes.setAttribute(
+      'aria-label',
+      comment.isLikedByCurrentUser ? 'Unlike comment' : 'Like comment',
+    );
     likes.disabled = false;
     likes.addEventListener('click', async () => {
       const session = options.getSession?.() ?? null;
@@ -373,7 +376,8 @@ export function createGameDetailsDialog(
           'success',
         );
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to update like status.';
+        const errorMessage =
+          error instanceof Error ? error.message : 'Failed to update like status.';
         likes.textContent = String(comment.likesCount);
         likes.classList.toggle('active', comment.isLikedByCurrentUser);
         showSnackbar(errorMessage, 'error');
