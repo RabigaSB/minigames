@@ -2,11 +2,16 @@ import { createElement } from '../create-element';
 import {
   fetchGameComments,
   fetchGameDetails,
+  toggleGameFavorite,
+  toggleCommentLike,
+  submitGameComment,
+  CommentSubmissionError,
   type GameComment,
   type GameDetails,
 } from '../utils/api';
 import { formatRelativeTime, formatToK } from '../utils/formatters';
 import { showSnackbar } from '../utils/snackbar';
+import type { AppSession } from '../../services/app-session';
 
 export interface GameDetailsDialog extends HTMLElement {
   openGame(slug: string, syncUrl?: boolean): void;
@@ -14,9 +19,15 @@ export interface GameDetailsDialog extends HTMLElement {
   dispose(): void;
 }
 
+export interface GameDetailsDialogOptions {
+  getSession?: () => AppSession | null;
+  onAuthRequired?: () => void;
+}
+
 export function createGameDetailsDialog(
   onGameChange: (slug: string | null) => void = () => undefined,
   initialSlug?: string,
+  options: GameDetailsDialogOptions = {},
 ): GameDetailsDialog {
   const dialog = Object.assign(createElement('div', 'game-dialog'), {
     openGame: (slug: string, syncUrl?: boolean): void => {
@@ -87,16 +98,23 @@ export function createGameDetailsDialog(
   const commentsTitle = createElement('h3', 'game-dialog__section-title', 'Comments (0)');
 
   const commentForm = createElement('div', 'game-dialog__comment-form');
-  const userAvatar = createElement('div', 'game-dialog__avatar', 'U');
+  const userAvatar = createElement('div', 'game-dialog__avatar', '');
+  userAvatar.setAttribute('aria-hidden', 'true');
   const commentInput = createElement(
     'textarea',
     'game-dialog__comment-input',
   ) as HTMLTextAreaElement;
   commentInput.rows = 2;
-  commentInput.placeholder = 'Write a comment...';
+  commentInput.placeholder = 'Sign in to write a comment.';
+  commentInput.disabled = true;
   commentInput.name = 'game-dialog__comment';
   const sendBtn = createElement('button', 'game-dialog__send-btn');
   sendBtn.type = 'button';
+  sendBtn.disabled = true;
+  sendBtn.setAttribute('aria-label', 'Send comment');
+  const commentSubmissionStatus = createElement('p', 'game-dialog__comment-submit-status');
+  commentSubmissionStatus.setAttribute('role', 'status');
+  commentSubmissionStatus.setAttribute('aria-live', 'polite');
   commentForm.append(userAvatar, commentInput, sendBtn);
 
   const commentsList = createElement('div', 'game-dialog__comments-list');
@@ -105,23 +123,19 @@ export function createGameDetailsDialog(
   commentsState.setAttribute('aria-live', 'polite');
   commentsState.hidden = true;
 
-  commentsSection.append(commentsTitle, commentForm, commentsState, commentsList);
+  commentsSection.append(
+    commentsTitle,
+    commentForm,
+    commentSubmissionStatus,
+    commentsState,
+    commentsList,
+  );
 
   //helpers and event listeners
   dialog.addEventListener('click', (event) => {
     if (event.target === dialog) {
       closeDialog();
     }
-  });
-
-  favoriteBtn.addEventListener('click', () => {
-    favoriteBtn.classList.toggle('active');
-    const isActive = favoriteBtn.classList.contains('active');
-    favoriteBtnText.textContent = isActive ? 'Remove from Favorites' : 'Add to Favorites';
-  });
-
-  sendBtn.addEventListener('click', () => {
-    commentInput.value = '';
   });
 
   const closeDialog = (syncUrl = true) => {
@@ -132,6 +146,8 @@ export function createGameDetailsDialog(
     content.scrollTop = 0;
     commentInput.value = '';
     commentInput.style.height = 'auto';
+    commentSubmissionStatus.textContent = '';
+    commentSubmissionStatus.classList.remove('game-dialog__comment-submit-status--error');
     favoriteBtn.classList.remove('active');
     favoriteBtnText.textContent = 'Add to Favorites';
     commentsList.querySelectorAll('.game-dialog__comment-like').forEach((btn) => {
@@ -285,11 +301,32 @@ export function createGameDetailsDialog(
     }
   };
 
+  const avatarPalette = ['#e9eef6', '#a3e2c9', '#bce3ff', '#ffc6ff', '#e8dff5'];
+  const commentAvatarColors = new Map<string, string>();
+
+  const getStableAvatarColor = (authorName: string): string => {
+    const normalizedName = authorName.trim();
+    if (!normalizedName) {
+      return avatarPalette[0];
+    }
+
+    const cachedColor = commentAvatarColors.get(normalizedName);
+    if (cachedColor) {
+      return cachedColor;
+    }
+
+    const color = avatarPalette[Math.floor(Math.random() * avatarPalette.length)];
+    commentAvatarColors.set(normalizedName, color);
+    return color;
+  };
+
   const renderComment = (comment: GameComment): HTMLElement => {
     const card = createElement('article', 'game-dialog__comment-card');
     const cardHeader = createElement('div', 'game-dialog__comment-header');
-    const avatarText = comment.authorName.trim().charAt(0).toUpperCase() || '?';
+    const authorName = comment.authorName.trim();
+    const avatarText = authorName.charAt(0).toUpperCase() || '?';
     const avatar = createElement('div', 'game-dialog__comment-avatar', avatarText);
+    avatar.style.backgroundColor = getStableAvatarColor(comment.authorName);
     const userInfo = createElement('div', 'game-dialog__comment-user-info');
     const userName = createElement('span', 'game-dialog__comment-user', comment.authorName);
     const commentTime = createElement(
@@ -303,22 +340,81 @@ export function createGameDetailsDialog(
 
     const commentText = createElement('p', 'game-dialog__comment-text', comment.text);
     const cardFooter = createElement('div', 'game-dialog__comment-footer');
-    const likes = createElement('span', 'game-dialog__comment-like', String(comment.likesCount));
+    const likes = createElement('button', 'game-dialog__comment-like', String(comment.likesCount));
+    likes.type = 'button';
     likes.classList.toggle('active', comment.isLikedByCurrentUser);
+    likes.setAttribute(
+      'aria-label',
+      comment.isLikedByCurrentUser ? 'Unlike comment' : 'Like comment',
+    );
+    likes.disabled = false;
+    likes.addEventListener('click', async () => {
+      const session = options.getSession?.() ?? null;
+      if (!session) {
+        showSnackbar('Sign in to like comments.', 'warning');
+        options.onAuthRequired?.();
+        return;
+      }
+
+      if (pendingCommentLikes.has(comment.commentId)) return;
+
+      pendingCommentLikes.add(comment.commentId);
+      likes.disabled = true;
+      likes.setAttribute('aria-busy', 'true');
+      likes.textContent = '...';
+
+      try {
+        const response = await toggleCommentLike(comment.commentId, session.email);
+        likes.classList.toggle('active', response.data.isLikedByCurrentUser);
+        likes.textContent = String(response.data.likesCount);
+        likes.setAttribute(
+          'aria-label',
+          response.data.isLikedByCurrentUser ? 'Unlike comment' : 'Like comment',
+        );
+        showSnackbar(
+          response.data.isLikedByCurrentUser ? 'Comment liked.' : 'Comment like removed.',
+          'success',
+        );
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Failed to update like status.';
+        likes.textContent = String(comment.likesCount);
+        likes.classList.toggle('active', comment.isLikedByCurrentUser);
+        showSnackbar(errorMessage, 'error');
+      } finally {
+        pendingCommentLikes.delete(comment.commentId);
+        likes.disabled = false;
+        likes.removeAttribute('aria-busy');
+      }
+    });
     cardFooter.append(likes);
     card.append(cardHeader, commentText, cardFooter);
     return card;
   };
 
   let activeCommentsRequest = 0;
+  let commentRequestPending = false;
+  const pendingCommentLikes = new Set<string>();
 
-  const loadComments = async (slug: string): Promise<void> => {
+  const updateCommentAccess = (): AppSession | null => {
+    const session = options.getSession?.() ?? null;
+    const disabled = commentRequestPending || !session;
+    commentInput.disabled = disabled;
+    sendBtn.disabled = disabled;
+    userAvatar.textContent = session?.displayName.trim().charAt(0).toUpperCase() ?? '';
+    commentInput.placeholder = session ? 'Write a comment...' : 'Sign in to write a comment.';
+    commentForm.setAttribute('aria-disabled', String(!session));
+    return session;
+  };
+
+  const loadComments = async (slug: string, userEmail?: string): Promise<void> => {
     const requestId = ++activeCommentsRequest;
     commentsTitle.textContent = 'Comments';
     renderCommentsState('loading', 'Loading comments...');
 
     try {
-      const response = await fetchGameComments(slug);
+      const session = options.getSession?.() ?? null;
+      const response = await fetchGameComments(slug, userEmail ?? session?.email);
       if (requestId !== activeCommentsRequest) return;
 
       commentsTitle.textContent = `Comments (${response.meta.totalComments})`;
@@ -339,19 +435,96 @@ export function createGameDetailsDialog(
     }
   };
 
+  const submitComment = async (): Promise<void> => {
+    if (commentRequestPending) return;
+    const session = updateCommentAccess();
+    if (!session) {
+      showSnackbar('Sign in to post a comment.', 'warning');
+      options.onAuthRequired?.();
+      return;
+    }
+    const text = commentInput.value.trim();
+    if (!text) {
+      commentSubmissionStatus.textContent = 'Write a comment before sending.';
+      commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
+      return;
+    }
+    if (text.length > 500) {
+      commentSubmissionStatus.textContent = 'Comments must be 500 characters or fewer.';
+      commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
+      return;
+    }
+    const authorName = session.displayName;
+    if (authorName.trim().length < 2 || authorName.trim().length > 30) {
+      commentSubmissionStatus.textContent =
+        'Your profile name must be between 2 and 30 characters to post a comment.';
+      commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
+      return;
+    }
+
+    commentRequestPending = true;
+    commentSubmissionStatus.textContent = 'Sending comment...';
+    commentSubmissionStatus.classList.remove('game-dialog__comment-submit-status--error');
+    updateCommentAccess();
+    sendBtn.setAttribute('aria-busy', 'true');
+    try {
+      const requestSlug = currentSlug;
+      await submitGameComment(requestSlug, {
+        userEmail: session.email,
+        authorName,
+        text,
+      });
+      if (requestSlug !== currentSlug) return;
+      commentInput.value = '';
+      commentInput.style.height = 'auto';
+      commentSubmissionStatus.textContent = '';
+      showSnackbar('Comment posted.', 'success');
+      await loadComments(requestSlug, session.email);
+    } catch (error) {
+      const outcomeUnknown = error instanceof CommentSubmissionError && error.outcomeUnknown;
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit the comment.';
+      commentSubmissionStatus.textContent = outcomeUnknown
+        ? `Comment result unknown. ${errorMessage}`
+        : `Could not post comment. ${errorMessage}`;
+      commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
+      showSnackbar(
+        outcomeUnknown
+          ? 'Comment result is unknown. Check the comments before retrying.'
+          : errorMessage,
+        'error',
+      );
+    } finally {
+      commentRequestPending = false;
+      sendBtn.removeAttribute('aria-busy');
+      updateCommentAccess();
+    }
+  };
+
+  sendBtn.addEventListener('click', () => void submitComment());
+  commentInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      void submitComment();
+    }
+  });
+
   let currentSlug = '';
   let activeRequest = 0;
+  let favoriteRequestPending = false;
+  let currentGame: GameDetails | null = null;
 
   const loadGame = async (slug: string): Promise<void> => {
     const requestId = ++activeRequest;
     renderState('loading', 'Loading game details...');
     try {
-      const response = await fetchGameDetails(slug);
+      const session = options.getSession?.() ?? null;
+      const response = await fetchGameDetails(slug, session?.email);
       if (requestId !== activeRequest) return;
       if (!response.data) {
         renderState('empty', 'Game details are not available.');
         return;
       }
+      currentGame = response.data;
       renderGame(response.data);
     } catch (error) {
       if (requestId !== activeRequest) return;
@@ -361,8 +534,68 @@ export function createGameDetailsDialog(
     }
   };
 
+  const updateFavoriteControl = (): void => {
+    if (!currentGame) return;
+    favoriteBtn.classList.toggle('active', currentGame.isLikedByCurrentUser);
+    favoriteBtnText.textContent = currentGame.isLikedByCurrentUser
+      ? 'Remove from Favorites'
+      : 'Add to Favorites';
+    likes.textContent = formatToK(currentGame.likesCount);
+  };
+
+  favoriteBtn.addEventListener('click', async () => {
+    if (favoriteRequestPending) return;
+    const session = options.getSession?.() ?? null;
+    if (!session) {
+      showSnackbar('Sign in to add games to your favorites.', 'warning');
+      options.onAuthRequired?.();
+      return;
+    }
+    if (!currentGame || !currentSlug) return;
+
+    favoriteRequestPending = true;
+    favoriteBtn.disabled = true;
+    favoriteBtn.setAttribute('aria-busy', 'true');
+    favoriteBtnText.textContent = 'Updating...';
+    try {
+      const requestSlug = currentSlug;
+      const response = await toggleGameFavorite(requestSlug, session.email);
+      if (
+        !response.data ||
+        typeof response.data.isFavorited !== 'boolean' ||
+        !Number.isFinite(response.data.likesCount)
+      ) {
+        throw new Error('The server returned an invalid favorite response.');
+      }
+      if (requestSlug !== currentSlug) return;
+      currentGame = {
+        ...currentGame,
+        isLikedByCurrentUser: response.data.isFavorited,
+        likesCount: response.data.likesCount,
+      };
+      updateFavoriteControl();
+      showSnackbar(
+        response.data.isFavorited ? 'Added to favorites.' : 'Removed from favorites.',
+        'success',
+      );
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update favorite.';
+      updateFavoriteControl();
+      showSnackbar(errorMessage, 'error');
+    } finally {
+      favoriteRequestPending = false;
+      favoriteBtn.disabled = false;
+      favoriteBtn.removeAttribute('aria-busy');
+    }
+  });
+
   dialog.openGame = (slug: string, syncUrl = true): void => {
     currentSlug = slug;
+    commentInput.value = '';
+    commentInput.style.height = 'auto';
+    commentSubmissionStatus.textContent = '';
+    commentSubmissionStatus.classList.remove('game-dialog__comment-submit-status--error');
+    updateCommentAccess();
     dialog.classList.add('game-dialog--open');
     document.body.classList.add('dialog-open');
     if (syncUrl) onGameChange(slug);
