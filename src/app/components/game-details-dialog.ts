@@ -300,11 +300,32 @@ export function createGameDetailsDialog(
     }
   };
 
+  const avatarPalette = ['#e9eef6', '#a3e2c9', '#bce3ff', '#ffc6ff', '#e8dff5'];
+  const commentAvatarColors = new Map<string, string>();
+
+  const getStableAvatarColor = (authorName: string): string => {
+    const normalizedName = authorName.trim();
+    if (!normalizedName) {
+      return avatarPalette[0];
+    }
+
+    const cachedColor = commentAvatarColors.get(normalizedName);
+    if (cachedColor) {
+      return cachedColor;
+    }
+
+    const color = avatarPalette[Math.floor(Math.random() * avatarPalette.length)];
+    commentAvatarColors.set(normalizedName, color);
+    return color;
+  };
+
   const renderComment = (comment: GameComment): HTMLElement => {
     const card = createElement('article', 'game-dialog__comment-card');
     const cardHeader = createElement('div', 'game-dialog__comment-header');
-    const avatarText = comment.authorName.trim().charAt(0).toUpperCase() || '?';
+    const authorName = comment.authorName.trim();
+    const avatarText = authorName.charAt(0).toUpperCase() || '?';
     const avatar = createElement('div', 'game-dialog__comment-avatar', avatarText);
+    avatar.style.backgroundColor = getStableAvatarColor(comment.authorName);
     const userInfo = createElement('div', 'game-dialog__comment-user-info');
     const userName = createElement('span', 'game-dialog__comment-user', comment.authorName);
     const commentTime = createElement(
