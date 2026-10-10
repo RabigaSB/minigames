@@ -144,8 +144,12 @@ export async function toggleGameFavorite(
   return await response.json();
 }
 
-export async function fetchGameComments(slug: string): Promise<GameCommentsResponse> {
+export async function fetchGameComments(
+  slug: string,
+  userEmail?: string,
+): Promise<GameCommentsResponse> {
   const queryParams = new URLSearchParams({ limit: '3', sort: 'newest' });
+  if (userEmail) queryParams.set('userEmail', userEmail);
   const url = `${BASE_URL}/games/${encodeURIComponent(slug)}/comments?${queryParams.toString()}`;
   const response = await fetch(url);
 
@@ -163,6 +167,47 @@ export async function fetchGameComments(slug: string): Promise<GameCommentsRespo
   }
 
   return await response.json();
+}
+
+export class CommentSubmissionError extends Error {
+  public readonly outcomeUnknown: boolean;
+
+  constructor(message: string, outcomeUnknown: boolean) {
+    super(message);
+    this.name = 'CommentSubmissionError';
+    this.outcomeUnknown = outcomeUnknown;
+  }
+}
+
+export async function submitGameComment(
+  slug: string,
+  comment: { userEmail: string; authorName: string; text: string },
+): Promise<void> {
+  let response: Response;
+  try {
+    response = await fetch(`${BASE_URL}/games/${encodeURIComponent(slug)}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(comment),
+    });
+  } catch {
+    throw new CommentSubmissionError(
+      'The result is unknown because the connection was interrupted. Check the comments before trying again.',
+      true,
+    );
+  }
+
+  if (response.status === 201) return;
+
+  let errorMessage = `HTTP Error: ${response.status}`;
+  try {
+    const errorData = await response.json();
+    if (errorData.error) errorMessage = errorData.error;
+  } catch {
+    // The HTTP status still indicates whether the request was rejected.
+  }
+
+  throw new CommentSubmissionError(errorMessage, response.status >= 500 || response.ok);
 }
 
 export async function fetchCategories(): Promise<CategoriesResponse> {
