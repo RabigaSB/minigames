@@ -123,7 +123,9 @@ export function createHeader(
     avatarElement.setAttribute('aria-label', label);
   };
 
+  let avatarRenderId = 0;
   const applySession = (session: AppSession | null): void => {
+    const renderId = ++avatarRenderId;
     const hasSession = Boolean(session);
     signInButton.hidden = hasSession;
     signUpButton.hidden = hasSession;
@@ -140,6 +142,7 @@ export function createHeader(
       userAvatar.style.backgroundImage = '';
       userAvatar.style.backgroundSize = '';
       userAvatar.style.backgroundColor = '';
+      userAvatar.style.backgroundPosition = '';
       userAvatar.style.display = '';
       userName.textContent = '';
       return;
@@ -157,6 +160,7 @@ export function createHeader(
       image.src = session.avatarUrl;
       image.alt = profileName;
       image.onload = () => {
+        if (renderId !== avatarRenderId) return;
         userAvatar.textContent = '';
         userAvatar.classList.add('has-photo');
         userAvatar.style.backgroundImage = `url("${session.avatarUrl}")`;
@@ -164,6 +168,7 @@ export function createHeader(
         userAvatar.style.backgroundPosition = 'center';
       };
       image.onerror = () => {
+        if (renderId !== avatarRenderId) return;
         renderAvatarFallback(userAvatar, session, profileName);
       };
       return;
@@ -175,12 +180,16 @@ export function createHeader(
   let activeSession: AppSession | null = null;
   let expirationTimer: number | undefined;
   let expirationSnackbarShown = false;
-  const expireSession = (): void => {
-    if (!activeSession) return;
+  const resetToGuestMode = (): void => {
     activeSession = null;
     if (expirationTimer !== undefined) window.clearTimeout(expirationTimer);
+    expirationTimer = undefined;
     clearAppSession();
     applySession(null);
+  };
+  const expireSession = (): void => {
+    if (!activeSession) return;
+    resetToGuestMode();
     if (!expirationSnackbarShown) {
       expirationSnackbarShown = true;
       showSnackbar('Your session has expired. Please sign in again.', 'error');
@@ -271,10 +280,8 @@ export function createHeader(
   mobileSignUpButton?.addEventListener('click', () => openAuthFromMobile('register'));
 
   const handleLogout = async (): Promise<void> => {
-    if (expirationTimer !== undefined) window.clearTimeout(expirationTimer);
-    activeSession = null;
-    clearAppSession();
-    applySession(null);
+    if (!activeSession) return;
+    resetToGuestMode();
     try {
       await logOut();
       showSnackbar('You are now signed out.', 'success');
