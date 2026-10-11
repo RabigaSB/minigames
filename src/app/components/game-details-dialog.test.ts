@@ -83,9 +83,9 @@ describe('game details dialog', () => {
     });
     document.body.append(dialog);
     dialog.openGame(slug);
-    await vi.waitFor(() => expect(dialog.querySelector('.game-dialog__title')?.textContent).toBe(
-      'Sample Game',
-    ));
+    await vi.waitFor(() =>
+      expect(dialog.querySelector('.game-dialog__title')?.textContent).toBe('Sample Game'),
+    );
     await vi.waitFor(() =>
       expect(dialog.querySelector('.game-dialog__comment-card')).not.toBeNull(),
     );
@@ -100,9 +100,7 @@ describe('game details dialog', () => {
     expect(
       dialog.querySelector('.game-dialog__comments-section .game-dialog__section-title')
         ?.textContent,
-    ).toContain(
-      'Comments (9)',
-    );
+    ).toContain('Comments (9)');
     expect(dialog.querySelector('.game-dialog__comment-text')?.textContent).toBe(comment.text);
     expect(dialog.querySelector('.game-dialog__comment-text script')).toBeNull();
   });

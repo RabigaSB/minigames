@@ -93,16 +93,21 @@ describe('app session persistence', () => {
     expect(restoreAppSession()).toEqual({ status: 'missing' });
   });
 
-  it.each(['{invalid', JSON.stringify({ email: 'player@example.com' }), JSON.stringify({
-    displayName: 'Player',
-    email: 'player@example.com',
-    authenticatedAt: 'yesterday',
-  }), JSON.stringify({
-    displayName: 'Player',
-    email: 'player@example.com',
-    authenticatedAt: 1_800_000_000_000,
-    password: 'must-not-be-stored',
-  })])('removes invalid stored session data (%s)', (value) => {
+  it.each([
+    '{invalid',
+    JSON.stringify({ email: 'player@example.com' }),
+    JSON.stringify({
+      displayName: 'Player',
+      email: 'player@example.com',
+      authenticatedAt: 'yesterday',
+    }),
+    JSON.stringify({
+      displayName: 'Player',
+      email: 'player@example.com',
+      authenticatedAt: 1_800_000_000_000,
+      password: 'must-not-be-stored',
+    }),
+  ])('removes invalid stored session data (%s)', (value) => {
     storage.setItem(APP_SESSION_KEY, value);
 
     expect(restoreAppSession()).toEqual({ status: 'invalid' });

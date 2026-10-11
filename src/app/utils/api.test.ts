@@ -158,7 +158,13 @@ describe('game API requests', () => {
     const fetchMock = mockFetch(jsonResponse(payload));
 
     await expect(
-      fetchGames({ featured: false, page: 2, limit: 6, category: 'puzzle games', sort: 'name-asc' }),
+      fetchGames({
+        featured: false,
+        page: 2,
+        limit: 6,
+        category: 'puzzle games',
+        sort: 'name-asc',
+      }),
     ).resolves.toEqual(payload);
     expect(fetchMock).toHaveBeenCalledWith(
       `${API_BASE}/games?featured=false&page=2&limit=6&category=puzzle+games&sort=name-asc`,

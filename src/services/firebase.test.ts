@@ -54,11 +54,7 @@ describe('Firebase service wrappers', () => {
 
     await expect(signInWithEmail('user@example.com', 'secret')).resolves.toBe(credential);
     await expect(signInWithGoogle()).resolves.toBe(credential);
-    expect(sdk.signInWithEmailAndPassword).toHaveBeenCalledWith(
-      auth,
-      'user@example.com',
-      'secret',
-    );
+    expect(sdk.signInWithEmailAndPassword).toHaveBeenCalledWith(auth, 'user@example.com', 'secret');
     expect(sdk.signInWithPopup).toHaveBeenCalledWith(auth, googleProvider);
   });
 

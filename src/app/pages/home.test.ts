@@ -50,11 +50,10 @@ describe('home page composition', () => {
       onAuthRequired,
     });
 
-    expect(components.createGameDetailsDialog).toHaveBeenCalledWith(
-      onGameChange,
-      'sample-game',
-      { getSession, onAuthRequired },
-    );
+    expect(components.createGameDetailsDialog).toHaveBeenCalledWith(onGameChange, 'sample-game', {
+      getSession,
+      onAuthRequired,
+    });
     const selectGame = components.createNewGamesSection.mock.calls.at(-1)?.[0] as (
       slug: string,
     ) => void;

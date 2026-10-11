@@ -32,7 +32,13 @@ const game = {
 };
 const gamesResponse = {
   data: [game],
-  meta: { page: 1, limit: 6, totalItems: 1, totalPages: 1, appliedFilter: { category: 'all', sort: 'rating-desc' } },
+  meta: {
+    page: 1,
+    limit: 6,
+    totalItems: 1,
+    totalPages: 1,
+    appliedFilter: { category: 'all', sort: 'rating-desc' },
+  },
 };
 const categoriesResponse = {
   data: [
@@ -70,8 +76,9 @@ describe('library page', () => {
       limit: 6,
       sort: 'rating-desc',
     });
-    expect(page.querySelector('.game-card__price')?.classList.contains('game-card__price--free'))
-      .toBe(true);
+    expect(
+      page.querySelector('.game-card__price')?.classList.contains('game-card__price--free'),
+    ).toBe(true);
     expect(page.querySelector('.game-card__likes')?.textContent).toBe('1.3K');
 
     page.querySelector<HTMLButtonElement>('.library__chip[data-slug="puzzle"]')!.click();
@@ -81,9 +88,9 @@ describe('library page', () => {
       false,
     );
 
-    page.querySelector('.sort-dropdown__button')!.dispatchEvent(
-      new MouseEvent('click', { bubbles: true }),
-    );
+    page
+      .querySelector('.sort-dropdown__button')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
     [...page.querySelectorAll('.sort-dropdown__item')][2].dispatchEvent(
       new MouseEvent('click', { bubbles: true }),
     );

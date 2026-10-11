@@ -61,9 +61,11 @@ describe('authentication dialog', () => {
 
     expect(dialog.classList.contains('auth-dialog--open')).toBe(true);
     expect(onAuthChange).toHaveBeenLastCalledWith('register');
-    expect(document.querySelector('.auth-dialog__form--register')?.classList.contains(
-      'auth-dialog__form--hidden',
-    )).toBe(false);
+    expect(
+      document
+        .querySelector('.auth-dialog__form--register')
+        ?.classList.contains('auth-dialog__form--hidden'),
+    ).toBe(false);
 
     document.querySelector<HTMLButtonElement>('.auth-dialog__tab')!.click();
     expect(onAuthChange).toHaveBeenLastCalledWith('login');

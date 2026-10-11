@@ -50,7 +50,9 @@ describe('header session state', () => {
     expect((header.querySelector('.header__logout') as HTMLButtonElement).hidden).toBe(false);
     expect(header.querySelector('.header__avatar')?.textContent).toBe('PN');
     expect(header.querySelector('.mobile-menu__logout')?.hasAttribute('hidden')).toBe(false);
-    expect(header.getAppSession()).toEqual(expect.objectContaining({ email: 'player@example.com' }));
+    expect(header.getAppSession()).toEqual(
+      expect.objectContaining({ email: 'player@example.com' }),
+    );
   });
 
   it('uses the email local part and generic initials fallbacks for a missing display name', () => {

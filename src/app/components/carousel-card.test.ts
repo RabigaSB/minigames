@@ -69,9 +69,9 @@ describe('featured games carousel', () => {
 
     expect(fetchGames).toHaveBeenCalledWith({ featured: true });
     expect(section.querySelector('.carousel__likes')?.textContent).toBe('1.3K');
-    expect(section.querySelector('.carousel__card')?.classList.contains(
-      'carousel__card--info-enabled',
-    )).toBe(true);
+    expect(
+      section.querySelector('.carousel__card')?.classList.contains('carousel__card--info-enabled'),
+    ).toBe(true);
 
     const track = section.querySelector<HTMLElement>('.carousel__container')!;
     const firstCard = track.firstElementChild;
@@ -80,7 +80,9 @@ describe('featured games carousel', () => {
     section.querySelector<HTMLImageElement>('.carousel__arrow--backward')!.click();
     expect(track.firstElementChild).toBe(firstCard);
 
-    track.querySelector('.carousel__card')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    track
+      .querySelector('.carousel__card')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(onGameSelected).toHaveBeenCalledWith('one');
   });
 
