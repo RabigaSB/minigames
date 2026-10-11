@@ -132,20 +132,23 @@ export function createHeader(
     mobileLoginButton.hidden = hasSession;
     mobileSignUpButton.hidden = hasSession;
     mobileLogoutButton.hidden = !hasSession;
-    console.log('Session applied:', session);
+    window.dispatchEvent(new Event('appsessionchange'));
 
     if (!session) {
       userAvatar.textContent = '';
       userAvatar.classList.remove('has-photo');
       userAvatar.style.backgroundImage = '';
-      userAvatar.style.backgroundSize = '0 0';
-      userAvatar.style.backgroundColor = 'transparent';
-      userAvatar.style.display = 'none';
-      userProfile.style.backgroundColor = 'blue';
+      userAvatar.style.backgroundSize = '';
+      userAvatar.style.backgroundColor = '';
+      userAvatar.style.display = '';
       userName.textContent = '';
       return;
     }
 
+    userAvatar.style.display = '';
+    userAvatar.style.backgroundColor = '';
+    userAvatar.style.backgroundImage = '';
+    userAvatar.classList.remove('has-photo');
     const profileName = getProfileName(session);
     userName.textContent = profileName;
 
@@ -171,18 +174,23 @@ export function createHeader(
 
   let activeSession: AppSession | null = null;
   let expirationTimer: number | undefined;
+  let expirationSnackbarShown = false;
   const expireSession = (): void => {
     if (!activeSession) return;
     activeSession = null;
     if (expirationTimer !== undefined) window.clearTimeout(expirationTimer);
     clearAppSession();
     applySession(null);
-    showSnackbar('Your session has expired. Please sign in again.', 'error');
+    if (!expirationSnackbarShown) {
+      expirationSnackbarShown = true;
+      showSnackbar('Your session has expired. Please sign in again.', 'error');
+    }
     void logOut().catch((error: unknown) => {
       console.error('Failed to clear the expired Firebase session.', error);
     });
   };
   const setSession = (session: AppSession): void => {
+    expirationSnackbarShown = false;
     activeSession = session;
     applySession(session);
     if (expirationTimer !== undefined) window.clearTimeout(expirationTimer);
@@ -281,6 +289,8 @@ export function createHeader(
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) checkSessionExpiration();
   });
+  window.addEventListener('focus', checkSessionExpiration);
+  window.addEventListener('pageshow', checkSessionExpiration);
   document.addEventListener('click', checkSessionExpiration, true);
   window.addEventListener('popstate', checkSessionExpiration, true);
 
@@ -289,6 +299,7 @@ export function createHeader(
     if (restoredSession.status === 'valid') {
       setSession(restoredSession.session);
     } else if (restoredSession.status === 'expired') {
+      expirationSnackbarShown = true;
       showSnackbar('Your session has expired. Please sign in again.', 'error');
       void logOut().catch((error: unknown) => {
         console.error('Failed to clear the expired Firebase session.', error);

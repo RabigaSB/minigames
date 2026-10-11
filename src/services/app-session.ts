@@ -20,7 +20,7 @@ export function createAppSession(user: User): AppSession {
   }
 
   const session: AppSession = {
-    displayName: user.displayName?.trim() || email.split('@')[0] || 'Player',
+    displayName: user.displayName?.trim() ?? '',
     email,
     authenticatedAt: Date.now(),
   };
@@ -64,13 +64,17 @@ function isAppSession(value: unknown): value is AppSession {
   if (typeof value !== 'object' || value === null) return false;
 
   const session = value as Record<string, unknown>;
+  const allowedKeys = new Set(['displayName', 'email', 'authenticatedAt', 'avatarUrl']);
   return (
+    Object.keys(session).every((key) => allowedKeys.has(key)) &&
     typeof session.displayName === 'string' &&
-    session.displayName.trim().length > 0 &&
+    session.displayName === session.displayName.trim() &&
     typeof session.email === 'string' &&
-    session.email.trim().length > 0 &&
+    session.email.length > 0 &&
+    session.email === session.email.trim() &&
     typeof session.authenticatedAt === 'number' &&
     Number.isFinite(session.authenticatedAt) &&
+    session.authenticatedAt >= 0 &&
     (session.avatarUrl === undefined || typeof session.avatarUrl === 'string')
   );
 }
