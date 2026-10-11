@@ -11,7 +11,7 @@ body.menu-open {
   z-index: $z-index-upper;
   inset: 0;
   box-sizing: border-box;
-  width: 100%;
+  width: $full-width;
   height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -104,14 +104,21 @@ body.menu-open {
   }
 
   &__login,
-  &__signup {
-    width: 100%;
+  &__signup,
+  &__logout {
+    width: $full-width;
     min-height: $size-5;
     border-radius: $corner-small;
     font-family: $Inter;
     font-size: $label-large;
     font-weight: $bold;
     cursor: pointer;
+  }
+
+  &__login[hidden],
+  &__signup[hidden],
+  &__logout[hidden] {
+    display: none;
   }
 
   &__login {
@@ -124,5 +131,11 @@ body.menu-open {
     border: $border-solid $primary;
     background-color: $primary;
     color: $on-primary;
+  }
+
+  &__logout {
+    border: $border-solid $white;
+    background-color: transparent;
+    color: $white;
   }
 }

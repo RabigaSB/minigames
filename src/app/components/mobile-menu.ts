@@ -63,7 +63,11 @@ export function createMobileMenu(): HTMLElement {
 
   signUpButton.type = 'button';
 
-  actions.append(loginButton, signUpButton);
+  const logoutButton = createElement('button', 'mobile-menu__logout', 'Log Out');
+  logoutButton.type = 'button';
+  logoutButton.hidden = true;
+
+  actions.append(loginButton, signUpButton, logoutButton);
 
   menu.append(header, navigation, actions);
 

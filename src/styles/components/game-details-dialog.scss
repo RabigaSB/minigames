@@ -406,6 +406,20 @@ body.dialog-open {
     gap: $size-2;
   }
 
+  &__comment-submit-status {
+    margin: 0;
+    color: $on-bg;
+    font-size: $label-medium;
+
+    &:empty {
+      display: none;
+    }
+
+    &--error {
+      color: $error;
+    }
+  }
+
   &__avatar,
   &__comment-avatar {
     width: $size-5;
@@ -448,6 +462,11 @@ body.dialog-open {
       outline: none;
       border: $border-solid $on-primary;
     }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
   }
 
   &__send-btn {
@@ -474,6 +493,11 @@ body.dialog-open {
 
     &:hover {
       background-color: $tertiary;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
   }
 

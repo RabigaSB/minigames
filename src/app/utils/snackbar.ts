@@ -1,6 +1,9 @@
 import { createElement } from '../create-element';
 
-export function showSnackbar(message: string, type: 'success' | 'error' = 'success'): void {
+export function showSnackbar(
+  message: string,
+  type: 'success' | 'error' | 'warning' = 'success',
+): void {
   const snackbar = createElement('div', 'snackbar');
   snackbar.classList.add(`snackbar--${type}`);
   snackbar.textContent = message;
