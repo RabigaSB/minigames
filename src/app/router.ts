@@ -5,6 +5,7 @@ import type { AuthDialog, AuthMode } from './components/auth-dialog';
 import type { GameDetailsDialog } from './components/game-details-dialog';
 import { APP_BASE_PATH, getAppPath } from './constants';
 import type { AppSession } from '../services/app-session';
+import { showSnackbar } from './utils/snackbar';
 
 type View = 'home' | 'library' | 'not-found';
 type NavigableView = Exclude<View, 'not-found'>;
@@ -117,6 +118,14 @@ export class Router {
   public handleAuthChange = (mode: AuthMode | null): void => {
     const url = new URL(window.location.href);
     if (mode) {
+      if (this.getAppSession()) {
+        url.searchParams.delete('auth');
+        this.writeUrl(url, true);
+        this.authDialog?.closeAuth(false);
+        showSnackbar('You are already authenticated.', 'warning');
+        this.renderLocation();
+        return;
+      }
       url.searchParams.set('auth', mode);
     } else {
       url.searchParams.delete('auth');
@@ -188,7 +197,15 @@ export class Router {
 
   private renderLocation(): void {
     this.getAppSession();
-    const state = this.parseLocation();
+    let state = this.parseLocation();
+    if (state.auth && this.getAppSession()) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('auth');
+      this.writeUrl(url, true);
+      this.authDialog?.closeAuth(false);
+      showSnackbar('You are already authenticated.', 'warning');
+      state = this.parseLocation();
+    }
     const previousGameDialog = this.contentContainer.querySelector(
       '.game-dialog',
     ) as GameDetailsDialog | null;
