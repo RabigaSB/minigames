@@ -11,7 +11,7 @@ body.menu-open {
   z-index: $z-index-upper;
   inset: 0;
   box-sizing: border-box;
-  width: 100%;
+  width: $full-width;
   height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -106,7 +106,7 @@ body.menu-open {
   &__login,
   &__signup,
   &__logout {
-    width: 100%;
+    width: $full-width;
     min-height: $size-5;
     border-radius: $corner-small;
     font-family: $Inter;
@@ -117,16 +117,8 @@ body.menu-open {
 
   &__login[hidden],
   &__signup[hidden],
-  &__user[hidden],
   &__logout[hidden] {
     display: none;
-  }
-
-  &__user {
-    color: $white;
-    font-size: $body-large;
-    font-weight: $bold;
-    text-align: center;
   }
 
   &__login {

@@ -63,8 +63,12 @@ export function createHeader(
   const signUpButton = createElement('button', 'header__sign-up', 'Sign up');
   signUpButton.type = 'button';
 
+  const userProfile = createElement('div', 'header__profile');
+  userProfile.hidden = true;
+  const userAvatar = createElement('div', 'header__avatar');
+  userAvatar.setAttribute('aria-hidden', 'true');
   const userName = createElement('span', 'header__user');
-  userName.hidden = true;
+  userProfile.append(userName, userAvatar);
   const logoutButton = createElement('button', 'header__logout', 'Log out');
   logoutButton.type = 'button';
   logoutButton.hidden = true;
@@ -75,20 +79,94 @@ export function createHeader(
 
   const mobileLoginButton = mobileMenu.querySelector('.mobile-menu__login') as HTMLButtonElement;
   const mobileSignUpButton = mobileMenu.querySelector('.mobile-menu__signup') as HTMLButtonElement;
-  const mobileUserName = mobileMenu.querySelector('.mobile-menu__user') as HTMLSpanElement;
   const mobileLogoutButton = mobileMenu.querySelector('.mobile-menu__logout') as HTMLButtonElement;
 
+  const getProfileName = (session: AppSession | null): string => {
+    if (!session) return 'Player';
+    const preferredName = session.displayName.trim();
+    if (preferredName) return preferredName;
+    const emailName = session.email.split('@')[0]?.trim();
+    return emailName || 'Player';
+  };
+
+  const getInitials = (name: string): string => {
+    const trimmed = name.trim();
+    if (!trimmed) return '?';
+
+    const words = trimmed.split(/\s+/).filter(Boolean);
+    const alphaNumeric = /[\p{L}\p{N}]/u;
+    const firstCharacters: string[] = [];
+
+    for (const word of words) {
+      const match = word.match(alphaNumeric);
+      if (match) {
+        firstCharacters.push(match[0].toUpperCase());
+      }
+      if (firstCharacters.length >= 2) break;
+    }
+
+    if (firstCharacters.length > 0) {
+      return firstCharacters.join('').slice(0, 2);
+    }
+
+    return '?';
+  };
+
+  const renderAvatarFallback = (
+    avatarElement: HTMLDivElement,
+    session: AppSession,
+    label: string,
+  ): void => {
+    const initials = getInitials(getProfileName(session));
+    avatarElement.textContent = initials;
+    avatarElement.classList.remove('has-photo');
+    avatarElement.setAttribute('aria-label', label);
+  };
+
   const applySession = (session: AppSession | null): void => {
-    signInButton.hidden = Boolean(session);
-    signUpButton.hidden = Boolean(session);
-    userName.hidden = !session;
-    userName.textContent = session?.displayName ?? '';
-    logoutButton.hidden = !session;
-    mobileLoginButton.hidden = Boolean(session);
-    mobileSignUpButton.hidden = Boolean(session);
-    mobileUserName.hidden = !session;
-    mobileUserName.textContent = session?.displayName ?? '';
-    mobileLogoutButton.hidden = !session;
+    const hasSession = Boolean(session);
+    signInButton.hidden = hasSession;
+    signUpButton.hidden = hasSession;
+    userProfile.hidden = !hasSession;
+    logoutButton.hidden = !hasSession;
+    mobileLoginButton.hidden = hasSession;
+    mobileSignUpButton.hidden = hasSession;
+    mobileLogoutButton.hidden = !hasSession;
+    console.log('Session applied:', session);
+
+    if (!session) {
+      userAvatar.textContent = '';
+      userAvatar.classList.remove('has-photo');
+      userAvatar.style.backgroundImage = '';
+      userAvatar.style.backgroundSize = '0 0';
+      userAvatar.style.backgroundColor = 'transparent';
+      userAvatar.style.display = 'none';
+      userProfile.style.backgroundColor = 'blue';
+      userName.textContent = '';
+      return;
+    }
+
+    const profileName = getProfileName(session);
+    userName.textContent = profileName;
+
+    if (session.avatarUrl) {
+      const image = new Image();
+      image.src = session.avatarUrl;
+      image.alt = profileName;
+      image.onload = () => {
+        userAvatar.textContent = '';
+        userAvatar.classList.add('has-photo');
+        userAvatar.style.backgroundImage = `url("${session.avatarUrl}")`;
+        userAvatar.style.backgroundSize = 'cover';
+        userAvatar.style.backgroundPosition = 'center';
+      };
+      image.onerror = () => {
+        renderAvatarFallback(userAvatar, session, profileName);
+      };
+      return;
+    }
+
+    renderAvatarFallback(userAvatar, session, profileName);
   };
 
   let activeSession: AppSession | null = null;
@@ -132,7 +210,7 @@ export function createHeader(
   });
 
   headerBtnsWrapper.append(navigation, actions);
-  actions.append(signInButton, signUpButton, userName, logoutButton, burgerButton);
+  actions.append(signInButton, signUpButton, userProfile, logoutButton, burgerButton);
   container.append(logoContainer, headerBtnsWrapper, mobileMenu, authDialog);
   header.append(container);
 
