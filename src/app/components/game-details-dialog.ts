@@ -407,6 +407,15 @@ export function createGameDetailsDialog(
     return session;
   };
 
+  const handleAppSessionChange = (): void => {
+    updateCommentAccess();
+    if (dialog.classList.contains('game-dialog--open') && currentSlug) {
+      void loadGame(currentSlug);
+      void loadComments(currentSlug);
+    }
+  };
+  window.addEventListener('appsessionchange', handleAppSessionChange);
+
   const loadComments = async (slug: string, userEmail?: string): Promise<void> => {
     const requestId = ++activeCommentsRequest;
     commentsTitle.textContent = 'Comments';
@@ -454,7 +463,14 @@ export function createGameDetailsDialog(
       commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
       return;
     }
-    const authorName = session.displayName;
+    const profileName = session.displayName.trim();
+    const emailName = session.email.split('@')[0]?.trim() ?? '';
+    const authorName =
+      profileName.length >= 2 && profileName.length <= 30
+        ? profileName
+        : emailName.length >= 2 && emailName.length <= 30
+          ? emailName
+          : 'Player';
     if (authorName.trim().length < 2 || authorName.trim().length > 30) {
       commentSubmissionStatus.textContent =
         'Your profile name must be between 2 and 30 characters to post a comment.';
@@ -590,6 +606,7 @@ export function createGameDetailsDialog(
   });
 
   dialog.openGame = (slug: string, syncUrl = true): void => {
+    options.getSession?.();
     currentSlug = slug;
     commentInput.value = '';
     commentInput.style.height = 'auto';
@@ -607,6 +624,7 @@ export function createGameDetailsDialog(
   dialog.dispose = (): void => {
     closeDialog(false);
     document.removeEventListener('keydown', handleEscape);
+    window.removeEventListener('appsessionchange', handleAppSessionChange);
   };
 
   if (initialSlug) dialog.openGame(initialSlug, false);

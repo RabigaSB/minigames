@@ -5,6 +5,7 @@ import type { AuthDialog, AuthMode } from './components/auth-dialog';
 import type { GameDetailsDialog } from './components/game-details-dialog';
 import { APP_BASE_PATH, getAppPath } from './constants';
 import type { AppSession } from '../services/app-session';
+import { showSnackbar } from './utils/snackbar';
 
 type View = 'home' | 'library' | 'not-found';
 type NavigableView = Exclude<View, 'not-found'>;
@@ -107,6 +108,7 @@ export class Router {
   }
 
   public navigate(view: NavigableView): void {
+    this.getAppSession();
     const path = getAppPath(view);
     window.history.pushState({}, '', path);
     this.renderLocation();
@@ -116,15 +118,24 @@ export class Router {
   public handleAuthChange = (mode: AuthMode | null): void => {
     const url = new URL(window.location.href);
     if (mode) {
+      if (this.getAppSession()) {
+        url.searchParams.delete('auth');
+        this.writeUrl(url, true);
+        this.authDialog?.closeAuth(false);
+        showSnackbar('You are already authenticated.', 'warning');
+        this.renderLocation();
+        return;
+      }
       url.searchParams.set('auth', mode);
-      url.searchParams.delete('game');
     } else {
       url.searchParams.delete('auth');
     }
     this.writeUrl(url, mode === null);
+    this.renderLocation();
   };
 
   private handleGameChange = (slug: string | null): void => {
+    this.getAppSession();
     const url = new URL(window.location.href);
     if (slug) {
       url.searchParams.set('game', slug);
@@ -136,6 +147,7 @@ export class Router {
   };
 
   private handleLibraryStateChange = (state: LibraryRouteState, replace = false): void => {
+    this.getAppSession();
     const url = new URL(window.location.href);
     url.searchParams.set('category', state.category);
     url.searchParams.set('sort', state.sort);
@@ -171,7 +183,7 @@ export class Router {
       category: url.searchParams.get('category') ?? 'all',
       sort: VALID_SORTS.has(rawSort) ? rawSort : 'rating-desc',
       page: Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1,
-      game: view === 'not-found' || auth ? undefined : (url.searchParams.get('game') ?? undefined),
+      game: view === 'not-found' ? undefined : (url.searchParams.get('game') ?? undefined),
       auth: view === 'not-found' ? undefined : auth,
     };
   }
@@ -184,7 +196,16 @@ export class Router {
   }
 
   private renderLocation(): void {
-    const state = this.parseLocation();
+    this.getAppSession();
+    let state = this.parseLocation();
+    if (state.auth && this.getAppSession()) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('auth');
+      this.writeUrl(url, true);
+      this.authDialog?.closeAuth(false);
+      showSnackbar('You are already authenticated.', 'warning');
+      state = this.parseLocation();
+    }
     const previousGameDialog = this.contentContainer.querySelector(
       '.game-dialog',
     ) as GameDetailsDialog | null;
@@ -197,7 +218,7 @@ export class Router {
         ? createNotFoundPage()
         : state.view === 'home'
           ? createHomePage({
-              gameSlug: state.game,
+              gameSlug: state.auth ? undefined : state.game,
               onGameChange: this.handleGameChange,
               getSession: this.getAppSession,
               onAuthRequired: this.requireAuthentication,
@@ -208,7 +229,7 @@ export class Router {
                 sort: state.sort,
                 page: state.page,
               },
-              gameSlug: state.game,
+              gameSlug: state.auth ? undefined : state.game,
               onStateChange: this.handleLibraryStateChange,
               onGameChange: this.handleGameChange,
               getSession: this.getAppSession,

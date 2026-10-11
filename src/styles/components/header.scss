@@ -133,19 +133,46 @@
     }
   }
 
-  &__sign-in[hidden],
-  &__sign-up[hidden],
-  &__user[hidden],
-  &__logout[hidden] {
-    display: none;
-  }
-
-  &__user,
   &__logout {
     display: none;
 
     @media (min-width: $breakpoint-tablet) {
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      gap: $size-1;
+    }
+  }
+
+  &__profile {
+    display: none;
+
+    @media (min-width: $breakpoint-desktop) {
+      display: flex;
+      align-items: center;
+      gap: $size-1;
+    }
+  }
+
+  &__avatar {
+    width: $size-4;
+    height: $size-4;
+    border-radius: $corner-full;
+    background-color: $on-primary;
+    color: $white;
+    font-size: $label-large;
+    font-weight: $bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    overflow: hidden;
+
+    &.has-photo {
+      border: $border-solid-1 $outline-variant;
+      color: transparent;
     }
   }
 
@@ -153,6 +180,8 @@
     color: $on-primary;
     font-size: $label-large;
     font-weight: $bold;
+    line-height: 1.2;
+    white-space: nowrap;
   }
 
   &__logout {
@@ -188,5 +217,12 @@
     &:hover {
       background-color: $primary-high;
     }
+  }
+
+  &__sign-in[hidden],
+  &__sign-up[hidden],
+  &__profile[hidden],
+  &__logout[hidden] {
+    display: none;
   }
 }
