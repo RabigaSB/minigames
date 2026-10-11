@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   CommentSubmissionError,
+  fetchCategories,
   fetchGameComments,
   fetchGameDetails,
+  fetchGames,
+  fetchLeaderboard,
   submitGameComment,
   toggleCommentLike,
   toggleGameFavorite,
@@ -138,5 +141,46 @@ describe('game API requests', () => {
       message: 'Server error',
       outcomeUnknown: true,
     });
+  });
+
+  it('fetches categories and leaderboard data from their response envelopes', async () => {
+    const categories = { data: [{ slug: 'puzzle', label: 'Puzzle', isDefault: true }], meta: {} };
+    mockFetch(jsonResponse(categories));
+    await expect(fetchCategories()).resolves.toEqual(categories);
+
+    const players = [{ rank: 1, playerName: 'Player' }];
+    mockFetch(jsonResponse({ data: players }));
+    await expect(fetchLeaderboard()).resolves.toEqual(players);
+  });
+
+  it('builds game-list query parameters including false values', async () => {
+    const payload = { data: [], meta: {} };
+    const fetchMock = mockFetch(jsonResponse(payload));
+
+    await expect(
+      fetchGames({ featured: false, page: 2, limit: 6, category: 'puzzle games', sort: 'name-asc' }),
+    ).resolves.toEqual(payload);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${API_BASE}/games?featured=false&page=2&limit=6&category=puzzle+games&sort=name-asc`,
+    );
+  });
+
+  it.each([
+    ['details', () => fetchGameDetails('bad-game')],
+    ['favorites', () => toggleGameFavorite('bad-game', 'user@example.com')],
+    ['comments', () => fetchGameComments('bad-game')],
+    ['comment likes', () => toggleCommentLike('bad-id', 'user@example.com')],
+    ['categories', () => fetchCategories()],
+    ['leaderboard', () => fetchLeaderboard()],
+    ['games', () => fetchGames()],
+  ])('surfaces server error messages for %s', async (_label, request) => {
+    mockFetch(jsonResponse({ error: 'Service unavailable' }, 503));
+    await expect(request()).rejects.toThrow('Service unavailable');
+  });
+
+  it('falls back to HTTP status when an error response is not JSON', async () => {
+    const response = new Response('not-json', { status: 502 });
+    mockFetch(response);
+    await expect(fetchGames()).rejects.toThrow('HTTP Error: 502');
   });
 });
