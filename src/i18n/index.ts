@@ -15,7 +15,11 @@ type NestedKey<T> = {
       : never;
 }[keyof T & string];
 
-export type TranslationKey = NestedKey<TranslationResource>;
+type PluralBase<Key extends string> =
+  Key extends `${infer Base}_${'zero' | 'one' | 'two' | 'few' | 'many' | 'other'}` ? Base : never;
+
+type ResourceKey = NestedKey<TranslationResource>;
+export type TranslationKey = ResourceKey | PluralBase<ResourceKey>;
 
 const i18nReady = i18next.init({
   lng: 'en',

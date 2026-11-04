@@ -46,7 +46,55 @@
     "add": "Добавить в избранное",
     "remove": "Удалить из избранного"
   },
+  "home": {
+    "hero": {
+      "title": "Сделайте перерыв и повеселитесь",
+      "description": "Откройте для себя сотни отобранных мини-игр. Играйте прямо в браузере",
+      "descriptionDetail": " — головоломки, три в ряд, фермы и настольные игры.",
+      "browseLibrary": "Перейти в библиотеку"
+    }
+  },
+  "carousel": {
+    "newGames": "Новые игры",
+    "loading": "Загрузка новых игр...",
+    "empty": "Новые игры пока недоступны.",
+    "errorPrefix": "Ошибка:",
+    "failedToLoad": "Не удалось загрузить новые игры.",
+    "previous": "Предыдущие игры",
+    "next": "Следующие игры"
+  },
   "leaderboard": {
-    "title": "Таблица лидеров"
+    "title": "Лучшие игроки",
+    "thisWeek": "На этой неделе",
+    "loading": "Загрузка таблицы лучших игроков...",
+    "empty": "Данные таблицы лидеров недоступны.",
+    "errorPrefix": "Ошибка:",
+    "failedToLoad": "Не удалось загрузить таблицу лидеров.",
+    "columns": {
+      "rank": "МЕСТО",
+      "player": "ИГРОК",
+      "games": "ИГРЫ",
+      "score": "СЧЁТ",
+      "streak": "СЕРИЯ",
+      "gamesPlayed": "СЫГРАНО ИГР",
+      "totalScore": "ОБЩИЙ СЧЁТ",
+      "favoriteGame": "ЛЮБИМАЯ ИГРА"
+    },
+    "streakDays_zero": "{{count}} дней",
+    "streakDays_one": "{{count}} день",
+    "streakDays_two": "{{count}} дня",
+    "streakDays_few": "{{count}} дня",
+    "streakDays_many": "{{count}} дней",
+    "streakDays_other": "{{count}} дня",
+    "streakDaysShort": "{{count}}д"
+  },
+  "developerCta": {
+    "imageAlt": "Разработчик игр за работой",
+    "title": "Вы разработчик игр?",
+    "descriptionFirst": "Хотите увидеть свою игру на MiniGames? Мы всегда ищем интересные",
+    "descriptionSecond": "мини-игры для нашей платформы. Отправьте свою игру",
+    "descriptionThird": "и познакомьте с ней тысячи игроков!",
+    "submit": "Отправить заявку",
+    "contact": "или напишите нам: {{email}}"
   }
 }

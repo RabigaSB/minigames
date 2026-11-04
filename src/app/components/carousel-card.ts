@@ -2,23 +2,39 @@ import { createElement } from '../create-element';
 import { fetchGames } from '../utils/api';
 import type { ApiGame } from '../utils/api';
 import { showSnackbar } from '../utils/snackbar';
+import { onLanguageChange, t } from '../../i18n';
 
 export function createNewGamesSection(onGameSelected: (slug: string) => void): HTMLElement {
   const section = createElement('section', 'carousel__section');
 
-  // Render skeleton state immediately
-  section.innerHTML = `
-    <div class="carousel__wrapper">
-      <h2 class="carousel__title">New Games</h2>
-    </div>
-    <div class="carousel__container skeleton-container" style="display: flex; gap: 16px; overflow: hidden;">
-      <div class="skeleton-card" style="min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;"></div>
-      <div class="skeleton-card" style="min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;"></div>
-      <div class="skeleton-card" style="min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;"></div>
-    </div>
-  `;
+  renderSkeleton(section, 3);
 
   loadGamesData(section, onGameSelected);
+
+  let unsubscribe = (): void => undefined;
+  unsubscribe = onLanguageChange(() => {
+    if (!section.isConnected) {
+      unsubscribe();
+      return;
+    }
+    const title = section.querySelector<HTMLElement>('.carousel__title');
+    if (title) title.textContent = t('carousel.newGames');
+    const loading = section.querySelector<HTMLElement>('.carousel__loading');
+    if (loading) {
+      loading.textContent = t('carousel.loading');
+      loading.parentElement?.setAttribute('aria-label', t('carousel.loading'));
+    }
+    const empty = section.querySelector<HTMLElement>('.carousel__empty-banner');
+    if (empty) empty.textContent = t('carousel.empty');
+    const errorPrefix = section.querySelector<HTMLElement>('.carousel__error-prefix');
+    if (errorPrefix) errorPrefix.textContent = t('carousel.errorPrefix');
+    const retry = section.querySelector<HTMLButtonElement>('.carousel__retry-btn');
+    if (retry) retry.textContent = t('common.retry');
+    const previous = section.querySelector<HTMLImageElement>('.carousel__arrow--backward');
+    previous?.setAttribute('aria-label', t('carousel.previous'));
+    const next = section.querySelector<HTMLImageElement>('.carousel__arrow--forward');
+    next?.setAttribute('aria-label', t('carousel.next'));
+  });
 
   return section;
 }
@@ -43,16 +59,30 @@ async function loadGamesData(
     section.innerHTML = '';
     const errorMsg = error instanceof Error ? error.message : 'Failed to load featured games';
     renderErrorState(section, errorMsg, onGameSelected);
-    showSnackbar(errorMsg, 'error');
+    showSnackbar(t('carousel.failedToLoad'), 'error');
   }
 }
 
+function renderSkeleton(section: HTMLElement, cardCount: number): void {
+  const wrapper = createElement('div', 'carousel__wrapper');
+  wrapper.append(createElement('h2', 'carousel__title', t('carousel.newGames')));
+  const container = createElement('div', 'carousel__container skeleton-container');
+  container.style.cssText = 'display: flex; gap: 16px; overflow: hidden;';
+  container.setAttribute('role', 'status');
+  container.setAttribute('aria-label', t('carousel.loading'));
+  container.append(createElement('p', 'carousel__loading', t('carousel.loading')));
+  for (let index = 0; index < cardCount; index++) {
+    const card = createElement('div', 'skeleton-card');
+    card.style.cssText =
+      'min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;';
+    card.setAttribute('aria-hidden', 'true');
+    container.append(card);
+  }
+  section.replaceChildren(wrapper, container);
+}
+
 function renderEmptyState(section: HTMLElement): void {
-  const emptyBanner = createElement(
-    'div',
-    'carousel__empty-banner',
-    'No Featured Games Available.',
-  );
+  const emptyBanner = createElement('div', 'carousel__empty-banner', t('carousel.empty'));
   section.append(emptyBanner);
 }
 
@@ -62,18 +92,13 @@ function renderErrorState(
   onGameSelected: (slug: string) => void,
 ): void {
   const errorBanner = createElement('div', 'carousel__error-banner');
-  const errorText = createElement('p', 'carousel__error-text', `Error: ${message}`);
-  const retryBtn = createElement('button', 'carousel__retry-btn', 'Retry');
+  const errorText = createElement('p', 'carousel__error-text');
+  const errorPrefix = createElement('span', 'carousel__error-prefix', t('carousel.errorPrefix'));
+  errorText.append(errorPrefix, document.createTextNode(` ${message}`));
+  const retryBtn = createElement('button', 'carousel__retry-btn', t('common.retry'));
 
   retryBtn.addEventListener('click', () => {
-    section.innerHTML = `
-      <div class="carousel__wrapper">
-        <h2 class="carousel__title">New Games</h2>
-      </div>
-      <div class="carousel__container skeleton-container">
-        <div class="skeleton-card" style="min-width: 288px; height: 300px; background: #2a2a2a; border-radius: 12px;"></div>
-      </div>
-    `;
+    renderSkeleton(section, 1);
     loadGamesData(section, onGameSelected);
   });
 
@@ -87,15 +112,21 @@ function renderPopulatedCarousel(
   onGameSelected: (slug: string) => void,
 ): void {
   const titleWrapper = createElement('div', 'carousel__wrapper');
-  const newGamesTitle = createElement('h2', 'carousel__title', 'New Games');
+  const newGamesTitle = createElement('h2', 'carousel__title', t('carousel.newGames'));
 
   const arrowWrapper = createElement('div', 'carousel__tools');
   const arrowForward = createElement('img', 'carousel__arrow--forward');
   const arrowBackward = createElement('img', 'carousel__arrow--backward');
   arrowForward.src = './assets/arrow.png';
-  arrowForward.alt = 'arrow';
+  arrowForward.alt = '';
+  arrowForward.setAttribute('role', 'button');
+  arrowForward.tabIndex = 0;
+  arrowForward.setAttribute('aria-label', t('carousel.next'));
   arrowBackward.src = './assets/arrow.png';
-  arrowBackward.alt = 'arrow';
+  arrowBackward.alt = '';
+  arrowBackward.setAttribute('role', 'button');
+  arrowBackward.tabIndex = 0;
+  arrowBackward.setAttribute('aria-label', t('carousel.previous'));
   arrowWrapper.append(arrowBackward, arrowForward);
   titleWrapper.append(newGamesTitle, arrowWrapper);
 
@@ -106,7 +137,16 @@ function renderPopulatedCarousel(
   }
 
   initCarouselLogic(carouselContainer, arrowBackward, arrowForward);
+  arrowBackward.addEventListener('keydown', activateArrowOnKeyboard);
+  arrowForward.addEventListener('keydown', activateArrowOnKeyboard);
   section.append(titleWrapper, carouselContainer);
+}
+
+function activateArrowOnKeyboard(event: KeyboardEvent): void {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    (event.currentTarget as HTMLElement).click();
+  }
 }
 
 function createCarouselCard(game: ApiGame, onGameSelected: (slug: string) => void): HTMLElement {

@@ -4,6 +4,7 @@ import { createLeaderboard } from './leaderboard';
 import { createPagination } from './pagination';
 import { createSortDropdown } from './sort-dropdown';
 import { showSnackbar } from '../utils/snackbar';
+import { changeLanguage } from '../../i18n';
 
 vi.mock('../utils/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../utils/api')>()),
@@ -86,9 +87,14 @@ describe('sort dropdown', () => {
 });
 
 describe('leaderboard', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await changeLanguage('en');
     document.body.replaceChildren();
     vi.clearAllMocks();
+  });
+  afterEach(async () => {
+    document.body.replaceChildren();
+    await changeLanguage('en');
   });
   afterEach(() => document.body.replaceChildren());
 
@@ -138,6 +144,56 @@ describe('leaderboard', () => {
     section.querySelector<HTMLButtonElement>('.leaderboard__retry-btn')!.click();
     await vi.waitFor(() => expect(section.querySelector('.leaderboard__empty')).not.toBeNull());
     expect(fetchLeaderboard).toHaveBeenCalledTimes(2);
+  });
+
+  it('updates translated table labels while retaining backend player content', async () => {
+    vi.mocked(fetchLeaderboard).mockResolvedValue([
+      {
+        rank: 1,
+        playerName: 'alice_smith',
+        gamesPlayed: 9,
+        totalScore: 12_500,
+        streakDays: 1,
+        favoriteGameSlug: 'sample',
+        favoriteGameName: 'Sample Game',
+      },
+    ]);
+    const section = createLeaderboard();
+    document.body.append(section);
+
+    await vi.waitFor(() => expect(section.querySelector('.leaderboard__row')).not.toBeNull());
+    await changeLanguage('ru');
+
+    expect(section.querySelector('.leaderboard__title-lead')?.textContent).toBe('Лучшие игроки');
+    expect(section.querySelector('.leaderboard__title--span')?.textContent).toBe('На этой неделе');
+    expect(section.querySelector('.leaderboard__name')?.textContent).toBe('alice_smith');
+    expect(section.querySelector('.leaderboard__game')?.textContent).toBe('Sample Game');
+    expect(section.querySelector('.leaderboard__row')?.textContent).toContain('1 день');
+    expect(fetchLeaderboard).toHaveBeenCalledOnce();
+  });
+
+  it('updates leaderboard loading and error states without another request', async () => {
+    let rejectRequest: (error: Error) => void = () => undefined;
+    vi.mocked(fetchLeaderboard).mockImplementationOnce(
+      () =>
+        new Promise((_, reject) => {
+          rejectRequest = reject;
+        }),
+    );
+    const section = createLeaderboard();
+    document.body.append(section);
+
+    await changeLanguage('kk');
+    expect(section.querySelector('.leaderboard__skeleton')?.textContent).toBe(
+      'Үздік ойыншылар кестесі жүктелуде...',
+    );
+
+    rejectRequest(new Error('Unavailable'));
+    await vi.waitFor(() => expect(section.querySelector('.leaderboard__error')).not.toBeNull());
+    expect(section.querySelector('.leaderboard__error-prefix')?.textContent).toBe('Қате:');
+    expect(section.querySelector('.leaderboard__retry-btn')?.textContent).toBe('Қайталау');
+    expect(section.querySelector('.leaderboard__error-text')?.textContent).toContain('Unavailable');
+    expect(fetchLeaderboard).toHaveBeenCalledOnce();
   });
 });
 

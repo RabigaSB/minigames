@@ -46,7 +46,55 @@
     "add": "Add to Favorites",
     "remove": "Remove from Favorites"
   },
+  "home": {
+    "hero": {
+      "title": "Take a Short Break & Have Fun",
+      "description": "Discover hundreds of curated casual mini-games. Play instantly in your browser",
+      "descriptionDetail": " — puzzle, match 3, farm, and board classics.",
+      "browseLibrary": "Browse Library"
+    }
+  },
+  "carousel": {
+    "newGames": "New Games",
+    "loading": "Loading featured games...",
+    "empty": "No Featured Games Available.",
+    "errorPrefix": "Error:",
+    "failedToLoad": "Failed to load featured games.",
+    "previous": "Previous games",
+    "next": "Next games"
+  },
   "leaderboard": {
-    "title": "Leaderboard"
+    "title": "Top Players",
+    "thisWeek": "This Week",
+    "loading": "Loading Top Players leaderboard...",
+    "empty": "No leaderboard data available.",
+    "errorPrefix": "Error:",
+    "failedToLoad": "Failed to load leaderboard.",
+    "columns": {
+      "rank": "RANK",
+      "player": "PLAYER",
+      "games": "GAMES",
+      "score": "SCORE",
+      "streak": "STREAK",
+      "gamesPlayed": "GAMES PLAYED",
+      "totalScore": "TOTAL SCORE",
+      "favoriteGame": "FAVORITE GAME"
+    },
+    "streakDays_zero": "{{count}} days",
+    "streakDays_one": "{{count}} day",
+    "streakDays_two": "{{count}} days",
+    "streakDays_few": "{{count}} days",
+    "streakDays_many": "{{count}} days",
+    "streakDays_other": "{{count}} days",
+    "streakDaysShort": "{{count}}d"
+  },
+  "developerCta": {
+    "imageAlt": "Game developer working on a game",
+    "title": "Are You a Game Developer?",
+    "descriptionFirst": "Want to see your game on MiniGames? We're always looking for fun,",
+    "descriptionSecond": "engaging mini games to add to our platform. Submit your game",
+    "descriptionThird": "and reach thousands of players!",
+    "submit": "Submit Form",
+    "contact": "or contact us at {{email}}"
   }
 }
