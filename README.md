@@ -7,4 +7,4 @@ Task: https://github.com/rolling-scopes-school/qualifying-stage/blob/main/tasks/
  - Telegram: @rabigasb
  - Discord: @rabigasb
  - Email: rabigasb@gmail.com
- - Whatsapp: rabigasb4
+
