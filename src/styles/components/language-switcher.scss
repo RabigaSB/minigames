@@ -1,0 +1,65 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/breakpoints' as *;
+
+$ls-size: 1px;
+$minus-1px: -1px;
+$select-width: 132px;
+
+.language-switcher {
+  display: inline-flex;
+  align-items: center;
+
+  &__label {
+    position: absolute;
+    width: $ls-size;
+    height: $ls-size;
+    padding: 0;
+    margin: $minus-1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  &__select {
+    min-height: $size-4;
+    max-width: $select-width;
+    border: $border-solid $on-primary;
+    border-radius: $corner-small;
+    background-color: $bg;
+    color: $on-primary;
+    font-family: $Inter;
+    font-size: $label-large;
+    font-weight: $medium;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 3px solid $tertiary;
+      outline-offset: 2px;
+    }
+  }
+
+  &.header__language-switcher {
+    display: none;
+
+    @media (min-width: $breakpoint-tablet) {
+      display: inline-flex;
+    }
+  }
+
+  &.mobile-menu__language-switcher {
+    width: $full-width;
+
+    .language-switcher__select {
+      width: $full-width;
+      max-width: none;
+      border-color: $bg-footer-low;
+      background-color: $bg-footer-low;
+      color: $white;
+
+      &:focus-visible {
+        outline-color: $primary;
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { createElement } from '../create-element';
 import { createMobileMenu } from './mobile-menu';
 import { createAuthDialog, type AuthMode } from './auth-dialog';
+import { createLanguageSwitcher } from './language-switcher';
 import { ROUTES } from '../constants';
 import { getAppPath } from '../constants';
 import {
@@ -56,6 +57,10 @@ export function createHeader(
   navigation.append(homeLink, libraryLink, tournamentsLink, communityLink);
 
   const actions = createElement('div', 'header__actions');
+  const languageSwitcher = createLanguageSwitcher(
+    'header__language-switcher',
+    'header-language-id',
+  );
 
   const signInButton = createElement('button', 'header__sign-in', 'Log in');
   signInButton.type = 'button';
@@ -227,7 +232,14 @@ export function createHeader(
   });
 
   headerBtnsWrapper.append(navigation, actions);
-  actions.append(signInButton, signUpButton, userProfile, logoutButton, burgerButton);
+  actions.append(
+    languageSwitcher,
+    signInButton,
+    signUpButton,
+    userProfile,
+    logoutButton,
+    burgerButton,
+  );
   container.append(logoContainer, headerBtnsWrapper, mobileMenu, authDialog);
   header.append(container);
 

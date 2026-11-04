@@ -1,5 +1,6 @@
 import { createElement } from '../create-element';
 import { getAppPath } from '../constants';
+import { createLanguageSwitcher } from './language-switcher';
 
 export function createMobileMenu(): HTMLElement {
   const menu = createElement('div', 'mobile-menu');
@@ -54,6 +55,10 @@ export function createMobileMenu(): HTMLElement {
   navigation.append(navigationList);
 
   const actions = createElement('div', 'mobile-menu__actions');
+  const languageSwitcher = createLanguageSwitcher(
+    'mobile-menu__language-switcher',
+    'mobile-menu-language-id',
+  );
 
   const loginButton = createElement('button', 'mobile-menu__login', 'Log In');
 
@@ -67,7 +72,7 @@ export function createMobileMenu(): HTMLElement {
   logoutButton.type = 'button';
   logoutButton.hidden = true;
 
-  actions.append(loginButton, signUpButton, logoutButton);
+  actions.append(languageSwitcher, loginButton, signUpButton, logoutButton);
 
   menu.append(header, navigation, actions);
 
