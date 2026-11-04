@@ -72,6 +72,8 @@ $auth-dialog-width: 460px;
 
   &__tab {
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
     background: transparent;
     border: none;
     color: $surface-low;
@@ -109,6 +111,7 @@ $auth-dialog-width: 460px;
     color: $on-primary;
     font-size: $display-small;
     font-weight: $bold;
+    overflow-wrap: anywhere;
   }
 
   &__subtitle {
@@ -251,6 +254,7 @@ $auth-dialog-width: 460px;
 
   &__submit-btn {
     width: $full-width;
+    overflow-wrap: anywhere;
     background-color: $primary;
     color: $on-primary;
     border: $border-solid $on-primary;
@@ -304,6 +308,7 @@ $auth-dialog-width: 460px;
 
   &__google-btn {
     width: $full-width;
+    min-width: 0;
     background-color: $white;
     color: $on-primary;
     border: $border-solid $on-primary;
@@ -313,8 +318,10 @@ $auth-dialog-width: 460px;
     font-weight: $bold;
     cursor: pointer;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
+    text-align: center;
     gap: $size-1;
     margin-bottom: $size-4;
 

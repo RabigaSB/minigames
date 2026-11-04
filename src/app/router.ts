@@ -6,6 +6,7 @@ import type { GameDetailsDialog } from './components/game-details-dialog';
 import { APP_BASE_PATH, getAppPath } from './constants';
 import type { AppSession } from '../services/app-session';
 import { showSnackbar } from './utils/snackbar';
+import { t } from '../i18n';
 
 type View = 'home' | 'library' | 'not-found';
 type NavigableView = Exclude<View, 'not-found'>;
@@ -122,7 +123,7 @@ export class Router {
         url.searchParams.delete('auth');
         this.writeUrl(url, true);
         this.authDialog?.closeAuth(false);
-        showSnackbar('You are already authenticated.', 'warning');
+        showSnackbar(t('authDialog.alreadyAuthenticated'), 'warning');
         this.renderLocation();
         return;
       }
@@ -203,7 +204,7 @@ export class Router {
       url.searchParams.delete('auth');
       this.writeUrl(url, true);
       this.authDialog?.closeAuth(false);
-      showSnackbar('You are already authenticated.', 'warning');
+      showSnackbar(t('authDialog.alreadyAuthenticated'), 'warning');
       state = this.parseLocation();
     }
     const previousGameDialog = this.contentContainer.querySelector(
