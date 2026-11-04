@@ -1,0 +1,29 @@
+{
+  "navigation": {
+    "home": "Home",
+    "library": "Library"
+  },
+  "auth": {
+    "logIn": "Log in",
+    "signUp": "Sign up",
+    "logOut": "Log out"
+  },
+  "common": {
+    "search": "Search",
+    "loading": "Loading",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "playNow": "Play Now",
+    "comments": "Comments",
+    "returnHome": "Return Home"
+  },
+  "favorites": {
+    "add": "Add to Favorites",
+    "remove": "Remove from Favorites"
+  },
+  "leaderboard": {
+    "title": "Leaderboard"
+  }
+}
