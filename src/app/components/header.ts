@@ -221,7 +221,7 @@ export function createHeader(
     resetToGuestMode();
     if (!expirationSnackbarShown) {
       expirationSnackbarShown = true;
-      showSnackbar(t('authDialog.sessionExpired'), 'error');
+      showSnackbar('authDialog.sessionExpired', 'error');
     }
     void logOut().catch((error: unknown) => {
       console.error('Failed to clear the expired Firebase session.', error);
@@ -323,10 +323,10 @@ export function createHeader(
     resetToGuestMode();
     try {
       await logOut();
-      showSnackbar(t('authDialog.signedOut'), 'success');
+      showSnackbar('authDialog.signedOut', 'success');
     } catch (error) {
       console.error('Failed to sign out from Firebase.', error);
-      showSnackbar(t('authDialog.signOutFailed'), 'error');
+      showSnackbar('authDialog.signOutFailed', 'error');
     }
   };
   logoutButton.addEventListener('click', () => void handleLogout());
@@ -346,19 +346,19 @@ export function createHeader(
       setSession(restoredSession.session);
     } else if (restoredSession.status === 'expired') {
       expirationSnackbarShown = true;
-      showSnackbar(t('authDialog.sessionExpired'), 'error');
+      showSnackbar('authDialog.sessionExpired', 'error');
       void logOut().catch((error: unknown) => {
         console.error('Failed to clear the expired Firebase session.', error);
       });
     } else if (restoredSession.status === 'invalid') {
-      showSnackbar(t('authDialog.invalidSavedSession'), 'error');
+      showSnackbar('authDialog.invalidSavedSession', 'error');
       void logOut().catch((error: unknown) => {
         console.error('Failed to clear the invalid Firebase session.', error);
       });
     }
   } catch (error) {
     console.error('Failed to restore the MiniGames app session.', error);
-    showSnackbar(t('authDialog.restoreSessionFailed'), 'error');
+    showSnackbar('authDialog.restoreSessionFailed', 'error');
   }
 
   header.getAppSession = (): AppSession | null => {

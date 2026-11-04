@@ -2,6 +2,7 @@ import { createElement } from '../create-element';
 import { fetchLeaderboard, type LeaderboardPlayer } from '../utils/api';
 import { formatToK } from '../utils/formatters';
 import { showSnackbar } from '../utils/snackbar';
+import { getFeedbackErrorKey } from '../utils/feedback';
 import { getCurrentLanguage, onLanguageChange, t, type TranslationKey } from '../../i18n';
 
 type LeaderboardState = 'loading' | 'empty' | 'error' | 'loaded';
@@ -38,21 +39,21 @@ export function createLeaderboard(): HTMLElement {
 
   let state: LeaderboardState = 'loading';
   let players: LeaderboardPlayer[] = [];
-  let errorMessage = '';
+  let errorKey: TranslationKey = 'leaderboard.failedToLoad';
   let reload = (): void => undefined;
   const renderCurrentState = (): void => {
     titleLead.textContent = t('leaderboard.title');
     titleSpan.textContent = t('leaderboard.thisWeek');
     if (state === 'loading') renderSkeleton(contentWrapper);
     else if (state === 'empty') renderEmptyState(contentWrapper);
-    else if (state === 'error') renderErrorState(contentWrapper, errorMessage, reload);
+    else if (state === 'error') renderErrorState(contentWrapper, errorKey, reload);
     else renderTable(contentWrapper, players);
   };
   reload = (): void => {
     void loadLeaderboardData((nextState, data, error) => {
       state = nextState;
       players = data;
-      errorMessage = error;
+      errorKey = error;
       renderCurrentState();
     });
   };
@@ -75,22 +76,22 @@ async function loadLeaderboardData(
   updateState: (
     state: LeaderboardState,
     players: LeaderboardPlayer[],
-    errorMessage: string,
+    errorKey: TranslationKey,
   ) => void,
 ): Promise<void> {
-  updateState('loading', [], '');
+  updateState('loading', [], 'leaderboard.failedToLoad');
 
   try {
     const players = await fetchLeaderboard();
     if (!players || players.length === 0) {
-      updateState('empty', [], '');
+      updateState('empty', [], 'leaderboard.failedToLoad');
       return;
     }
-    updateState('loaded', players, '');
+    updateState('loaded', players, 'leaderboard.failedToLoad');
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : t('leaderboard.failedToLoad');
-    updateState('error', [], errorMessage);
-    showSnackbar(t('leaderboard.failedToLoad'), 'error');
+    const errorKey = getFeedbackErrorKey(error, 'leaderboard.failedToLoad');
+    updateState('error', [], errorKey);
+    showSnackbar(errorKey, 'error');
   }
 }
 
@@ -105,12 +106,16 @@ function renderEmptyState(container: HTMLElement): void {
   container.replaceChildren(emptyBanner);
 }
 
-function renderErrorState(container: HTMLElement, message: string, onRetry: () => void): void {
+function renderErrorState(
+  container: HTMLElement,
+  messageKey: TranslationKey,
+  onRetry: () => void,
+): void {
   const errorBanner = createElement('div', 'leaderboard__error');
   const errorText = createElement('p', 'leaderboard__error-text');
   errorText.append(
     createElement('span', 'leaderboard__error-prefix', t('leaderboard.errorPrefix')),
-    document.createTextNode(` ${message}`),
+    document.createTextNode(` ${t(messageKey)}`),
   );
   const retryBtn = createElement('button', 'leaderboard__retry-btn', t('common.retry'));
   retryBtn.addEventListener('click', onRetry);

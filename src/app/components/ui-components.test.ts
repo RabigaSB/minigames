@@ -175,7 +175,7 @@ describe('leaderboard', () => {
     document.body.append(section);
     await vi.waitFor(() =>
       expect(section.querySelector('.leaderboard__error-text')?.textContent).toContain(
-        'Unavailable',
+        'Failed to load leaderboard.',
       ),
     );
     section.querySelector<HTMLButtonElement>('.leaderboard__retry-btn')!.click();
@@ -229,23 +229,32 @@ describe('leaderboard', () => {
     await vi.waitFor(() => expect(section.querySelector('.leaderboard__error')).not.toBeNull());
     expect(section.querySelector('.leaderboard__error-prefix')?.textContent).toBe('Қате:');
     expect(section.querySelector('.leaderboard__retry-btn')?.textContent).toBe('Қайталау');
-    expect(section.querySelector('.leaderboard__error-text')?.textContent).toContain('Unavailable');
+    expect(section.querySelector('.leaderboard__error-text')?.textContent).toContain(
+      'Көшбасшылар кестесін жүктеу мүмкін болмады.',
+    );
     expect(fetchLeaderboard).toHaveBeenCalledOnce();
   });
 });
 
 describe('snackbar notifications', () => {
-  afterEach(() => {
+  beforeEach(async () => {
+    await changeLanguage('en');
+  });
+
+  afterEach(async () => {
     vi.useRealTimers();
     document.body.replaceChildren();
+    await changeLanguage('en');
   });
 
   it('renders the selected variant and dismisses after the timeout', async () => {
     vi.useFakeTimers();
-    showSnackbar('Saved', 'success');
+    showSnackbar('common.save', 'success');
     const snackbar = document.querySelector('.snackbar')!;
-    expect(snackbar.textContent).toBe('Saved');
+    expect(snackbar.textContent).toBe('Save');
     expect(snackbar.classList.contains('snackbar--success')).toBe(true);
+    await changeLanguage('ru');
+    expect(snackbar.textContent).toBe('Сохранить');
     await vi.advanceTimersByTimeAsync(3_100);
     expect(snackbar.classList.contains('snackbar--visible')).toBe(false);
     await vi.advanceTimersByTimeAsync(300);

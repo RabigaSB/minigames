@@ -5,6 +5,7 @@ import { formatToK } from '../utils/formatters';
 import { createPagination } from '../components/pagination';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
 import { showSnackbar } from '../utils/snackbar';
+import { getFeedbackErrorKey } from '../utils/feedback';
 import type { AppSession } from '../../services/app-session';
 import { onLanguageChange, t, type TranslationKey } from '../../i18n';
 
@@ -45,6 +46,10 @@ onLanguageChange(() => {
     if (empty) empty.textContent = t('library.empty');
     library.querySelectorAll<HTMLElement>('.library__error-prefix').forEach((prefix) => {
       prefix.textContent = t('library.errorPrefix');
+    });
+    library.querySelectorAll<HTMLElement>('.library__error-message').forEach((message) => {
+      const key = message.dataset.translationKey as TranslationKey | undefined;
+      if (key) message.textContent = t(key);
     });
     library.querySelectorAll<HTMLButtonElement>('.library__retry-btn').forEach((button) => {
       button.textContent = t('common.retry');
@@ -203,8 +208,8 @@ async function loadCategories(
       loadLibraryGames(gridContainer, paginationComponent, gameDialog, getState, requestTracker);
     }
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : t('library.categoriesLoadFailed');
-    showSnackbar(errorMsg, 'error');
+    const errorKey = getFeedbackErrorKey(error, 'library.categoriesLoadFailed');
+    showSnackbar(errorKey, 'error');
 
     chipsContainer.innerHTML = '';
     const fallbackChip = createElement(
@@ -266,11 +271,11 @@ async function loadLibraryGames(
   } catch (error) {
     if (requestId !== requestTracker.current) return;
     gridContainer.innerHTML = '';
-    const errorMsg = error instanceof Error ? error.message : t('library.gamesLoadFailed');
-    renderErrorState(gridContainer, errorMsg, () =>
+    const errorKey = getFeedbackErrorKey(error, 'library.gamesLoadFailed');
+    renderErrorState(gridContainer, errorKey, () =>
       loadLibraryGames(gridContainer, paginationComponent, gameDialog, getState, requestTracker),
     );
-    showSnackbar(errorMsg, 'error');
+    showSnackbar(errorKey, 'error');
   }
 }
 
@@ -289,14 +294,21 @@ function renderEmptyState(container: HTMLElement): void {
   container.replaceChildren(empty);
 }
 
-function renderErrorState(container: HTMLElement, message: string, onRetry: () => void): void {
+function renderErrorState(
+  container: HTMLElement,
+  messageKey: TranslationKey,
+  onRetry: () => void,
+): void {
   const errorBanner = createElement('div', 'library__error');
   errorBanner.style.gridColumn = '1 / -1';
 
   const errorText = createElement('p', 'library__error-text');
+  const errorMessage = createElement('span', 'library__error-message', t(messageKey));
+  errorMessage.dataset.translationKey = messageKey;
   errorText.append(
     createElement('span', 'library__error-prefix', t('library.errorPrefix')),
-    document.createTextNode(` ${message}`),
+    document.createTextNode(' '),
+    errorMessage,
   );
   const retryBtn = createElement('button', 'library__retry-btn', t('common.retry'));
 

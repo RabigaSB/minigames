@@ -10,6 +10,7 @@ import {
   type GameDetails,
 } from '../utils/api';
 import { showSnackbar } from '../utils/snackbar';
+import { getFeedbackErrorKey } from '../utils/feedback';
 import type { AppSession } from '../../services/app-session';
 import { getCurrentLanguage, onLanguageChange, t, type TranslationKey } from '../../i18n';
 
@@ -417,7 +418,7 @@ export function createGameDetailsDialog(
     likes.addEventListener('click', async () => {
       const session = options.getSession?.() ?? null;
       if (!session) {
-        showSnackbar(t('gameDialog.signInToLike'), 'warning');
+        showSnackbar('gameDialog.signInToLike', 'warning');
         options.onAuthRequired?.();
         return;
       }
@@ -443,20 +444,16 @@ export function createGameDetailsDialog(
           ),
         );
         showSnackbar(
-          t(
-            response.data.isLikedByCurrentUser
-              ? 'gameDialog.commentLiked'
-              : 'gameDialog.commentLikeRemoved',
-          ),
+          response.data.isLikedByCurrentUser
+            ? 'gameDialog.commentLiked'
+            : 'gameDialog.commentLikeRemoved',
           'success',
         );
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : t('gameDialog.failedToUpdateLike');
         likes.textContent = String(comment.likesCount);
         likes.classList.toggle('active', comment.isLikedByCurrentUser);
         likes.dataset.liked = String(comment.isLikedByCurrentUser);
-        showSnackbar(errorMessage, 'error');
+        showSnackbar(getFeedbackErrorKey(error, 'gameDialog.failedToUpdateLike'), 'error');
       } finally {
         pendingCommentLikes.delete(comment.commentId);
         likes.disabled = false;
@@ -520,10 +517,9 @@ export function createGameDetailsDialog(
       response.data.forEach((comment) => commentsList.append(renderComment(comment)));
     } catch (error) {
       if (requestId !== activeCommentsRequest) return;
-      const errorMessage =
-        error instanceof Error ? error.message : t('gameDialog.commentsLoadError');
-      renderCommentsState('error', 'gameDialog.commentsLoadError', errorMessage);
-      showSnackbar(errorMessage, 'error');
+      const errorKey = getFeedbackErrorKey(error, 'gameDialog.commentsLoadError');
+      renderCommentsState('error', errorKey);
+      showSnackbar(errorKey, 'error');
     }
   };
 
@@ -531,7 +527,7 @@ export function createGameDetailsDialog(
     if (commentRequestPending) return;
     const session = updateCommentAccess();
     if (!session) {
-      showSnackbar(t('gameDialog.signInToComment'), 'warning');
+      showSnackbar('gameDialog.signInToComment', 'warning');
       options.onAuthRequired?.();
       return;
     }
@@ -586,20 +582,18 @@ export function createGameDetailsDialog(
       commentSubmissionStatus.textContent = '';
       commentSubmissionKey = null;
       commentSubmissionDetail = '';
-      showSnackbar(t('gameDialog.commentPosted'), 'success');
+      showSnackbar('gameDialog.commentPosted', 'success');
       await loadComments(requestSlug, session.email);
     } catch (error) {
       const outcomeUnknown = error instanceof CommentSubmissionError && error.outcomeUnknown;
-      const errorMessage =
-        error instanceof Error ? error.message : t('gameDialog.failedToSubmitComment');
       commentSubmissionKey = outcomeUnknown
         ? 'gameDialog.commentOutcomeUnknown'
-        : 'gameDialog.commentPostFailed';
-      commentSubmissionDetail = errorMessage;
+        : getFeedbackErrorKey(error, 'gameDialog.commentPostFailed');
+      commentSubmissionDetail = '';
       updateCommentSubmissionStatus();
       commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
       showSnackbar(
-        outcomeUnknown ? t('gameDialog.commentOutcomeUnknownNotice') : errorMessage,
+        outcomeUnknown ? 'gameDialog.commentOutcomeUnknownNotice' : commentSubmissionKey,
         'error',
       );
     } finally {
@@ -637,9 +631,9 @@ export function createGameDetailsDialog(
       renderGame(response.data);
     } catch (error) {
       if (requestId !== activeRequest) return;
-      const errorMessage = error instanceof Error ? error.message : t('gameDialog.gameLoadError');
-      renderState('error', 'gameDialog.gameLoadError', errorMessage);
-      showSnackbar(errorMessage, 'error');
+      const errorKey = getFeedbackErrorKey(error, 'gameDialog.gameLoadError');
+      renderState('error', errorKey);
+      showSnackbar(errorKey, 'error');
     }
   };
 
@@ -657,7 +651,7 @@ export function createGameDetailsDialog(
     if (favoriteRequestPending) return;
     const session = options.getSession?.() ?? null;
     if (!session) {
-      showSnackbar(t('gameDialog.signInToFavorite'), 'warning');
+      showSnackbar('gameDialog.signInToFavorite', 'warning');
       options.onAuthRequired?.();
       return;
     }
@@ -686,15 +680,13 @@ export function createGameDetailsDialog(
       updateFavoriteControl();
       showSnackbar(
         response.data.isFavorited
-          ? t('gameDialog.addedToFavorites')
-          : t('gameDialog.removedFromFavorites'),
+          ? 'gameDialog.addedToFavorites'
+          : 'gameDialog.removedFromFavorites',
         'success',
       );
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : t('gameDialog.failedToUpdateFavorite');
       updateFavoriteControl();
-      showSnackbar(errorMessage, 'error');
+      showSnackbar(getFeedbackErrorKey(error, 'gameDialog.failedToUpdateFavorite'), 'error');
     } finally {
       favoriteRequestPending = false;
       favoriteBtn.disabled = false;

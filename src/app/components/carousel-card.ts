@@ -2,7 +2,8 @@ import { createElement } from '../create-element';
 import { fetchGames } from '../utils/api';
 import type { ApiGame } from '../utils/api';
 import { showSnackbar } from '../utils/snackbar';
-import { onLanguageChange, t } from '../../i18n';
+import { getFeedbackErrorKey } from '../utils/feedback';
+import { onLanguageChange, t, type TranslationKey } from '../../i18n';
 
 export function createNewGamesSection(onGameSelected: (slug: string) => void): HTMLElement {
   const section = createElement('section', 'carousel__section');
@@ -28,6 +29,9 @@ export function createNewGamesSection(onGameSelected: (slug: string) => void): H
     if (empty) empty.textContent = t('carousel.empty');
     const errorPrefix = section.querySelector<HTMLElement>('.carousel__error-prefix');
     if (errorPrefix) errorPrefix.textContent = t('carousel.errorPrefix');
+    const errorMessage = section.querySelector<HTMLElement>('.carousel__error-message');
+    const errorKey = errorMessage?.dataset.translationKey as TranslationKey | undefined;
+    if (errorMessage && errorKey) errorMessage.textContent = t(errorKey);
     const retry = section.querySelector<HTMLButtonElement>('.carousel__retry-btn');
     if (retry) retry.textContent = t('common.retry');
     const previous = section.querySelector<HTMLImageElement>('.carousel__arrow--backward');
@@ -57,9 +61,9 @@ async function loadGamesData(
     renderPopulatedCarousel(section, games, onGameSelected);
   } catch (error) {
     section.innerHTML = '';
-    const errorMsg = error instanceof Error ? error.message : 'Failed to load featured games';
-    renderErrorState(section, errorMsg, onGameSelected);
-    showSnackbar(t('carousel.failedToLoad'), 'error');
+    const errorKey = getFeedbackErrorKey(error, 'carousel.failedToLoad');
+    renderErrorState(section, errorKey, onGameSelected);
+    showSnackbar(errorKey, 'error');
   }
 }
 
@@ -88,13 +92,15 @@ function renderEmptyState(section: HTMLElement): void {
 
 function renderErrorState(
   section: HTMLElement,
-  message: string,
+  messageKey: TranslationKey,
   onGameSelected: (slug: string) => void,
 ): void {
   const errorBanner = createElement('div', 'carousel__error-banner');
   const errorText = createElement('p', 'carousel__error-text');
   const errorPrefix = createElement('span', 'carousel__error-prefix', t('carousel.errorPrefix'));
-  errorText.append(errorPrefix, document.createTextNode(` ${message}`));
+  const errorMessage = createElement('span', 'carousel__error-message', t(messageKey));
+  errorMessage.dataset.translationKey = messageKey;
+  errorText.append(errorPrefix, document.createTextNode(' '), errorMessage);
   const retryBtn = createElement('button', 'carousel__retry-btn', t('common.retry'));
 
   retryBtn.addEventListener('click', () => {

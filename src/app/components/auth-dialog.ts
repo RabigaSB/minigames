@@ -518,7 +518,7 @@ export function createAuthDialog(
       const session = createAppSession(credential.user);
       onAuthenticated(session);
       showSnackbar(
-        t(mode === 'login' ? 'authDialog.signedIn' : 'authDialog.accountCreated'),
+        mode === 'login' ? 'authDialog.signedIn' : 'authDialog.accountCreated',
         'success',
       );
       setPending(false);
@@ -526,11 +526,10 @@ export function createAuthDialog(
       authDialog.closeAuth();
     } catch (error) {
       const errorKey = getAuthErrorKey(error);
-      const message = t(errorKey);
       setPending(false, errorKey);
       authStatus.classList.add('auth-dialog__status--error');
       authStatus.setAttribute('role', 'alert');
-      showSnackbar(message, 'error');
+      showSnackbar(errorKey, 'error');
     }
   };
 
@@ -555,19 +554,18 @@ export function createAuthDialog(
       const credential = await signInWithGoogle();
       const session = createAppSession(credential.user);
       onAuthenticated(session);
-      showSnackbar(t('authDialog.signedInWithGoogle'), 'success');
+      showSnackbar('authDialog.signedInWithGoogle', 'success');
       button.textContent = t(initialLabelKey);
       setPending(false);
       resetForms();
       authDialog.closeAuth();
     } catch (error) {
       const errorKey = getAuthErrorKey(error);
-      const message = t(errorKey);
       button.textContent = t(initialLabelKey);
       setPending(false, errorKey);
       authStatus.classList.add('auth-dialog__status--error');
       authStatus.setAttribute('role', 'alert');
-      showSnackbar(message, 'error');
+      showSnackbar(errorKey, 'error');
     }
   };
 

@@ -130,7 +130,9 @@ describe('library page', () => {
     document.body.append(page);
 
     await vi.waitFor(() => expect(page.querySelector('.library__error')).not.toBeNull());
-    expect(page.querySelector('.library__error-text')?.textContent).toContain('Network issue');
+    expect(page.querySelector('.library__error-text')?.textContent).toContain(
+      'Network error. Check your connection and try again.',
+    );
     page.querySelector<HTMLButtonElement>('.library__retry-btn')!.click();
     await vi.waitFor(() => expect(page.querySelector('.game-card')).not.toBeNull());
   });

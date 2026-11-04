@@ -99,7 +99,7 @@ describe('SPA router', () => {
     expect(closeAuth).toHaveBeenCalledWith(false);
     expect(pageMocks.showSnackbar).toHaveBeenCalledOnce();
     expect(pageMocks.showSnackbar).toHaveBeenCalledWith(
-      'You are already authenticated.',
+      'authDialog.alreadyAuthenticated',
       'warning',
     );
     expect(pageMocks.createHomePage).toHaveBeenLastCalledWith(
