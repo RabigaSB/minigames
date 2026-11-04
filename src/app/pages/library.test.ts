@@ -110,6 +110,29 @@ describe('library page', () => {
     expect(onGameChange).toHaveBeenCalledWith('sample-game');
   });
 
+  it('formats game numbers and prices for the active locale without refetching', async () => {
+    const page = createLibraryPage();
+    document.body.append(page);
+    await vi.waitFor(() => expect(page.querySelector('.game-card')).not.toBeNull());
+
+    await changeLanguage('ru');
+
+    expect(page.querySelector('.game-card__price')?.textContent).toBe('Бесплатно');
+    expect(page.querySelector('.game-card__rating')?.textContent).toBe(
+      new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(game.rating),
+    );
+    expect(page.querySelector('.game-card__likes')?.textContent).toBe(
+      new Intl.NumberFormat('ru-RU', {
+        notation: 'compact',
+        maximumFractionDigits: 1,
+      }).format(game.likesCount),
+    );
+    expect(page.querySelector('.game-card__likes')?.getAttribute('aria-label')).toBe(
+      '1 250 отметок «Нравится»',
+    );
+    expect(fetchGames).toHaveBeenCalledOnce();
+  });
+
   it('renders empty state when no games match', async () => {
     vi.mocked(fetchGames).mockResolvedValueOnce({
       ...gamesResponse,

@@ -107,7 +107,7 @@ describe('game details dialog', () => {
     expect(
       dialog.querySelector('.game-dialog__comments-section .game-dialog__section-title')
         ?.textContent,
-    ).toContain('Comments (9)');
+    ).toBe('9 Comments');
     expect(dialog.querySelector('.game-dialog__comment-text')?.textContent).toBe(comment.text);
     expect(dialog.querySelector('.game-dialog__comment-text script')).toBeNull();
   });
@@ -127,13 +127,14 @@ describe('game details dialog', () => {
       'Добавить в избранное',
     );
     expect(dialog.querySelector('.game-dialog__badge-label')?.textContent).toBe('Жанр');
+    expect(dialog.querySelectorAll('.game-dialog__badge-value')[3]?.textContent).toBe('Бесплатно');
     expect(dialog.querySelector('.game-dialog__comment-input')?.getAttribute('placeholder')).toBe(
       'Напишите комментарий...',
     );
     expect(
       dialog.querySelector('.game-dialog__comments-section .game-dialog__section-title')
         ?.textContent,
-    ).toBe('Комментарии (9)');
+    ).toBe('9 комментариев');
     expect(dialog.querySelector('.game-dialog__title')?.textContent).toBe('Sample Game');
     expect(dialog.querySelector<HTMLImageElement>('.game-dialog__image')?.alt).toBe(
       'Изображение игры «Sample Game»',

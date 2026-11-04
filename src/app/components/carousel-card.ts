@@ -4,6 +4,7 @@ import type { ApiGame } from '../utils/api';
 import { showSnackbar } from '../utils/snackbar';
 import { getFeedbackErrorKey } from '../utils/feedback';
 import { onLanguageChange, t, type TranslationKey } from '../../i18n';
+import { formatCompactNumber, formatNumber } from '../utils/formatters';
 
 export function createNewGamesSection(onGameSelected: (slug: string) => void): HTMLElement {
   const section = createElement('section', 'carousel__section');
@@ -38,6 +39,16 @@ export function createNewGamesSection(onGameSelected: (slug: string) => void): H
     previous?.setAttribute('aria-label', t('carousel.previous'));
     const next = section.querySelector<HTMLImageElement>('.carousel__arrow--forward');
     next?.setAttribute('aria-label', t('carousel.next'));
+    section.querySelectorAll<HTMLElement>('.carousel__rating').forEach((rating) => {
+      rating.textContent = formatNumber(Number(rating.dataset.rating), {
+        maximumFractionDigits: 1,
+      });
+    });
+    section.querySelectorAll<HTMLElement>('.carousel__likes').forEach((likes) => {
+      const count = Number(likes.dataset.likesCount);
+      likes.textContent = formatCompactNumber(count);
+      likes.setAttribute('aria-label', t('gameDialog.likes', { count }));
+    });
   });
 
   return section;
@@ -172,8 +183,15 @@ function createCarouselCard(game: ApiGame, onGameSelected: (slug: string) => voi
 
   const info = createElement('div', 'carousel__info');
 
-  const rating = createElement('span', 'carousel__rating', `${game.rating}`);
-  const likes = createElement('span', 'carousel__likes', `${formatLikes(game.likesCount)}`);
+  const rating = createElement(
+    'span',
+    'carousel__rating',
+    formatNumber(game.rating, { maximumFractionDigits: 1 }),
+  );
+  rating.dataset.rating = String(game.rating);
+  const likes = createElement('span', 'carousel__likes', formatCompactNumber(game.likesCount));
+  likes.dataset.likesCount = String(game.likesCount);
+  likes.setAttribute('aria-label', t('gameDialog.likes', { count: game.likesCount }));
 
   info.append(rating, likes);
   content.append(name, info);
@@ -195,13 +213,6 @@ function createCarouselCard(game: ApiGame, onGameSelected: (slug: string) => voi
   observer.observe(card);
 
   return card;
-}
-
-function formatLikes(likesCount: number): string {
-  if (likesCount >= 1000) {
-    return `${(likesCount / 1000).toFixed(1)}K`;
-  }
-  return likesCount.toString();
 }
 
 function initCarouselLogic(track: HTMLElement, arrowLeft: HTMLElement, arrowRight: HTMLElement) {

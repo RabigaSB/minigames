@@ -1,9 +1,9 @@
 import { createElement } from '../create-element';
 import { fetchLeaderboard, type LeaderboardPlayer } from '../utils/api';
-import { formatToK } from '../utils/formatters';
+import { formatCompactNumber, formatNumber } from '../utils/formatters';
 import { showSnackbar } from '../utils/snackbar';
 import { getFeedbackErrorKey } from '../utils/feedback';
-import { getCurrentLanguage, onLanguageChange, t, type TranslationKey } from '../../i18n';
+import { onLanguageChange, t, type TranslationKey } from '../../i18n';
 
 type LeaderboardState = 'loading' | 'empty' | 'error' | 'loaded';
 
@@ -163,19 +163,21 @@ function createPlayerRow(player: LeaderboardPlayer): HTMLTableRowElement {
   playerWrapper.append(avatar, playerName);
   playerCell.append(playerWrapper);
 
-  const gamesPlayed = createElement('td', 'leaderboard__cell', player.gamesPlayed.toString());
+  const gamesPlayed = createElement('td', 'leaderboard__cell', formatNumber(player.gamesPlayed));
+  gamesPlayed.setAttribute(
+    'aria-label',
+    t('leaderboard.gamesPlayedCount', { count: player.gamesPlayed }),
+  );
+  gamesPlayed.dataset.gamesPlayed = String(player.gamesPlayed);
   const totalScoreMobile = createElement(
     'td',
     'leaderboard__cell leaderboard__cell--mobile',
-    formatToK(player.totalScore),
+    formatCompactNumber(player.totalScore),
   );
-  const locale = getCurrentLanguage();
   const totalScore = createElement(
     'td',
     'leaderboard__cell leaderboard__cell--tablet',
-    player.totalScore.toLocaleString(
-      locale === 'kk' ? 'kk-KZ' : locale === 'ru' ? 'ru-RU' : 'en-US',
-    ),
+    formatNumber(player.totalScore),
   );
   const streakMobile = createElement(
     'td',

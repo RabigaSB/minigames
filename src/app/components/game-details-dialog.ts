@@ -12,7 +12,13 @@ import {
 import { showSnackbar } from '../utils/snackbar';
 import { getFeedbackErrorKey } from '../utils/feedback';
 import type { AppSession } from '../../services/app-session';
-import { getCurrentLanguage, onLanguageChange, t, type TranslationKey } from '../../i18n';
+import { onLanguageChange, t, type TranslationKey } from '../../i18n';
+import {
+  formatCompactNumber,
+  formatDate,
+  formatNumber,
+  formatRelativeTime,
+} from '../utils/formatters';
 
 export interface GameDetailsDialog extends HTMLElement {
   openGame(slug: string, syncUrl?: boolean): void;
@@ -208,7 +214,15 @@ export function createGameDetailsDialog(
     const title = createElement('p', 'game-dialog__badge-label', t(labelKey));
     translatedBadgeLabels.push({ key: labelKey, element: title });
 
-    const text = createElement('p', 'game-dialog__badge-value', value);
+    const shouldTranslateFreePrice = labelKey === 'gameDialog.price' && value === 'Free';
+    const text = createElement(
+      'p',
+      'game-dialog__badge-value',
+      shouldTranslateFreePrice ? t('library.free') : value,
+    );
+    if (shouldTranslateFreePrice) {
+      translatedBadgeLabels.push({ key: 'library.free', element: text });
+    }
 
     badge.append(title, text);
 
@@ -265,12 +279,9 @@ export function createGameDetailsDialog(
   const renderGame = (game: GameDetails): void => {
     title.textContent = game.name;
     rating.dataset.rating = String(game.rating);
-    rating.textContent = formatLocalizedNumber(game.rating);
-    rating.setAttribute(
-      'aria-label',
-      t('gameDialog.rating', { rating: formatLocalizedNumber(game.rating) }),
-    );
-    likes.textContent = formatLocalizedCompactNumber(game.likesCount);
+    rating.textContent = formatNumber(game.rating, { maximumFractionDigits: 1 });
+    rating.setAttribute('aria-label', t('gameDialog.rating', { rating: rating.textContent }));
+    likes.textContent = formatCompactNumber(game.likesCount);
     likes.setAttribute('aria-label', t('gameDialog.likes', { count: game.likesCount }));
     description.textContent = game.fullDescription;
     favoriteBtn.classList.toggle('active', game.isLikedByCurrentUser);
@@ -308,13 +319,10 @@ export function createGameDetailsDialog(
           t('gameDialog.points', { count: record.score }),
         );
         scoreInfo.dataset.score = String(record.score);
-        const achievedDate = new Date(record.achievedAt);
         const timeInfo = createElement(
           'span',
           'game-dialog__record-time',
-          Number.isNaN(achievedDate.getTime())
-            ? record.achievedAt
-            : achievedDate.toLocaleDateString(getNumberLocale()),
+          formatDate(record.achievedAt),
         );
         timeInfo.dataset.achievedAt = record.achievedAt;
         userWrapper.append(userRank, userInfo);
@@ -397,7 +405,7 @@ export function createGameDetailsDialog(
     const commentTime = createElement(
       'time',
       'game-dialog__comment-time',
-      formatLocalizedRelativeTime(comment.createdAt),
+      formatRelativeTime(comment.createdAt),
     );
     commentTime.dateTime = comment.createdAt;
     commentTime.dataset.createdAt = comment.createdAt;
@@ -406,7 +414,11 @@ export function createGameDetailsDialog(
 
     const commentText = createElement('p', 'game-dialog__comment-text', comment.text);
     const cardFooter = createElement('div', 'game-dialog__comment-footer');
-    const likes = createElement('button', 'game-dialog__comment-like', String(comment.likesCount));
+    const likes = createElement(
+      'button',
+      'game-dialog__comment-like',
+      formatNumber(comment.likesCount),
+    );
     likes.type = 'button';
     likes.classList.toggle('active', comment.isLikedByCurrentUser);
     likes.dataset.liked = String(comment.isLikedByCurrentUser);
@@ -434,7 +446,7 @@ export function createGameDetailsDialog(
         const response = await toggleCommentLike(comment.commentId, session.email);
         likes.classList.toggle('active', response.data.isLikedByCurrentUser);
         likes.dataset.liked = String(response.data.isLikedByCurrentUser);
-        likes.textContent = String(response.data.likesCount);
+        likes.textContent = formatNumber(response.data.likesCount);
         likes.setAttribute(
           'aria-label',
           t(
@@ -450,7 +462,7 @@ export function createGameDetailsDialog(
           'success',
         );
       } catch (error) {
-        likes.textContent = String(comment.likesCount);
+        likes.textContent = formatNumber(comment.likesCount);
         likes.classList.toggle('active', comment.isLikedByCurrentUser);
         likes.dataset.liked = String(comment.isLikedByCurrentUser);
         showSnackbar(getFeedbackErrorKey(error, 'gameDialog.failedToUpdateLike'), 'error');
@@ -643,7 +655,7 @@ export function createGameDetailsDialog(
     favoriteBtnText.textContent = currentGame.isLikedByCurrentUser
       ? t('favorites.remove')
       : t('favorites.add');
-    likes.textContent = formatLocalizedCompactNumber(currentGame.likesCount);
+    likes.textContent = formatCompactNumber(currentGame.likesCount);
     likes.setAttribute('aria-label', t('gameDialog.likes', { count: currentGame.likesCount }));
   };
 
@@ -740,11 +752,8 @@ export function createGameDetailsDialog(
 
     const ratingValue = Number(rating.dataset.rating);
     if (Number.isFinite(ratingValue)) {
-      rating.textContent = formatLocalizedNumber(ratingValue);
-      rating.setAttribute(
-        'aria-label',
-        t('gameDialog.rating', { rating: formatLocalizedNumber(ratingValue) }),
-      );
+      rating.textContent = formatNumber(ratingValue, { maximumFractionDigits: 1 });
+      rating.setAttribute('aria-label', t('gameDialog.rating', { rating: rating.textContent }));
     }
 
     if (currentGame) {
@@ -770,9 +779,7 @@ export function createGameDetailsDialog(
       score.textContent = t('gameDialog.points', { count: value });
     });
     recordsList.querySelectorAll<HTMLElement>('.game-dialog__record-time').forEach((time) => {
-      const date = new Date(time.dataset.achievedAt ?? '');
-      if (!Number.isNaN(date.getTime()))
-        time.textContent = date.toLocaleDateString(getNumberLocale());
+      time.textContent = formatDate(time.dataset.achievedAt ?? '');
     });
 
     if (commentStateKey) {
@@ -783,7 +790,7 @@ export function createGameDetailsDialog(
       });
     }
     commentsList.querySelectorAll<HTMLElement>('.game-dialog__comment-time').forEach((time) => {
-      time.textContent = formatLocalizedRelativeTime(time.dataset.createdAt ?? '');
+      time.textContent = formatRelativeTime(time.dataset.createdAt ?? '');
     });
     commentsList
       .querySelectorAll<HTMLButtonElement>('.game-dialog__comment-like')
@@ -801,65 +808,4 @@ export function createGameDetailsDialog(
   if (initialSlug) dialog.openGame(initialSlug, false);
 
   return dialog;
-}
-
-function getNumberLocale(): string {
-  const language = getCurrentLanguage();
-  return language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
-}
-
-function formatLocalizedNumber(value: number): string {
-  return new Intl.NumberFormat(getNumberLocale(), { maximumFractionDigits: 1 }).format(value);
-}
-
-function formatLocalizedCompactNumber(value: number): string {
-  return new Intl.NumberFormat(getNumberLocale(), {
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(value);
-}
-
-function formatLocalizedRelativeTime(timestamp: string, now = Date.now()): string {
-  const createdAt = new Date(timestamp).getTime();
-  if (Number.isNaN(createdAt)) return t('gameDialog.unknownTime');
-
-  const elapsedDays = Math.floor(Math.max(0, now - createdAt) / 86_400_000);
-  if (elapsedDays === 0) {
-    const elapsedMinutes = Math.floor(Math.max(0, now - createdAt) / 60_000);
-    if (elapsedMinutes === 0) return t('gameDialog.justNow');
-    if (elapsedMinutes < 60) {
-      return new Intl.RelativeTimeFormat(getNumberLocale(), { numeric: 'always' }).format(
-        -elapsedMinutes,
-        'minute',
-      );
-    }
-    const elapsedHours = Math.floor(elapsedMinutes / 60);
-    return new Intl.RelativeTimeFormat(getNumberLocale(), { numeric: 'always' }).format(
-      -elapsedHours,
-      'hour',
-    );
-  }
-
-  if (elapsedDays < 7) {
-    return new Intl.RelativeTimeFormat(getNumberLocale(), { numeric: 'always' }).format(
-      -elapsedDays,
-      'day',
-    );
-  }
-  if (elapsedDays < 28) {
-    return new Intl.RelativeTimeFormat(getNumberLocale(), { numeric: 'always' }).format(
-      -Math.floor(elapsedDays / 7),
-      'week',
-    );
-  }
-  if (elapsedDays < 365) {
-    return new Intl.RelativeTimeFormat(getNumberLocale(), { numeric: 'always' }).format(
-      -Math.min(11, Math.max(1, Math.floor(elapsedDays / 30))),
-      'month',
-    );
-  }
-  return new Intl.RelativeTimeFormat(getNumberLocale(), { numeric: 'always' }).format(
-    -Math.max(1, Math.floor(elapsedDays / 365)),
-    'year',
-  );
 }

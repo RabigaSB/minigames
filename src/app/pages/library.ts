@@ -1,7 +1,7 @@
 import { createElement } from '../create-element';
 import { createSortDropdown } from '../components/sort-dropdown';
 import { fetchGames, fetchCategories, type ApiGame, type ApiCategory } from '../utils/api';
-import { formatToK } from '../utils/formatters';
+import { formatCompactNumber, formatNumber } from '../utils/formatters';
 import { createPagination } from '../components/pagination';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
 import { showSnackbar } from '../utils/snackbar';
@@ -56,6 +56,20 @@ onLanguageChange(() => {
     });
     library.querySelectorAll<HTMLButtonElement>('.game-card__details-btn').forEach((button) => {
       button.textContent = t('library.details');
+    });
+    library.querySelectorAll<HTMLElement>('.game-card__price').forEach((price) => {
+      price.textContent =
+        price.dataset.price === 'Free' ? t('library.free') : (price.dataset.price ?? '');
+    });
+    library.querySelectorAll<HTMLElement>('.game-card__rating').forEach((rating) => {
+      rating.textContent = formatNumber(Number(rating.dataset.rating), {
+        maximumFractionDigits: 1,
+      });
+    });
+    library.querySelectorAll<HTMLElement>('.game-card__likes').forEach((likes) => {
+      const count = Number(likes.dataset.likesCount);
+      likes.textContent = formatCompactNumber(count);
+      likes.setAttribute('aria-label', t('gameDialog.likes', { count }));
     });
   });
 });
@@ -337,7 +351,12 @@ function renderGameCards(
     const topRow = createElement('div', 'game-card__top-row');
     const gameTitle = createElement('h2', 'game-card__title', game.name);
     const categoryBadge = createElement('span', 'game-card__category', game.category);
-    const priceTag = createElement('span', 'game-card__price', game.price);
+    const priceTag = createElement(
+      'span',
+      'game-card__price',
+      game.price === 'Free' ? t('library.free') : game.price,
+    );
+    priceTag.dataset.price = game.price;
     if (game.price === 'Free') {
       priceTag.classList.add('game-card__price--free');
     }
@@ -348,12 +367,15 @@ function renderGameCards(
     const desc = createElement('p', 'game-card__description', game.shortDescription);
     const footerRow = createElement('div', 'game-card__footer');
     const stats = createElement('div', 'game-card__stats');
-    const rating = createElement('span', 'game-card__rating', `${game.rating}`);
-    const likes = createElement(
+    const rating = createElement(
       'span',
-      'game-card__likes',
-      `${formatToK(game.likesCount).toLocaleString()}`,
+      'game-card__rating',
+      formatNumber(game.rating, { maximumFractionDigits: 1 }),
     );
+    rating.dataset.rating = String(game.rating);
+    const likes = createElement('span', 'game-card__likes', formatCompactNumber(game.likesCount));
+    likes.dataset.likesCount = String(game.likesCount);
+    likes.setAttribute('aria-label', t('gameDialog.likes', { count: game.likesCount }));
     stats.append(rating, likes);
     const detailsBtn = createElement('button', 'game-card__details-btn', t('library.details'));
     detailsBtn.type = 'button';

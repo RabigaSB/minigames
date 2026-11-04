@@ -156,6 +156,9 @@ describe('leaderboard', () => {
     expect(wrapper.querySelector('.leaderboard__avatar')?.textContent).toBe('AS');
     expect(wrapper.textContent).toContain('12,500');
     expect(wrapper.textContent).toContain('1 day');
+    expect(
+      wrapper.querySelector('.leaderboard__cell[aria-label]')?.getAttribute('aria-label'),
+    ).toBe('9 games played');
   });
 
   it('renders an empty state for an empty leaderboard', async () => {
@@ -206,6 +209,9 @@ describe('leaderboard', () => {
     expect(section.querySelector('.leaderboard__name')?.textContent).toBe('alice_smith');
     expect(section.querySelector('.leaderboard__game')?.textContent).toBe('Sample Game');
     expect(section.querySelector('.leaderboard__row')?.textContent).toContain('1 день');
+    expect(
+      section.querySelector('.leaderboard__cell[aria-label]')?.getAttribute('aria-label'),
+    ).toBe('9 сыгранных игр');
     expect(fetchLeaderboard).toHaveBeenCalledOnce();
   });
 
