@@ -4,6 +4,7 @@ import {
   APP_SESSION_LIFETIME_MS,
   type AppSession,
 } from '../../services/app-session';
+import { changeLanguage } from '../../i18n';
 import { createHeader } from './header';
 
 const firebaseMocks = vi.hoisted(() => ({
@@ -114,5 +115,22 @@ describe('header session state', () => {
     expect(header.querySelector('.header__sign-in')?.hasAttribute('hidden')).toBe(false);
     expect(localStorage.getItem(APP_SESSION_KEY)).toBeNull();
     expect(firebaseMocks.logOut).toHaveBeenCalledOnce();
+  });
+
+  it('updates desktop and mobile shared labels when the language changes', async () => {
+    const header = createHeader();
+    document.body.append(header);
+
+    await changeLanguage('ru');
+
+    expect(header.querySelector('.header__link')?.textContent).toBe('Главная');
+    expect(header.querySelector('.header__sign-in')?.textContent).toBe('Войти');
+    expect(header.querySelector('.mobile-menu__link')?.textContent).toBe('Главная');
+    expect(header.querySelector('.mobile-menu__login')?.textContent).toBe('Войти');
+    expect(header.querySelector('.mobile-menu__close')?.getAttribute('aria-label')).toBe(
+      'Закрыть меню навигации',
+    );
+
+    await changeLanguage('en');
   });
 });

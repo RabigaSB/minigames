@@ -9,9 +9,16 @@ import {
   type GameComment,
   type GameDetails,
 } from '../utils/api';
-import { formatRelativeTime, formatToK } from '../utils/formatters';
 import { showSnackbar } from '../utils/snackbar';
+import { getFeedbackErrorKey } from '../utils/feedback';
 import type { AppSession } from '../../services/app-session';
+import { onLanguageChange, t, type TranslationKey } from '../../i18n';
+import {
+  formatCompactNumber,
+  formatDate,
+  formatNumber,
+  formatRelativeTime,
+} from '../utils/formatters';
 
 export interface GameDetailsDialog extends HTMLElement {
   openGame(slug: string, syncUrl?: boolean): void;
@@ -43,6 +50,7 @@ export function createGameDetailsDialog(
   //hero section
   const closeBtn = createElement('button', 'game-dialog__close');
   closeBtn.type = 'button';
+  closeBtn.setAttribute('aria-label', t('gameDialog.close'));
 
   const hero = createElement('div', 'game-dialog__hero');
   const image = createElement('img', 'game-dialog__image');
@@ -67,7 +75,7 @@ export function createGameDetailsDialog(
   const badges = createElement('div', 'game-dialog__badges');
 
   const actionsRow = createElement('div', 'game-dialog__actions');
-  const playNowBtn = createElement('button', 'game-dialog__play-btn', 'Play Now');
+  const playNowBtn = createElement('button', 'game-dialog__play-btn', t('gameDialog.playNow'));
   playNowBtn.type = 'button';
 
   const favoriteBtn = createElement('button', 'game-dialog__favorite-btn');
@@ -75,7 +83,7 @@ export function createGameDetailsDialog(
   const favoriteBtnText = createElement(
     'span',
     'game-dialog__favorite-btn-text',
-    'Add to Favorites',
+    t('favorites.add'),
   );
 
   favoriteBtn.append(favoriteBtnText);
@@ -87,15 +95,24 @@ export function createGameDetailsDialog(
   //records section
   const recordsSection = createElement('section', 'game-dialog__records-section');
   const recordsTitleIcon = createElement('span', 'game-dialog__title-icon', '🏆');
-  const recordsTitle = createElement('h3', 'game-dialog__section-title', 'Top Records');
+  const recordsTitle = createElement(
+    'h3',
+    'game-dialog__section-title',
+    t('gameDialog.topRecords'),
+  );
   const recordsList = createElement('div', 'game-dialog__records-list');
+  recordsTitleIcon.setAttribute('aria-hidden', 'true');
   recordsTitle.prepend(recordsTitleIcon);
 
   recordsSection.append(recordsTitle, recordsList);
 
   // Comments Section
   const commentsSection = createElement('div', 'game-dialog__comments-section');
-  const commentsTitle = createElement('h3', 'game-dialog__section-title', 'Comments (0)');
+  const commentsTitle = createElement(
+    'h3',
+    'game-dialog__section-title',
+    t('gameDialog.commentsTitle', { count: 0 }),
+  );
 
   const commentForm = createElement('div', 'game-dialog__comment-form');
   const userAvatar = createElement('div', 'game-dialog__avatar', '');
@@ -105,13 +122,13 @@ export function createGameDetailsDialog(
     'game-dialog__comment-input',
   ) as HTMLTextAreaElement;
   commentInput.rows = 2;
-  commentInput.placeholder = 'Sign in to write a comment.';
+  commentInput.placeholder = t('gameDialog.signInToComment');
   commentInput.disabled = true;
   commentInput.name = 'game-dialog__comment';
   const sendBtn = createElement('button', 'game-dialog__send-btn');
   sendBtn.type = 'button';
   sendBtn.disabled = true;
-  sendBtn.setAttribute('aria-label', 'Send comment');
+  sendBtn.setAttribute('aria-label', t('gameDialog.sendComment'));
   const commentSubmissionStatus = createElement('p', 'game-dialog__comment-submit-status');
   commentSubmissionStatus.setAttribute('role', 'status');
   commentSubmissionStatus.setAttribute('aria-live', 'polite');
@@ -131,6 +148,30 @@ export function createGameDetailsDialog(
     commentsList,
   );
 
+  const translatedBadgeLabels: Array<{ key: TranslationKey; element: HTMLElement }> = [];
+  let gameStateKey: TranslationKey | null = null;
+  let gameStateDetail = '';
+  let commentStateKey: TranslationKey | null = null;
+  let commentStateDetail = '';
+  let commentsCount = 0;
+  let commentSubmissionKey: TranslationKey | null = null;
+  let commentSubmissionDetail = '';
+
+  const updateCommentSubmissionStatus = (): void => {
+    commentSubmissionStatus.replaceChildren();
+    if (!commentSubmissionKey) return;
+    appendTranslatedMessage(commentSubmissionStatus, commentSubmissionKey, commentSubmissionDetail);
+  };
+
+  const appendTranslatedMessage = (
+    element: HTMLElement,
+    key: TranslationKey,
+    detail = '',
+  ): void => {
+    element.replaceChildren(createElement('span', '', t(key)));
+    if (detail) element.append(document.createTextNode(` ${detail}`));
+  };
+
   //helpers and event listeners
   dialog.addEventListener('click', (event) => {
     if (event.target === dialog) {
@@ -147,9 +188,11 @@ export function createGameDetailsDialog(
     commentInput.value = '';
     commentInput.style.height = 'auto';
     commentSubmissionStatus.textContent = '';
+    commentSubmissionKey = null;
+    commentSubmissionDetail = '';
     commentSubmissionStatus.classList.remove('game-dialog__comment-submit-status--error');
     favoriteBtn.classList.remove('active');
-    favoriteBtnText.textContent = 'Add to Favorites';
+    favoriteBtnText.textContent = t('favorites.add');
     commentsList.querySelectorAll('.game-dialog__comment-like').forEach((btn) => {
       btn.classList.remove('active');
     });
@@ -165,12 +208,21 @@ export function createGameDetailsDialog(
   };
   document.addEventListener('keydown', handleEscape);
 
-  function createBadge(label: string, value: string) {
+  function createBadge(labelKey: TranslationKey, value: string) {
     const badge = createElement('div', 'game-dialog__badge');
 
-    const title = createElement('p', 'game-dialog__badge-label', label);
+    const title = createElement('p', 'game-dialog__badge-label', t(labelKey));
+    translatedBadgeLabels.push({ key: labelKey, element: title });
 
-    const text = createElement('p', 'game-dialog__badge-value', value);
+    const shouldTranslateFreePrice = labelKey === 'gameDialog.price' && value === 'Free';
+    const text = createElement(
+      'p',
+      'game-dialog__badge-value',
+      shouldTranslateFreePrice ? t('library.free') : value,
+    );
+    if (shouldTranslateFreePrice) {
+      translatedBadgeLabels.push({ key: 'library.free', element: text });
+    }
 
     badge.append(title, text);
 
@@ -187,11 +239,19 @@ export function createGameDetailsDialog(
 
   const loadedSections = [infoSection, recordsSection, commentsSection];
 
-  const renderState = (kind: 'loading' | 'error' | 'empty', message: string): void => {
+  const renderState = (
+    kind: 'loading' | 'error' | 'empty',
+    messageKey: TranslationKey,
+    detail = '',
+  ): void => {
+    gameStateKey = messageKey;
+    gameStateDetail = detail;
     state.replaceChildren();
     state.className = `game-dialog__state game-dialog__state--${kind}`;
     state.hidden = false;
-    state.append(createElement('p', 'game-dialog__state-message', message));
+    const stateMessage = createElement('p', 'game-dialog__state-message');
+    appendTranslatedMessage(stateMessage, messageKey, detail);
+    state.append(stateMessage);
     image.hidden = true;
     loadedSections.forEach((section) => {
       section.hidden = true;
@@ -209,7 +269,7 @@ export function createGameDetailsDialog(
     }
 
     if (kind === 'error') {
-      const retryButton = createElement('button', 'game-dialog__retry', 'Retry');
+      const retryButton = createElement('button', 'game-dialog__retry', t('gameDialog.retry'));
       retryButton.type = 'button';
       retryButton.addEventListener('click', () => void loadGame(currentSlug));
       state.append(retryButton);
@@ -218,30 +278,34 @@ export function createGameDetailsDialog(
 
   const renderGame = (game: GameDetails): void => {
     title.textContent = game.name;
-    rating.textContent = String(game.rating);
-    likes.textContent = formatToK(game.likesCount);
+    rating.dataset.rating = String(game.rating);
+    rating.textContent = formatNumber(game.rating, { maximumFractionDigits: 1 });
+    rating.setAttribute('aria-label', t('gameDialog.rating', { rating: rating.textContent }));
+    likes.textContent = formatCompactNumber(game.likesCount);
+    likes.setAttribute('aria-label', t('gameDialog.likes', { count: game.likesCount }));
     description.textContent = game.fullDescription;
     favoriteBtn.classList.toggle('active', game.isLikedByCurrentUser);
     favoriteBtnText.textContent = game.isLikedByCurrentUser
-      ? 'Remove from Favorites'
-      : 'Add to Favorites';
+      ? t('favorites.remove')
+      : t('favorites.add');
     image.src = game.heroImage.startsWith('http')
       ? game.heroImage
       : game.heroImage.startsWith('/')
         ? `.${game.heroImage}`
         : `./${game.heroImage}`;
-    image.alt = `${game.name} hero image`;
+    image.alt = t('gameDialog.heroImageAlt', { name: game.name });
     image.hidden = false;
+    translatedBadgeLabels.length = 0;
     badges.replaceChildren(
-      createBadge('Genre', game.specs.genre),
-      createBadge('Players', game.specs.players),
-      createBadge('Duration', game.specs.duration),
-      createBadge('Price', game.specs.price),
+      createBadge('gameDialog.genre', game.specs.genre),
+      createBadge('gameDialog.players', game.specs.players),
+      createBadge('gameDialog.duration', game.specs.duration),
+      createBadge('gameDialog.price', game.specs.price),
     );
 
     recordsList.replaceChildren();
     if (!game.topRecords?.length) {
-      recordsList.append(createElement('p', 'game-dialog__empty', 'No records yet.'));
+      recordsList.append(createElement('p', 'game-dialog__empty', t('gameDialog.noRecords')));
     } else {
       game.topRecords.forEach((record) => {
         const item = createElement('div', 'game-dialog__record-item');
@@ -252,16 +316,15 @@ export function createGameDetailsDialog(
         const scoreInfo = createElement(
           'span',
           'game-dialog__record-score',
-          `${record.score.toLocaleString()} pts`,
+          t('gameDialog.points', { count: record.score }),
         );
-        const achievedDate = new Date(record.achievedAt);
+        scoreInfo.dataset.score = String(record.score);
         const timeInfo = createElement(
           'span',
           'game-dialog__record-time',
-          Number.isNaN(achievedDate.getTime())
-            ? record.achievedAt
-            : achievedDate.toLocaleDateString(),
+          formatDate(record.achievedAt),
         );
+        timeInfo.dataset.achievedAt = record.achievedAt;
         userWrapper.append(userRank, userInfo);
         numberWrapper.append(scoreInfo, timeInfo);
         item.append(userWrapper, numberWrapper);
@@ -274,14 +337,24 @@ export function createGameDetailsDialog(
     loadedSections.forEach((section) => {
       section.hidden = false;
     });
+    gameStateKey = null;
+    gameStateDetail = '';
   };
 
-  const renderCommentsState = (kind: 'loading' | 'error' | 'empty', message: string): void => {
+  const renderCommentsState = (
+    kind: 'loading' | 'error' | 'empty',
+    messageKey: TranslationKey,
+    detail = '',
+  ): void => {
+    commentStateKey = messageKey;
+    commentStateDetail = detail;
     commentsList.replaceChildren();
     commentsState.replaceChildren();
     commentsState.className = `game-dialog__state game-dialog__comments-state game-dialog__state--${kind}`;
     commentsState.hidden = false;
-    commentsState.append(createElement('p', 'game-dialog__state-message', message));
+    const stateMessage = createElement('p', 'game-dialog__state-message');
+    appendTranslatedMessage(stateMessage, messageKey, detail);
+    commentsState.append(stateMessage);
 
     if (kind === 'loading') {
       const skeleton = createElement('div', 'game-dialog__skeleton');
@@ -294,7 +367,7 @@ export function createGameDetailsDialog(
     }
 
     if (kind === 'error') {
-      const retryButton = createElement('button', 'game-dialog__retry', 'Retry');
+      const retryButton = createElement('button', 'game-dialog__retry', t('gameDialog.retry'));
       retryButton.type = 'button';
       retryButton.addEventListener('click', () => void loadComments(currentSlug));
       commentsState.append(retryButton);
@@ -335,23 +408,29 @@ export function createGameDetailsDialog(
       formatRelativeTime(comment.createdAt),
     );
     commentTime.dateTime = comment.createdAt;
+    commentTime.dataset.createdAt = comment.createdAt;
     userInfo.append(userName, commentTime);
     cardHeader.append(avatar, userInfo);
 
     const commentText = createElement('p', 'game-dialog__comment-text', comment.text);
     const cardFooter = createElement('div', 'game-dialog__comment-footer');
-    const likes = createElement('button', 'game-dialog__comment-like', String(comment.likesCount));
+    const likes = createElement(
+      'button',
+      'game-dialog__comment-like',
+      formatNumber(comment.likesCount),
+    );
     likes.type = 'button';
     likes.classList.toggle('active', comment.isLikedByCurrentUser);
+    likes.dataset.liked = String(comment.isLikedByCurrentUser);
     likes.setAttribute(
       'aria-label',
-      comment.isLikedByCurrentUser ? 'Unlike comment' : 'Like comment',
+      t(comment.isLikedByCurrentUser ? 'gameDialog.unlikeComment' : 'gameDialog.likeComment'),
     );
     likes.disabled = false;
     likes.addEventListener('click', async () => {
       const session = options.getSession?.() ?? null;
       if (!session) {
-        showSnackbar('Sign in to like comments.', 'warning');
+        showSnackbar('gameDialog.signInToLike', 'warning');
         options.onAuthRequired?.();
         return;
       }
@@ -366,21 +445,27 @@ export function createGameDetailsDialog(
       try {
         const response = await toggleCommentLike(comment.commentId, session.email);
         likes.classList.toggle('active', response.data.isLikedByCurrentUser);
-        likes.textContent = String(response.data.likesCount);
+        likes.dataset.liked = String(response.data.isLikedByCurrentUser);
+        likes.textContent = formatNumber(response.data.likesCount);
         likes.setAttribute(
           'aria-label',
-          response.data.isLikedByCurrentUser ? 'Unlike comment' : 'Like comment',
+          t(
+            response.data.isLikedByCurrentUser
+              ? 'gameDialog.unlikeComment'
+              : 'gameDialog.likeComment',
+          ),
         );
         showSnackbar(
-          response.data.isLikedByCurrentUser ? 'Comment liked.' : 'Comment like removed.',
+          response.data.isLikedByCurrentUser
+            ? 'gameDialog.commentLiked'
+            : 'gameDialog.commentLikeRemoved',
           'success',
         );
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Failed to update like status.';
-        likes.textContent = String(comment.likesCount);
+        likes.textContent = formatNumber(comment.likesCount);
         likes.classList.toggle('active', comment.isLikedByCurrentUser);
-        showSnackbar(errorMessage, 'error');
+        likes.dataset.liked = String(comment.isLikedByCurrentUser);
+        showSnackbar(getFeedbackErrorKey(error, 'gameDialog.failedToUpdateLike'), 'error');
       } finally {
         pendingCommentLikes.delete(comment.commentId);
         likes.disabled = false;
@@ -402,7 +487,9 @@ export function createGameDetailsDialog(
     commentInput.disabled = disabled;
     sendBtn.disabled = disabled;
     userAvatar.textContent = session?.displayName.trim().charAt(0).toUpperCase() ?? '';
-    commentInput.placeholder = session ? 'Write a comment...' : 'Sign in to write a comment.';
+    commentInput.placeholder = session
+      ? t('gameDialog.writeComment')
+      : t('gameDialog.signInToComment');
     commentForm.setAttribute('aria-disabled', String(!session));
     return session;
   };
@@ -418,29 +505,33 @@ export function createGameDetailsDialog(
 
   const loadComments = async (slug: string, userEmail?: string): Promise<void> => {
     const requestId = ++activeCommentsRequest;
-    commentsTitle.textContent = 'Comments';
-    renderCommentsState('loading', 'Loading comments...');
+    commentsCount = 0;
+    commentsTitle.textContent = t('gameDialog.commentsTitle', { count: commentsCount });
+    renderCommentsState('loading', 'gameDialog.loadingComments');
 
     try {
       const session = options.getSession?.() ?? null;
       const response = await fetchGameComments(slug, userEmail ?? session?.email);
       if (requestId !== activeCommentsRequest) return;
 
-      commentsTitle.textContent = `Comments (${response.meta.totalComments})`;
+      commentsCount = response.meta.totalComments;
+      commentsTitle.textContent = t('gameDialog.commentsTitle', { count: commentsCount });
       commentsState.hidden = true;
+      commentStateKey = null;
+      commentStateDetail = '';
       commentsList.replaceChildren();
 
       if (!response.data.length) {
-        renderCommentsState('empty', 'No comments yet.');
+        renderCommentsState('empty', 'gameDialog.noComments');
         return;
       }
 
       response.data.forEach((comment) => commentsList.append(renderComment(comment)));
     } catch (error) {
       if (requestId !== activeCommentsRequest) return;
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load comments';
-      renderCommentsState('error', `Could not load comments. ${errorMessage}`);
-      showSnackbar(errorMessage, 'error');
+      const errorKey = getFeedbackErrorKey(error, 'gameDialog.commentsLoadError');
+      renderCommentsState('error', errorKey);
+      showSnackbar(errorKey, 'error');
     }
   };
 
@@ -448,18 +539,22 @@ export function createGameDetailsDialog(
     if (commentRequestPending) return;
     const session = updateCommentAccess();
     if (!session) {
-      showSnackbar('Sign in to post a comment.', 'warning');
+      showSnackbar('gameDialog.signInToComment', 'warning');
       options.onAuthRequired?.();
       return;
     }
     const text = commentInput.value.trim();
     if (!text) {
-      commentSubmissionStatus.textContent = 'Write a comment before sending.';
+      commentSubmissionKey = 'gameDialog.writeBeforeSending';
+      commentSubmissionDetail = '';
+      updateCommentSubmissionStatus();
       commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
       return;
     }
     if (text.length > 500) {
-      commentSubmissionStatus.textContent = 'Comments must be 500 characters or fewer.';
+      commentSubmissionKey = 'gameDialog.commentTooLong';
+      commentSubmissionDetail = '';
+      updateCommentSubmissionStatus();
       commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
       return;
     }
@@ -472,14 +567,17 @@ export function createGameDetailsDialog(
           ? emailName
           : 'Player';
     if (authorName.trim().length < 2 || authorName.trim().length > 30) {
-      commentSubmissionStatus.textContent =
-        'Your profile name must be between 2 and 30 characters to post a comment.';
+      commentSubmissionKey = 'gameDialog.invalidProfileName';
+      commentSubmissionDetail = '';
+      updateCommentSubmissionStatus();
       commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
       return;
     }
 
     commentRequestPending = true;
-    commentSubmissionStatus.textContent = 'Sending comment...';
+    commentSubmissionKey = 'gameDialog.sendingComment';
+    commentSubmissionDetail = '';
+    updateCommentSubmissionStatus();
     commentSubmissionStatus.classList.remove('game-dialog__comment-submit-status--error');
     updateCommentAccess();
     sendBtn.setAttribute('aria-busy', 'true');
@@ -494,19 +592,20 @@ export function createGameDetailsDialog(
       commentInput.value = '';
       commentInput.style.height = 'auto';
       commentSubmissionStatus.textContent = '';
-      showSnackbar('Comment posted.', 'success');
+      commentSubmissionKey = null;
+      commentSubmissionDetail = '';
+      showSnackbar('gameDialog.commentPosted', 'success');
       await loadComments(requestSlug, session.email);
     } catch (error) {
       const outcomeUnknown = error instanceof CommentSubmissionError && error.outcomeUnknown;
-      const errorMessage = error instanceof Error ? error.message : 'Failed to submit the comment.';
-      commentSubmissionStatus.textContent = outcomeUnknown
-        ? `Comment result unknown. ${errorMessage}`
-        : `Could not post comment. ${errorMessage}`;
+      commentSubmissionKey = outcomeUnknown
+        ? 'gameDialog.commentOutcomeUnknown'
+        : getFeedbackErrorKey(error, 'gameDialog.commentPostFailed');
+      commentSubmissionDetail = '';
+      updateCommentSubmissionStatus();
       commentSubmissionStatus.classList.add('game-dialog__comment-submit-status--error');
       showSnackbar(
-        outcomeUnknown
-          ? 'Comment result is unknown. Check the comments before retrying.'
-          : errorMessage,
+        outcomeUnknown ? 'gameDialog.commentOutcomeUnknownNotice' : commentSubmissionKey,
         'error',
       );
     } finally {
@@ -531,22 +630,22 @@ export function createGameDetailsDialog(
 
   const loadGame = async (slug: string): Promise<void> => {
     const requestId = ++activeRequest;
-    renderState('loading', 'Loading game details...');
+    renderState('loading', 'gameDialog.loadingGame');
     try {
       const session = options.getSession?.() ?? null;
       const response = await fetchGameDetails(slug, session?.email);
       if (requestId !== activeRequest) return;
       if (!response.data) {
-        renderState('empty', 'Game details are not available.');
+        renderState('empty', 'gameDialog.gameUnavailable');
         return;
       }
       currentGame = response.data;
       renderGame(response.data);
     } catch (error) {
       if (requestId !== activeRequest) return;
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load game details';
-      renderState('error', `Could not load game details. ${errorMessage}`);
-      showSnackbar(errorMessage, 'error');
+      const errorKey = getFeedbackErrorKey(error, 'gameDialog.gameLoadError');
+      renderState('error', errorKey);
+      showSnackbar(errorKey, 'error');
     }
   };
 
@@ -554,16 +653,17 @@ export function createGameDetailsDialog(
     if (!currentGame) return;
     favoriteBtn.classList.toggle('active', currentGame.isLikedByCurrentUser);
     favoriteBtnText.textContent = currentGame.isLikedByCurrentUser
-      ? 'Remove from Favorites'
-      : 'Add to Favorites';
-    likes.textContent = formatToK(currentGame.likesCount);
+      ? t('favorites.remove')
+      : t('favorites.add');
+    likes.textContent = formatCompactNumber(currentGame.likesCount);
+    likes.setAttribute('aria-label', t('gameDialog.likes', { count: currentGame.likesCount }));
   };
 
   favoriteBtn.addEventListener('click', async () => {
     if (favoriteRequestPending) return;
     const session = options.getSession?.() ?? null;
     if (!session) {
-      showSnackbar('Sign in to add games to your favorites.', 'warning');
+      showSnackbar('gameDialog.signInToFavorite', 'warning');
       options.onAuthRequired?.();
       return;
     }
@@ -572,7 +672,7 @@ export function createGameDetailsDialog(
     favoriteRequestPending = true;
     favoriteBtn.disabled = true;
     favoriteBtn.setAttribute('aria-busy', 'true');
-    favoriteBtnText.textContent = 'Updating...';
+    favoriteBtnText.textContent = t('gameDialog.updatingFavorite');
     try {
       const requestSlug = currentSlug;
       const response = await toggleGameFavorite(requestSlug, session.email);
@@ -581,7 +681,7 @@ export function createGameDetailsDialog(
         typeof response.data.isFavorited !== 'boolean' ||
         !Number.isFinite(response.data.likesCount)
       ) {
-        throw new Error('The server returned an invalid favorite response.');
+        throw new Error(t('gameDialog.invalidFavoriteResponse'));
       }
       if (requestSlug !== currentSlug) return;
       currentGame = {
@@ -591,13 +691,14 @@ export function createGameDetailsDialog(
       };
       updateFavoriteControl();
       showSnackbar(
-        response.data.isFavorited ? 'Added to favorites.' : 'Removed from favorites.',
+        response.data.isFavorited
+          ? 'gameDialog.addedToFavorites'
+          : 'gameDialog.removedFromFavorites',
         'success',
       );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update favorite.';
       updateFavoriteControl();
-      showSnackbar(errorMessage, 'error');
+      showSnackbar(getFeedbackErrorKey(error, 'gameDialog.failedToUpdateFavorite'), 'error');
     } finally {
       favoriteRequestPending = false;
       favoriteBtn.disabled = false;
@@ -611,6 +712,8 @@ export function createGameDetailsDialog(
     commentInput.value = '';
     commentInput.style.height = 'auto';
     commentSubmissionStatus.textContent = '';
+    commentSubmissionKey = null;
+    commentSubmissionDetail = '';
     commentSubmissionStatus.classList.remove('game-dialog__comment-submit-status--error');
     updateCommentAccess();
     dialog.classList.add('game-dialog--open');
@@ -623,9 +726,84 @@ export function createGameDetailsDialog(
   dialog.closeGame = (syncUrl = true): void => closeDialog(syncUrl);
   dialog.dispose = (): void => {
     closeDialog(false);
+    unsubscribeLanguageChange();
     document.removeEventListener('keydown', handleEscape);
     window.removeEventListener('appsessionchange', handleAppSessionChange);
   };
+
+  const unsubscribeLanguageChange = onLanguageChange(() => {
+    if (!dialog.isConnected) {
+      unsubscribeLanguageChange();
+      return;
+    }
+
+    closeBtn.setAttribute('aria-label', t('gameDialog.close'));
+    playNowBtn.textContent = t('gameDialog.playNow');
+    recordsTitle.textContent = t('gameDialog.topRecords');
+    recordsTitle.prepend(recordsTitleIcon);
+    commentsTitle.textContent = t('gameDialog.commentsTitle', { count: commentsCount });
+    sendBtn.setAttribute('aria-label', t('gameDialog.sendComment'));
+    commentInput.placeholder = options.getSession?.()
+      ? t('gameDialog.writeComment')
+      : t('gameDialog.signInToComment');
+    translatedBadgeLabels.forEach(({ key, element }) => {
+      element.textContent = t(key);
+    });
+
+    const ratingValue = Number(rating.dataset.rating);
+    if (Number.isFinite(ratingValue)) {
+      rating.textContent = formatNumber(ratingValue, { maximumFractionDigits: 1 });
+      rating.setAttribute('aria-label', t('gameDialog.rating', { rating: rating.textContent }));
+    }
+
+    if (currentGame) {
+      image.alt = t('gameDialog.heroImageAlt', { name: currentGame.name });
+      favoriteBtnText.textContent = favoriteRequestPending
+        ? t('gameDialog.updatingFavorite')
+        : t(currentGame.isLikedByCurrentUser ? 'favorites.remove' : 'favorites.add');
+      likes.setAttribute('aria-label', t('gameDialog.likes', { count: currentGame.likesCount }));
+    }
+
+    if (gameStateKey) {
+      const stateMessage = state.querySelector<HTMLElement>('.game-dialog__state-message');
+      if (stateMessage) appendTranslatedMessage(stateMessage, gameStateKey, gameStateDetail);
+      state.querySelectorAll<HTMLButtonElement>('.game-dialog__retry').forEach((button) => {
+        button.textContent = t('gameDialog.retry');
+      });
+    }
+
+    const emptyRecords = recordsList.querySelector<HTMLElement>('.game-dialog__empty');
+    if (emptyRecords) emptyRecords.textContent = t('gameDialog.noRecords');
+    recordsList.querySelectorAll<HTMLElement>('.game-dialog__record-score').forEach((score) => {
+      const value = Number(score.dataset.score);
+      score.textContent = t('gameDialog.points', { count: value });
+    });
+    recordsList.querySelectorAll<HTMLElement>('.game-dialog__record-time').forEach((time) => {
+      time.textContent = formatDate(time.dataset.achievedAt ?? '');
+    });
+
+    if (commentStateKey) {
+      const stateMessage = commentsState.querySelector<HTMLElement>('.game-dialog__state-message');
+      if (stateMessage) appendTranslatedMessage(stateMessage, commentStateKey, commentStateDetail);
+      commentsState.querySelectorAll<HTMLButtonElement>('.game-dialog__retry').forEach((button) => {
+        button.textContent = t('gameDialog.retry');
+      });
+    }
+    commentsList.querySelectorAll<HTMLElement>('.game-dialog__comment-time').forEach((time) => {
+      time.textContent = formatRelativeTime(time.dataset.createdAt ?? '');
+    });
+    commentsList
+      .querySelectorAll<HTMLButtonElement>('.game-dialog__comment-like')
+      .forEach((button) => {
+        button.setAttribute(
+          'aria-label',
+          t(
+            button.dataset.liked === 'true' ? 'gameDialog.unlikeComment' : 'gameDialog.likeComment',
+          ),
+        );
+      });
+    updateCommentSubmissionStatus();
+  });
 
   if (initialSlug) dialog.openGame(initialSlug, false);
 

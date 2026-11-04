@@ -1,12 +1,25 @@
 import { createElement } from '../create-element';
+import { onLanguageChange, t } from '../../i18n';
 
 const TABLET_BREAKPOINT = 768;
 const MAX_VISIBLE_PAGES_DESKTOP = 4;
 const MAX_VISIBLE_PAGES_MOBILE = 3;
 
+onLanguageChange(() => {
+  document.querySelectorAll<HTMLElement>('.pagination').forEach((pagination) => {
+    pagination.setAttribute('aria-label', t('library.pagination.label'));
+    pagination
+      .querySelector('.pagination__arrow--prev')
+      ?.setAttribute('aria-label', t('library.pagination.previous'));
+    pagination
+      .querySelector('.pagination__arrow--next')
+      ?.setAttribute('aria-label', t('library.pagination.next'));
+  });
+});
+
 export function createPagination(onPageChange: (page: number) => void, initialPage = 1) {
   const nav = createElement('nav', 'pagination');
-  nav.setAttribute('aria-label', 'Library Pagination');
+  nav.setAttribute('aria-label', t('library.pagination.label'));
 
   const prevBtn = createElement(
     'button',
@@ -15,13 +28,13 @@ export function createPagination(onPageChange: (page: number) => void, initialPa
   );
   prevBtn.type = 'button';
   prevBtn.disabled = true;
-  prevBtn.setAttribute('aria-label', 'Previous page');
+  prevBtn.setAttribute('aria-label', t('library.pagination.previous'));
 
   const pagesContainer = createElement('div', 'pagination__pages');
 
   const nextBtn = createElement('button', 'pagination__arrow pagination__arrow--next', '›');
   nextBtn.type = 'button';
-  nextBtn.setAttribute('aria-label', 'Next page');
+  nextBtn.setAttribute('aria-label', t('library.pagination.next'));
 
   let currentPage = Math.max(1, initialPage);
   let totalPages = 4;

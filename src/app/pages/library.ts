@@ -1,13 +1,78 @@
 import { createElement } from '../create-element';
 import { createSortDropdown } from '../components/sort-dropdown';
 import { fetchGames, fetchCategories, type ApiGame, type ApiCategory } from '../utils/api';
-import { formatToK } from '../utils/formatters';
+import { formatCompactNumber, formatNumber } from '../utils/formatters';
 import { createPagination } from '../components/pagination';
 import { createGameDetailsDialog } from '../components/game-details-dialog';
 import { showSnackbar } from '../utils/snackbar';
+import { getFeedbackErrorKey } from '../utils/feedback';
 import type { AppSession } from '../../services/app-session';
+import { onLanguageChange, t, type TranslationKey } from '../../i18n';
 
 const currentLimit = 6;
+
+const categoryTranslationKeys: Readonly<Record<string, TranslationKey>> = {
+  all: 'library.categories.all',
+  'all-games': 'library.categories.all',
+  puzzle: 'library.categories.puzzle',
+  'match-3': 'library.categories.match3',
+  match3: 'library.categories.match3',
+  farm: 'library.categories.farm',
+  board: 'library.categories.board',
+};
+
+function getCategoryLabel(slug: string, apiLabel: string): string {
+  const key = categoryTranslationKeys[slug.trim().toLowerCase()];
+  return key ? t(key) : apiLabel;
+}
+
+onLanguageChange(() => {
+  document.querySelectorAll<HTMLElement>('.library').forEach((library) => {
+    const title = library.querySelector<HTMLElement>('.library__title');
+    if (title) title.textContent = t('library.heading');
+    const subtitle = library.querySelector<HTMLElement>('.library__subtitle');
+    if (subtitle) subtitle.textContent = t('library.description');
+
+    library.querySelectorAll<HTMLButtonElement>('.library__chip').forEach((chip) => {
+      chip.textContent = getCategoryLabel(chip.dataset.slug ?? '', chip.dataset.apiLabel ?? '');
+    });
+
+    const search = library.querySelector<HTMLInputElement>('.library__search');
+    if (search) search.placeholder = t('library.searchPlaceholder');
+
+    const loading = library.querySelector<HTMLElement>('.library__loading');
+    if (loading) loading.textContent = t('library.loading');
+    const empty = library.querySelector<HTMLElement>('.library__empty');
+    if (empty) empty.textContent = t('library.empty');
+    library.querySelectorAll<HTMLElement>('.library__error-prefix').forEach((prefix) => {
+      prefix.textContent = t('library.errorPrefix');
+    });
+    library.querySelectorAll<HTMLElement>('.library__error-message').forEach((message) => {
+      const key = message.dataset.translationKey as TranslationKey | undefined;
+      if (key) message.textContent = t(key);
+    });
+    library.querySelectorAll<HTMLButtonElement>('.library__retry-btn').forEach((button) => {
+      button.textContent = t('common.retry');
+    });
+    library.querySelectorAll<HTMLButtonElement>('.game-card__details-btn').forEach((button) => {
+      button.textContent = t('library.details');
+    });
+    library.querySelectorAll<HTMLElement>('.game-card__price').forEach((price) => {
+      price.textContent =
+        price.dataset.price === 'Free' ? t('library.free') : (price.dataset.price ?? '');
+    });
+    library.querySelectorAll<HTMLElement>('.game-card__rating').forEach((rating) => {
+      rating.textContent = formatNumber(Number(rating.dataset.rating), {
+        maximumFractionDigits: 1,
+      });
+    });
+    library.querySelectorAll<HTMLElement>('.game-card__likes').forEach((likes) => {
+      const count = Number(likes.dataset.likesCount);
+      likes.textContent = formatCompactNumber(count);
+      likes.setAttribute('aria-label', t('gameDialog.likes', { count }));
+    });
+  });
+});
 
 export interface LibraryRouteState {
   category: string;
@@ -34,12 +99,8 @@ export function createLibraryPage(options: LibraryPageOptions = {}): HTMLElement
   const container = createElement('div', 'library__container');
 
   const headerWrapper = createElement('div', 'library__header-wrapper');
-  const title = createElement('h1', 'library__title', 'Game Library');
-  const subtitle = createElement(
-    'p',
-    'library__subtitle',
-    'Browse our collection of casual mini-games',
-  );
+  const title = createElement('h1', 'library__title', t('library.heading'));
+  const subtitle = createElement('p', 'library__subtitle', t('library.description'));
   headerWrapper.append(title, subtitle);
 
   const controlsWrapper = createElement('div', 'library__controls');
@@ -127,9 +188,10 @@ async function loadCategories(
     const categories: ApiCategory[] = response.data || [];
 
     categories.forEach((cat) => {
-      const chip = createElement('button', 'library__chip', cat.label);
+      const chip = createElement('button', 'library__chip', getCategoryLabel(cat.slug, cat.label));
       chip.type = 'button';
       chip.dataset.slug = cat.slug;
+      chip.dataset.apiLabel = cat.label;
 
       if (cat.slug === getState().category) {
         chip.classList.add('active');
@@ -160,13 +222,18 @@ async function loadCategories(
       loadLibraryGames(gridContainer, paginationComponent, gameDialog, getState, requestTracker);
     }
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : 'Failed to load categories';
-    showSnackbar(errorMsg, 'error');
+    const errorKey = getFeedbackErrorKey(error, 'library.categoriesLoadFailed');
+    showSnackbar(errorKey, 'error');
 
     chipsContainer.innerHTML = '';
-    const fallbackChip = createElement('button', 'library__chip active', 'All Games');
+    const fallbackChip = createElement(
+      'button',
+      'library__chip active',
+      t('library.categories.all'),
+    );
     fallbackChip.type = 'button';
     fallbackChip.dataset.slug = 'all';
+    fallbackChip.dataset.apiLabel = '';
     fallbackChip.classList.toggle('active', getState().category === 'all');
 
     fallbackChip.addEventListener('click', () => {
@@ -218,36 +285,46 @@ async function loadLibraryGames(
   } catch (error) {
     if (requestId !== requestTracker.current) return;
     gridContainer.innerHTML = '';
-    const errorMsg = error instanceof Error ? error.message : 'Failed to load games';
-    renderErrorState(gridContainer, errorMsg, () =>
+    const errorKey = getFeedbackErrorKey(error, 'library.gamesLoadFailed');
+    renderErrorState(gridContainer, errorKey, () =>
       loadLibraryGames(gridContainer, paginationComponent, gameDialog, getState, requestTracker),
     );
-    showSnackbar(errorMsg, 'error');
+    showSnackbar(errorKey, 'error');
   }
 }
 
 function renderSkeleton(container: HTMLElement): void {
-  container.innerHTML = `
-    <div class="library__skeleton" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--on-bg-low, #737380);">
-      Loading games library...
-    </div>
-  `;
+  const skeleton = createElement('div', 'library__skeleton');
+  skeleton.style.cssText =
+    'grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--on-bg-low, #737380);';
+  skeleton.setAttribute('role', 'status');
+  skeleton.append(createElement('span', 'library__loading', t('library.loading')));
+  container.replaceChildren(skeleton);
 }
 
 function renderEmptyState(container: HTMLElement): void {
-  container.innerHTML = `
-    <div class="library__empty" style="grid-column: 1 / -1; padding: 40px; text-align: center;">
-      No games found.
-    </div>
-  `;
+  const empty = createElement('div', 'library__empty', t('library.empty'));
+  empty.style.cssText = 'grid-column: 1 / -1; padding: 40px; text-align: center;';
+  container.replaceChildren(empty);
 }
 
-function renderErrorState(container: HTMLElement, message: string, onRetry: () => void): void {
+function renderErrorState(
+  container: HTMLElement,
+  messageKey: TranslationKey,
+  onRetry: () => void,
+): void {
   const errorBanner = createElement('div', 'library__error');
   errorBanner.style.gridColumn = '1 / -1';
 
-  const errorText = createElement('p', 'library__error-text', `Error: ${message}`);
-  const retryBtn = createElement('button', 'library__retry-btn', 'Retry');
+  const errorText = createElement('p', 'library__error-text');
+  const errorMessage = createElement('span', 'library__error-message', t(messageKey));
+  errorMessage.dataset.translationKey = messageKey;
+  errorText.append(
+    createElement('span', 'library__error-prefix', t('library.errorPrefix')),
+    document.createTextNode(' '),
+    errorMessage,
+  );
+  const retryBtn = createElement('button', 'library__retry-btn', t('common.retry'));
 
   retryBtn.addEventListener('click', onRetry);
 
@@ -274,7 +351,12 @@ function renderGameCards(
     const topRow = createElement('div', 'game-card__top-row');
     const gameTitle = createElement('h2', 'game-card__title', game.name);
     const categoryBadge = createElement('span', 'game-card__category', game.category);
-    const priceTag = createElement('span', 'game-card__price', game.price);
+    const priceTag = createElement(
+      'span',
+      'game-card__price',
+      game.price === 'Free' ? t('library.free') : game.price,
+    );
+    priceTag.dataset.price = game.price;
     if (game.price === 'Free') {
       priceTag.classList.add('game-card__price--free');
     }
@@ -285,14 +367,17 @@ function renderGameCards(
     const desc = createElement('p', 'game-card__description', game.shortDescription);
     const footerRow = createElement('div', 'game-card__footer');
     const stats = createElement('div', 'game-card__stats');
-    const rating = createElement('span', 'game-card__rating', `${game.rating}`);
-    const likes = createElement(
+    const rating = createElement(
       'span',
-      'game-card__likes',
-      `${formatToK(game.likesCount).toLocaleString()}`,
+      'game-card__rating',
+      formatNumber(game.rating, { maximumFractionDigits: 1 }),
     );
+    rating.dataset.rating = String(game.rating);
+    const likes = createElement('span', 'game-card__likes', formatCompactNumber(game.likesCount));
+    likes.dataset.likesCount = String(game.likesCount);
+    likes.setAttribute('aria-label', t('gameDialog.likes', { count: game.likesCount }));
     stats.append(rating, likes);
-    const detailsBtn = createElement('button', 'game-card__details-btn', 'Details');
+    const detailsBtn = createElement('button', 'game-card__details-btn', t('library.details'));
     detailsBtn.type = 'button';
 
     detailsBtn.addEventListener('click', () => {

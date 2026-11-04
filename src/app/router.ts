@@ -122,7 +122,7 @@ export class Router {
         url.searchParams.delete('auth');
         this.writeUrl(url, true);
         this.authDialog?.closeAuth(false);
-        showSnackbar('You are already authenticated.', 'warning');
+        showSnackbar('authDialog.alreadyAuthenticated', 'warning');
         this.renderLocation();
         return;
       }
@@ -203,7 +203,7 @@ export class Router {
       url.searchParams.delete('auth');
       this.writeUrl(url, true);
       this.authDialog?.closeAuth(false);
-      showSnackbar('You are already authenticated.', 'warning');
+      showSnackbar('authDialog.alreadyAuthenticated', 'warning');
       state = this.parseLocation();
     }
     const previousGameDialog = this.contentContainer.querySelector(

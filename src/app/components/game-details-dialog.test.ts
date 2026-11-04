@@ -7,7 +7,8 @@ import {
   toggleCommentLike,
   toggleGameFavorite,
 } from '../utils/api';
-import { createGameDetailsDialog } from './game-details-dialog';
+import { changeLanguage } from '../../i18n';
+import { createGameDetailsDialog, type GameDetailsDialog } from './game-details-dialog';
 
 vi.mock('../utils/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../utils/api')>()),
@@ -50,10 +51,13 @@ describe('game details dialog', () => {
   let currentSession: AppSession | null;
   let onAuthRequired: ReturnType<typeof vi.fn<() => void>>;
   let onGameChange: ReturnType<typeof vi.fn<(slug: string | null) => void>>;
+  let dialogs: GameDetailsDialog[];
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await changeLanguage('en');
     document.body.replaceChildren();
     vi.clearAllMocks();
+    dialogs = [];
     currentSession = session;
     onAuthRequired = vi.fn<() => void>();
     onGameChange = vi.fn<(slug: string | null) => void>();
@@ -71,8 +75,10 @@ describe('game details dialog', () => {
     vi.mocked(submitGameComment).mockResolvedValue();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    dialogs.forEach((dialog) => dialog.dispose());
     document.body.replaceChildren();
+    await changeLanguage('en');
     vi.restoreAllMocks();
   });
 
@@ -81,6 +87,7 @@ describe('game details dialog', () => {
       getSession: () => currentSession,
       onAuthRequired,
     });
+    dialogs.push(dialog);
     document.body.append(dialog);
     dialog.openGame(slug);
     await vi.waitFor(() =>
@@ -100,9 +107,45 @@ describe('game details dialog', () => {
     expect(
       dialog.querySelector('.game-dialog__comments-section .game-dialog__section-title')
         ?.textContent,
-    ).toContain('Comments (9)');
+    ).toBe('9 Comments');
     expect(dialog.querySelector('.game-dialog__comment-text')?.textContent).toBe(comment.text);
     expect(dialog.querySelector('.game-dialog__comment-text script')).toBeNull();
+  });
+
+  it('updates translated dialog and comment UI without refetching backend content', async () => {
+    const dialog = await openDialog();
+    const gameRequestCount = vi.mocked(fetchGameDetails).mock.calls.length;
+    const commentsRequestCount = vi.mocked(fetchGameComments).mock.calls.length;
+    const gameChangeCount = onGameChange.mock.calls.length;
+
+    await changeLanguage('ru');
+
+    expect(
+      dialog.querySelector<HTMLButtonElement>('.game-dialog__close')?.getAttribute('aria-label'),
+    ).toBe('Закрыть сведения об игре');
+    expect(dialog.querySelector('.game-dialog__favorite-btn-text')?.textContent).toBe(
+      'Добавить в избранное',
+    );
+    expect(dialog.querySelector('.game-dialog__badge-label')?.textContent).toBe('Жанр');
+    expect(dialog.querySelectorAll('.game-dialog__badge-value')[3]?.textContent).toBe('Бесплатно');
+    expect(dialog.querySelector('.game-dialog__comment-input')?.getAttribute('placeholder')).toBe(
+      'Напишите комментарий...',
+    );
+    expect(
+      dialog.querySelector('.game-dialog__comments-section .game-dialog__section-title')
+        ?.textContent,
+    ).toBe('9 комментариев');
+    expect(dialog.querySelector('.game-dialog__title')?.textContent).toBe('Sample Game');
+    expect(dialog.querySelector<HTMLImageElement>('.game-dialog__image')?.alt).toBe(
+      'Изображение игры «Sample Game»',
+    );
+    expect(dialog.querySelector('.game-dialog__comment-user')?.textContent).toBe(
+      comment.authorName,
+    );
+    expect(dialog.querySelector('.game-dialog__comment-text')?.textContent).toBe(comment.text);
+    expect(vi.mocked(fetchGameDetails)).toHaveBeenCalledTimes(gameRequestCount);
+    expect(vi.mocked(fetchGameComments)).toHaveBeenCalledTimes(commentsRequestCount);
+    expect(onGameChange).toHaveBeenCalledTimes(gameChangeCount);
   });
 
   it('shows the guest auth prompt when a guest likes a game', async () => {

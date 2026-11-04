@@ -96,6 +96,9 @@ $leader-avatar-size: 20px;
           display: none;
         }
       }
+      @media (max-width: $breakpoint-mobile) {
+        padding: $size-2 $size-05;
+      }
       @media (min-width: $breakpoint-desktop) {
         display: none;
       }

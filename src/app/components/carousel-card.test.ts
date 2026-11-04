@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchGames } from '../utils/api';
 import { createNewGamesSection } from './carousel-card';
+import { changeLanguage } from '../../i18n';
 
 vi.mock('../utils/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../utils/api')>()),
@@ -46,18 +47,20 @@ class ResizeObserverMock {
 }
 
 describe('featured games carousel', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await changeLanguage('en');
     document.body.replaceChildren();
     vi.clearAllMocks();
     vi.stubGlobal('ResizeObserver', ResizeObserverMock);
     vi.mocked(fetchGames).mockResolvedValue({ data: featuredGames } as never);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.clearAllTimers();
     vi.useRealTimers();
     vi.unstubAllGlobals();
     document.body.replaceChildren();
+    await changeLanguage('en');
   });
 
   it('loads featured games, formats cards, moves slides, and selects a game', async () => {
@@ -92,6 +95,10 @@ describe('featured games carousel', () => {
     document.body.append(section);
 
     await vi.waitFor(() => expect(section.querySelector('.carousel__empty-banner')).not.toBeNull());
+    await changeLanguage('ru');
+    expect(section.querySelector('.carousel__empty-banner')?.textContent).toBe(
+      'Новые игры пока недоступны.',
+    );
   });
 
   it('renders an error banner and retries the featured request', async () => {
@@ -103,9 +110,30 @@ describe('featured games carousel', () => {
     document.body.append(section);
 
     await vi.waitFor(() => expect(section.querySelector('.carousel__error-banner')).not.toBeNull());
+    await changeLanguage('ru');
+    expect(section.querySelector('.carousel__error-prefix')?.textContent).toBe('Ошибка:');
+    expect(section.querySelector('.carousel__retry-btn')?.textContent).toBe('Повторить');
     section.querySelector<HTMLButtonElement>('.carousel__retry-btn')!.click();
     await vi.waitFor(() => expect(section.querySelector('.carousel__card')).not.toBeNull());
     expect(fetchGames).toHaveBeenCalledTimes(2);
+  });
+
+  it('updates current carousel labels without reloading games or changing the slide order', async () => {
+    vi.useFakeTimers();
+    const section = createNewGamesSection(vi.fn());
+    document.body.append(section);
+    await vi.waitFor(() => expect(section.querySelectorAll('.carousel__card')).toHaveLength(2));
+    const track = section.querySelector('.carousel__container')!;
+    const cards = [...track.children];
+
+    await changeLanguage('ru');
+
+    expect(section.querySelector('.carousel__title')?.textContent).toBe('Новые игры');
+    expect(section.querySelector('.carousel__arrow--forward')?.getAttribute('aria-label')).toBe(
+      'Следующие игры',
+    );
+    expect([...track.children]).toEqual(cards);
+    expect(fetchGames).toHaveBeenCalledTimes(1);
   });
 
   it('supports touch swipe navigation and pauses/resumes autoplay', async () => {

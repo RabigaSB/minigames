@@ -3,6 +3,7 @@ import { FirebaseError } from 'firebase/app';
 import type { User } from 'firebase/auth';
 import { createAuthDialog, type AuthMode } from './auth-dialog';
 import type { AppSession } from '../../services/app-session';
+import { changeLanguage } from '../../i18n';
 
 const firebaseMocks = vi.hoisted(() => ({
   signInWithEmail: vi.fn(),
@@ -16,22 +17,28 @@ describe('authentication dialog', () => {
   let onAuthChange: ReturnType<typeof vi.fn<(mode: AuthMode | null) => void>>;
   let onAuthenticated: ReturnType<typeof vi.fn<(session: AppSession) => void>>;
   let onPendingChange: ReturnType<typeof vi.fn<(pending: boolean) => void>>;
+  let dialogs: ReturnType<typeof createAuthDialog>[];
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await changeLanguage('en');
     document.body.replaceChildren();
     localStorage.clear();
     vi.clearAllMocks();
+    dialogs = [];
     onAuthChange = vi.fn<(mode: AuthMode | null) => void>();
     onAuthenticated = vi.fn<(session: AppSession) => void>();
     onPendingChange = vi.fn<(pending: boolean) => void>();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    dialogs.forEach((dialog) => dialog.dispose?.());
     vi.restoreAllMocks();
+    await changeLanguage('en');
   });
 
   function createDialog() {
     const dialog = createAuthDialog(onAuthChange, onAuthenticated, onPendingChange);
+    dialogs.push(dialog);
     document.body.append(dialog);
     return dialog;
   }
@@ -73,6 +80,38 @@ describe('authentication dialog', () => {
     dialog.closeAuth();
     expect(dialog.classList.contains('auth-dialog--open')).toBe(false);
     expect(onAuthChange).toHaveBeenLastCalledWith(null);
+  });
+
+  it('updates translated labels and validation messages without clearing form values', async () => {
+    const dialog = createDialog();
+    dialog.openAuth('register');
+    const username = document.querySelector<HTMLInputElement>('#register-username')!;
+    username.value = 'lowercase';
+    username.dispatchEvent(new Event('blur', { bubbles: true }));
+    expect(
+      username.parentElement?.parentElement?.querySelector('.auth-dialog__error')?.textContent,
+    ).toContain('starting with an uppercase English letter');
+
+    await changeLanguage('ru');
+
+    expect(
+      dialog.querySelector('.auth-dialog__form--register .auth-dialog__title')?.textContent,
+    ).toBe('Создать аккаунт');
+    expect(
+      dialog.querySelector('.auth-dialog__form--register .auth-dialog__label')?.textContent,
+    ).toBe('Имя пользователя');
+    expect(username.placeholder).toBe('например, CozyGamer99');
+    expect(username.value).toBe('lowercase');
+    expect(
+      username.parentElement?.parentElement?.querySelector('.auth-dialog__error')?.textContent,
+    ).toContain('английской');
+    expect(
+      dialog.querySelector<HTMLButtonElement>('.auth-dialog__close')?.getAttribute('aria-label'),
+    ).toBe('Закрыть окно авторизации');
+
+    const forgotPassword = dialog.querySelector<HTMLAnchorElement>('.auth-dialog__forgot-link')!;
+    expect(forgotPassword.textContent).toBe('Забыли пароль?');
+    expect(forgotPassword.getAttribute('href')).toBe('#');
   });
 
   it('does not call sign-in when the login form is invalid', async () => {

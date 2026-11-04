@@ -1,36 +1,78 @@
-export function formatToK(num: number): string {
-  if (num >= 1_000) {
-    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
-  }
-  return num.toString();
+import { getCurrentLanguage, t } from '../../i18n';
+
+function getIntlLocale(): string {
+  const language = getCurrentLanguage();
+  return language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
+}
+
+export function formatNumber(value: number, options?: Intl.NumberFormatOptions): string {
+  return new Intl.NumberFormat(getIntlLocale(), options).format(value);
+}
+
+export function formatCompactNumber(value: number): string {
+  return formatNumber(value, { notation: 'compact', maximumFractionDigits: 1 });
+}
+
+export function formatToK(value: number): string {
+  return formatCompactNumber(value);
+}
+
+export function formatDate(timestamp: string | Date): string {
+  const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return String(timestamp);
+
+  return new Intl.DateTimeFormat(getIntlLocale()).format(date);
 }
 
 export function formatRelativeTime(timestamp: string, now = Date.now()): string {
   const createdAt = new Date(timestamp).getTime();
-  if (Number.isNaN(createdAt)) return 'Unknown time';
+  if (Number.isNaN(createdAt)) return t('gameDialog.unknownTime');
 
   const elapsedMilliseconds = Math.max(0, now - createdAt);
   const elapsedMinutes = Math.floor(elapsedMilliseconds / 60_000);
-  if (elapsedMinutes < 1) return 'just now';
-  if (elapsedMinutes < 60) return `${elapsedMinutes} min ago`;
+  if (elapsedMinutes < 1) return t('gameDialog.justNow');
+  if (elapsedMinutes < 60) {
+    return new Intl.RelativeTimeFormat(getIntlLocale(), { numeric: 'always' }).format(
+      -elapsedMinutes,
+      'minute',
+    );
+  }
 
   const elapsedHours = Math.floor(elapsedMinutes / 60);
   if (elapsedHours < 24) {
-    return `${elapsedHours} hour${elapsedHours === 1 ? '' : 's'} ago`;
+    return new Intl.RelativeTimeFormat(getIntlLocale(), { numeric: 'always' }).format(
+      -elapsedHours,
+      'hour',
+    );
   }
 
   const elapsedDays = Math.floor(elapsedHours / 24);
-  if (elapsedDays < 7) return `${elapsedDays} day${elapsedDays === 1 ? '' : 's'} ago`;
-
-  const elapsedWeeks = Math.floor(elapsedDays / 7);
-  if (elapsedWeeks < 4) return `${elapsedWeeks} week${elapsedWeeks === 1 ? '' : 's'} ago`;
-
-  const elapsedMonths = Math.floor(elapsedDays / 30);
-  if (elapsedDays < 365) {
-    const months = Math.min(11, Math.max(1, elapsedMonths));
-    return `${months} month${months === 1 ? '' : 's'} ago`;
+  if (elapsedDays < 7) {
+    return new Intl.RelativeTimeFormat(getIntlLocale(), { numeric: 'always' }).format(
+      -elapsedDays,
+      'day',
+    );
   }
 
-  const elapsedYears = Math.floor(elapsedDays / 365);
-  return `${Math.max(1, elapsedYears)} year${elapsedYears === 1 ? '' : 's'} ago`;
+  const elapsedWeeks = Math.floor(elapsedDays / 7);
+  if (elapsedDays < 28) {
+    return new Intl.RelativeTimeFormat(getIntlLocale(), { numeric: 'always' }).format(
+      -elapsedWeeks,
+      'week',
+    );
+  }
+
+  if (elapsedDays < 365) {
+    const elapsedMonths = Math.min(11, Math.max(1, Math.floor(elapsedDays / 30)));
+    return new Intl.RelativeTimeFormat(getIntlLocale(), { numeric: 'always' }).format(
+      -elapsedMonths,
+      'month',
+    );
+  }
+
+  const elapsedYears = Math.max(1, Math.floor(elapsedDays / 365));
+  return new Intl.RelativeTimeFormat(getIntlLocale(), { numeric: 'always' }).format(
+    -elapsedYears,
+    'year',
+  );
 }

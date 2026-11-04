@@ -1,4 +1,5 @@
 import { createElement } from '../create-element';
+import { onLanguageChange, t } from '../../i18n';
 
 export function createDeveloperCta(): HTMLElement {
   const section = createElement('section', 'developer-cta');
@@ -10,11 +11,11 @@ export function createDeveloperCta(): HTMLElement {
   const image = createElement('img', 'developer-cta__image');
 
   image.src = './assets/developer.png';
-  image.alt = 'Game developer working on a game';
+  image.alt = t('developerCta.imageAlt');
 
   const content = createElement('div', 'developer-cta__content');
 
-  const title = createElement('h2', 'developer-cta__title', 'Are You a Game Developer?');
+  const title = createElement('h2', 'developer-cta__title', t('developerCta.title'));
 
   title.id = 'developer-cta-title';
 
@@ -23,35 +24,50 @@ export function createDeveloperCta(): HTMLElement {
   const firstRow = createElement(
     'span',
     'developer-cta__description--span',
-    "Want to see your game on MiniGames? We're always looking for fun,",
+    t('developerCta.descriptionFirst'),
   );
   const secondRow = createElement(
     'span',
     'developer-cta__description--span',
-    'engaging mini games to add to our platform. Submit your game',
+    t('developerCta.descriptionSecond'),
   );
   const thirdtRow = createElement(
     'span',
     'developer-cta__description--span',
-    'and reach thousands of players!',
+    t('developerCta.descriptionThird'),
   );
 
   description.append(firstRow, secondRow, thirdtRow);
 
-  const button = createElement('a', 'developer-cta__button', 'Submit Form');
+  const button = createElement('a', 'developer-cta__button', t('developerCta.submit'));
 
   button.href = '#';
 
-  const contact = createElement(
-    'p',
-    'developer-cta__contact',
-    'or contact us at developers@minigames.com',
-  );
+  const contact = createElement('p', 'developer-cta__contact');
+  const updateTranslations = (): void => {
+    image.alt = t('developerCta.imageAlt');
+    title.textContent = t('developerCta.title');
+    firstRow.textContent = t('developerCta.descriptionFirst');
+    secondRow.textContent = t('developerCta.descriptionSecond');
+    thirdtRow.textContent = t('developerCta.descriptionThird');
+    button.textContent = t('developerCta.submit');
+    contact.textContent = t('developerCta.contact', { email: 'developers@minigames.com' });
+  };
+  updateTranslations();
 
   content.append(title, description, button, contact);
 
   container.append(image, content);
   section.append(container);
+
+  let unsubscribe = (): void => undefined;
+  unsubscribe = onLanguageChange(() => {
+    if (!section.isConnected) {
+      unsubscribe();
+      return;
+    }
+    updateTranslations();
+  });
 
   return section;
 }

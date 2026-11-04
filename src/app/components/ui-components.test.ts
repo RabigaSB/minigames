@@ -4,6 +4,7 @@ import { createLeaderboard } from './leaderboard';
 import { createPagination } from './pagination';
 import { createSortDropdown } from './sort-dropdown';
 import { showSnackbar } from '../utils/snackbar';
+import { changeLanguage } from '../../i18n';
 
 vi.mock('../utils/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../utils/api')>()),
@@ -57,6 +58,25 @@ describe('pagination controls', () => {
     pagination.querySelector<HTMLButtonElement>('#pagination__page-btn-3')!.click();
     expect(onPageChange).toHaveBeenLastCalledWith(3);
   });
+
+  it('updates accessible pagination labels without changing the current page', async () => {
+    const pagination = createPagination(vi.fn(), 2) as HTMLElement & {
+      updatePagination(total: number, page: number): void;
+    };
+    document.body.append(pagination);
+    pagination.updatePagination(5, 2);
+
+    await changeLanguage('kk');
+
+    expect(pagination.getAttribute('aria-label')).toBe('Ойындар кітапханасының беттері');
+    expect(pagination.querySelector('.pagination__arrow--prev')?.getAttribute('aria-label')).toBe(
+      'Алдыңғы бет',
+    );
+    expect(pagination.querySelector('#pagination__page-btn-2')?.classList.contains('active')).toBe(
+      true,
+    );
+    await changeLanguage('en');
+  });
 });
 
 describe('sort dropdown', () => {
@@ -83,12 +103,35 @@ describe('sort dropdown', () => {
     document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(menu.classList.contains('sort-dropdown__menu--hidden')).toBe(true);
   });
+
+  it('updates sort labels while retaining the selected sort value', async () => {
+    const dropdown = createSortDropdown(vi.fn(), 'name-desc');
+    document.body.append(dropdown);
+
+    await changeLanguage('kk');
+
+    expect(dropdown.querySelector('.sort-dropdown__button')?.textContent).toBe(
+      'Сұрыптау: Атауы Я→А',
+    );
+    expect(dropdown.querySelector('.sort-dropdown__button')?.getAttribute('data-sort-value')).toBe(
+      'name-desc',
+    );
+    expect(
+      dropdown.querySelector('.sort-dropdown__item[data-sort-value="rating-asc"]')?.textContent,
+    ).toBe('Рейтинг ↑');
+    await changeLanguage('en');
+  });
 });
 
 describe('leaderboard', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await changeLanguage('en');
     document.body.replaceChildren();
     vi.clearAllMocks();
+  });
+  afterEach(async () => {
+    document.body.replaceChildren();
+    await changeLanguage('en');
   });
   afterEach(() => document.body.replaceChildren());
 
@@ -113,6 +156,9 @@ describe('leaderboard', () => {
     expect(wrapper.querySelector('.leaderboard__avatar')?.textContent).toBe('AS');
     expect(wrapper.textContent).toContain('12,500');
     expect(wrapper.textContent).toContain('1 day');
+    expect(
+      wrapper.querySelector('.leaderboard__cell[aria-label]')?.getAttribute('aria-label'),
+    ).toBe('9 games played');
   });
 
   it('renders an empty state for an empty leaderboard', async () => {
@@ -132,27 +178,89 @@ describe('leaderboard', () => {
     document.body.append(section);
     await vi.waitFor(() =>
       expect(section.querySelector('.leaderboard__error-text')?.textContent).toContain(
-        'Unavailable',
+        'Failed to load leaderboard.',
       ),
     );
     section.querySelector<HTMLButtonElement>('.leaderboard__retry-btn')!.click();
     await vi.waitFor(() => expect(section.querySelector('.leaderboard__empty')).not.toBeNull());
     expect(fetchLeaderboard).toHaveBeenCalledTimes(2);
   });
+
+  it('updates translated table labels while retaining backend player content', async () => {
+    vi.mocked(fetchLeaderboard).mockResolvedValue([
+      {
+        rank: 1,
+        playerName: 'alice_smith',
+        gamesPlayed: 9,
+        totalScore: 12_500,
+        streakDays: 1,
+        favoriteGameSlug: 'sample',
+        favoriteGameName: 'Sample Game',
+      },
+    ]);
+    const section = createLeaderboard();
+    document.body.append(section);
+
+    await vi.waitFor(() => expect(section.querySelector('.leaderboard__row')).not.toBeNull());
+    await changeLanguage('ru');
+
+    expect(section.querySelector('.leaderboard__title-lead')?.textContent).toBe('Лучшие игроки');
+    expect(section.querySelector('.leaderboard__title--span')?.textContent).toBe('На этой неделе');
+    expect(section.querySelector('.leaderboard__name')?.textContent).toBe('alice_smith');
+    expect(section.querySelector('.leaderboard__game')?.textContent).toBe('Sample Game');
+    expect(section.querySelector('.leaderboard__row')?.textContent).toContain('1 день');
+    expect(
+      section.querySelector('.leaderboard__cell[aria-label]')?.getAttribute('aria-label'),
+    ).toBe('9 сыгранных игр');
+    expect(fetchLeaderboard).toHaveBeenCalledOnce();
+  });
+
+  it('updates leaderboard loading and error states without another request', async () => {
+    let rejectRequest: (error: Error) => void = () => undefined;
+    vi.mocked(fetchLeaderboard).mockImplementationOnce(
+      () =>
+        new Promise((_, reject) => {
+          rejectRequest = reject;
+        }),
+    );
+    const section = createLeaderboard();
+    document.body.append(section);
+
+    await changeLanguage('kk');
+    expect(section.querySelector('.leaderboard__skeleton')?.textContent).toBe(
+      'Үздік ойыншылар кестесі жүктелуде...',
+    );
+
+    rejectRequest(new Error('Unavailable'));
+    await vi.waitFor(() => expect(section.querySelector('.leaderboard__error')).not.toBeNull());
+    expect(section.querySelector('.leaderboard__error-prefix')?.textContent).toBe('Қате:');
+    expect(section.querySelector('.leaderboard__retry-btn')?.textContent).toBe('Қайталау');
+    expect(section.querySelector('.leaderboard__error-text')?.textContent).toContain(
+      'Көшбасшылар кестесін жүктеу мүмкін болмады.',
+    );
+    expect(fetchLeaderboard).toHaveBeenCalledOnce();
+  });
 });
 
 describe('snackbar notifications', () => {
-  afterEach(() => {
+  beforeEach(async () => {
+    await changeLanguage('en');
+  });
+
+  afterEach(async () => {
     vi.useRealTimers();
     document.body.replaceChildren();
+    await changeLanguage('en');
   });
 
   it('renders the selected variant and dismisses after the timeout', async () => {
     vi.useFakeTimers();
-    showSnackbar('Saved', 'success');
+    showSnackbar('common.save', 'success');
     const snackbar = document.querySelector('.snackbar')!;
-    expect(snackbar.textContent).toBe('Saved');
+    expect(snackbar.textContent).toBe('Save');
     expect(snackbar.classList.contains('snackbar--success')).toBe(true);
+    await changeLanguage('ru');
+    expect(snackbar.textContent).toBe('Сохранить');
     await vi.advanceTimersByTimeAsync(3_100);
     expect(snackbar.classList.contains('snackbar--visible')).toBe(false);
     await vi.advanceTimersByTimeAsync(300);
