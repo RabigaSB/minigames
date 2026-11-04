@@ -96,5 +96,35 @@
     "descriptionThird": "и познакомьте с ней тысячи игроков!",
     "submit": "Отправить заявку",
     "contact": "или напишите нам: {{email}}"
+  },
+  "library": {
+    "heading": "Библиотека игр",
+    "description": "Просмотрите нашу коллекцию мини-игр",
+    "searchPlaceholder": "Поиск игр",
+    "categories": {
+      "all": "Все игры",
+      "puzzle": "Головоломки",
+      "match3": "Три в ряд",
+      "farm": "Фермы",
+      "board": "Настольные игры"
+    },
+    "sortBy": "Сортировка: {{option}}",
+    "sort": {
+      "ratingAscending": "Рейтинг ↑",
+      "ratingDescending": "Рейтинг ↓",
+      "nameAscending": "Название А→Я",
+      "nameDescending": "Название Я→А"
+    },
+    "pagination": {
+      "label": "Страницы библиотеки игр",
+      "previous": "Предыдущая страница",
+      "next": "Следующая страница"
+    },
+    "details": "Подробнее",
+    "loading": "Загрузка библиотеки игр...",
+    "empty": "Игры не найдены.",
+    "errorPrefix": "Ошибка:",
+    "categoriesLoadFailed": "Не удалось загрузить категории.",
+    "gamesLoadFailed": "Не удалось загрузить игры."
   }
 }

@@ -96,5 +96,35 @@
     "descriptionThird": "мыңдаған ойыншыға танытыңыз!",
     "submit": "Өтінім жіберу",
     "contact": "немесе бізге жазыңыз: {{email}}"
+  },
+  "library": {
+    "heading": "Ойындар кітапханасы",
+    "description": "Шағын ойындар топтамасын шолыңыз",
+    "searchPlaceholder": "Ойындарды іздеу",
+    "categories": {
+      "all": "Барлық ойындар",
+      "puzzle": "Басқатырғыштар",
+      "match3": "Үш қатар",
+      "farm": "Ферма ойындары",
+      "board": "Үстел ойындары"
+    },
+    "sortBy": "Сұрыптау: {{option}}",
+    "sort": {
+      "ratingAscending": "Рейтинг ↑",
+      "ratingDescending": "Рейтинг ↓",
+      "nameAscending": "Атауы А→Я",
+      "nameDescending": "Атауы Я→А"
+    },
+    "pagination": {
+      "label": "Ойындар кітапханасының беттері",
+      "previous": "Алдыңғы бет",
+      "next": "Келесі бет"
+    },
+    "details": "Толығырақ",
+    "loading": "Ойындар кітапханасы жүктелуде...",
+    "empty": "Ойындар табылмады.",
+    "errorPrefix": "Қате:",
+    "categoriesLoadFailed": "Санаттарды жүктеу мүмкін болмады.",
+    "gamesLoadFailed": "Ойындарды жүктеу мүмкін болмады."
   }
 }

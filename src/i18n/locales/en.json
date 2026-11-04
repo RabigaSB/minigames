@@ -96,5 +96,35 @@
     "descriptionThird": "and reach thousands of players!",
     "submit": "Submit Form",
     "contact": "or contact us at {{email}}"
+  },
+  "library": {
+    "heading": "Game Library",
+    "description": "Browse our collection of casual mini-games",
+    "searchPlaceholder": "Search games",
+    "categories": {
+      "all": "All Games",
+      "puzzle": "Puzzle",
+      "match3": "Match 3",
+      "farm": "Farm",
+      "board": "Board"
+    },
+    "sortBy": "Sort by: {{option}}",
+    "sort": {
+      "ratingAscending": "Rating ↑",
+      "ratingDescending": "Rating ↓",
+      "nameAscending": "Name A→Z",
+      "nameDescending": "Name Z→A"
+    },
+    "pagination": {
+      "label": "Library pagination",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
+    "details": "Details",
+    "loading": "Loading games library...",
+    "empty": "No games found.",
+    "errorPrefix": "Error:",
+    "categoriesLoadFailed": "Failed to load categories.",
+    "gamesLoadFailed": "Failed to load games."
   }
 }

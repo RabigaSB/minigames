@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchCategories, fetchGames } from '../utils/api';
 import { createLibraryPage } from './library';
+import { changeLanguage } from '../../i18n';
 
 vi.mock('../utils/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../utils/api')>()),
@@ -49,14 +50,18 @@ const categoriesResponse = {
 };
 
 describe('library page', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await changeLanguage('en');
     document.body.replaceChildren();
     vi.clearAllMocks();
     vi.mocked(fetchCategories).mockResolvedValue(categoriesResponse);
     vi.mocked(fetchGames).mockResolvedValue(gamesResponse);
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
   });
-  afterEach(() => document.body.replaceChildren());
+  afterEach(async () => {
+    document.body.replaceChildren();
+    await changeLanguage('en');
+  });
 
   it('loads categories and games, renders cards, and updates route state from controls', async () => {
     const onStateChange = vi.fn();
@@ -148,5 +153,40 @@ describe('library page', () => {
     );
     page.querySelector<HTMLButtonElement>('.library__chip')!.click();
     await vi.waitFor(() => expect(fetchGames).toHaveBeenCalledTimes(2));
+  });
+
+  it('updates library labels in place without changing filter, sort, page, or API requests', async () => {
+    vi.mocked(fetchGames).mockResolvedValueOnce({
+      ...gamesResponse,
+      meta: { ...gamesResponse.meta, page: 2, totalPages: 4 },
+    });
+    const page = createLibraryPage({
+      state: { category: 'puzzle', sort: 'name-asc', page: 2 },
+    });
+    document.body.append(page);
+
+    await vi.waitFor(() => expect(page.querySelector('.game-card')).not.toBeNull());
+    const callCountBeforeChange = vi.mocked(fetchGames).mock.calls.length;
+    await changeLanguage('ru');
+
+    expect(page.querySelector('.library__title')?.textContent).toBe('Библиотека игр');
+    expect(page.querySelector('.library__chip[data-slug="puzzle"]')?.textContent).toBe(
+      'Головоломки',
+    );
+    expect(
+      page.querySelector<HTMLButtonElement>('.library__chip[data-slug="puzzle"]')?.dataset.slug,
+    ).toBe('puzzle');
+    expect(page.querySelector('.sort-dropdown__button')?.textContent).toBe(
+      'Сортировка: Название А→Я',
+    );
+    expect(page.querySelector('#pagination__page-btn-2')?.classList.contains('active')).toBe(true);
+    expect(page.querySelector('.game-card__details-btn')?.textContent).toBe('Подробнее');
+    expect(fetchGames).toHaveBeenCalledTimes(callCountBeforeChange);
+    expect(fetchGames).toHaveBeenLastCalledWith({
+      category: 'puzzle',
+      page: 2,
+      limit: 6,
+      sort: 'name-asc',
+    });
   });
 });

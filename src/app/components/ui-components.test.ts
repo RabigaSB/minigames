@@ -58,6 +58,25 @@ describe('pagination controls', () => {
     pagination.querySelector<HTMLButtonElement>('#pagination__page-btn-3')!.click();
     expect(onPageChange).toHaveBeenLastCalledWith(3);
   });
+
+  it('updates accessible pagination labels without changing the current page', async () => {
+    const pagination = createPagination(vi.fn(), 2) as HTMLElement & {
+      updatePagination(total: number, page: number): void;
+    };
+    document.body.append(pagination);
+    pagination.updatePagination(5, 2);
+
+    await changeLanguage('kk');
+
+    expect(pagination.getAttribute('aria-label')).toBe('Ойындар кітапханасының беттері');
+    expect(pagination.querySelector('.pagination__arrow--prev')?.getAttribute('aria-label')).toBe(
+      'Алдыңғы бет',
+    );
+    expect(pagination.querySelector('#pagination__page-btn-2')?.classList.contains('active')).toBe(
+      true,
+    );
+    await changeLanguage('en');
+  });
 });
 
 describe('sort dropdown', () => {
@@ -83,6 +102,24 @@ describe('sort dropdown', () => {
     button.click();
     document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(menu.classList.contains('sort-dropdown__menu--hidden')).toBe(true);
+  });
+
+  it('updates sort labels while retaining the selected sort value', async () => {
+    const dropdown = createSortDropdown(vi.fn(), 'name-desc');
+    document.body.append(dropdown);
+
+    await changeLanguage('kk');
+
+    expect(dropdown.querySelector('.sort-dropdown__button')?.textContent).toBe(
+      'Сұрыптау: Атауы Я→А',
+    );
+    expect(dropdown.querySelector('.sort-dropdown__button')?.getAttribute('data-sort-value')).toBe(
+      'name-desc',
+    );
+    expect(
+      dropdown.querySelector('.sort-dropdown__item[data-sort-value="rating-asc"]')?.textContent,
+    ).toBe('Рейтинг ↑');
+    await changeLanguage('en');
   });
 });
 
