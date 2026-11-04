@@ -5,6 +5,19 @@ import kk from './locales/kk.json';
 
 export const supportedLanguages = ['en', 'ru', 'kk'] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
+export const LANGUAGE_STORAGE_KEY = 'minigames-language';
+
+export function resolveInitialLanguage(language: string | null): SupportedLanguage {
+  return supportedLanguages.find((supportedLanguage) => supportedLanguage === language) ?? 'en';
+}
+
+function getStoredLanguage(): SupportedLanguage {
+  try {
+    return resolveInitialLanguage(localStorage.getItem(LANGUAGE_STORAGE_KEY));
+  } catch {
+    return 'en';
+  }
+}
 
 type TranslationResource = typeof en;
 type NestedKey<T> = {
@@ -22,7 +35,7 @@ type ResourceKey = NestedKey<TranslationResource>;
 export type TranslationKey = ResourceKey | PluralBase<ResourceKey>;
 
 const i18nReady = i18next.init({
-  lng: 'en',
+  lng: getStoredLanguage(),
   fallbackLng: 'en',
   supportedLngs: [...supportedLanguages],
   resources: {
@@ -39,6 +52,7 @@ export function t(key: TranslationKey, options?: TOptions): string {
 export async function changeLanguage(language: SupportedLanguage): Promise<void> {
   await i18nReady;
   await i18next.changeLanguage(language);
+  localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
 }
 
 export function getCurrentLanguage(): SupportedLanguage {

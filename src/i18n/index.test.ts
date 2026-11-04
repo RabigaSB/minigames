@@ -1,8 +1,17 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { changeLanguage, t } from './index';
+import {
+  changeLanguage,
+  getCurrentLanguage,
+  LANGUAGE_STORAGE_KEY,
+  resolveInitialLanguage,
+  t,
+} from './index';
 
 describe('i18next pluralization', () => {
-  afterEach(async () => changeLanguage('en'));
+  afterEach(async () => {
+    await changeLanguage('en');
+    localStorage.removeItem(LANGUAGE_STORAGE_KEY);
+  });
 
   it.each([
     [0, '0 likes', '0 отметок «Нравится»', '0 ұнату'],
@@ -36,5 +45,31 @@ describe('i18next pluralization', () => {
     await changeLanguage('kk');
     expect(t('gameDialog.commentsTitle', { count: 21 })).toBe('21 пікір');
     expect(t('leaderboard.gamesPlayedCount', { count: 2 })).toBe('2 ойын ойналды');
+  });
+});
+
+describe('language preference persistence', () => {
+  afterEach(async () => {
+    await changeLanguage('en');
+    localStorage.removeItem(LANGUAGE_STORAGE_KEY);
+  });
+
+  it('resolves a saved supported language during initialization', () => {
+    expect(resolveInitialLanguage('ru')).toBe('ru');
+    expect(resolveInitialLanguage('kk')).toBe('kk');
+  });
+
+  it('defaults to English when no preference or an unsupported preference is saved', () => {
+    expect(resolveInitialLanguage(null)).toBe('en');
+    expect(resolveInitialLanguage('fr')).toBe('en');
+    expect(resolveInitialLanguage('RU')).toBe('en');
+  });
+
+  it('persists language changes and restores the active language from that preference', async () => {
+    await changeLanguage('kk');
+
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('kk');
+    expect(getCurrentLanguage()).toBe('kk');
+    expect(resolveInitialLanguage(localStorage.getItem(LANGUAGE_STORAGE_KEY))).toBe('kk');
   });
 });
