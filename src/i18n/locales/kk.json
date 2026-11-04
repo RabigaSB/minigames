@@ -1,7 +1,12 @@
 {
   "navigation": {
     "home": "Басты бет",
-    "library": "Ойындар кітапханасы"
+    "library": "Ойындар кітапханасы",
+    "tournaments": "Турнирлер",
+    "community": "Қауымдастық",
+    "closeMenu": "Навигация мәзірін жабу",
+    "homeAriaLabel": "MiniGames басты беті",
+    "menuAriaLabel": "Негізгі навигация"
   },
   "auth": {
     "logIn": "Кіру",
@@ -9,6 +14,8 @@
     "logOut": "Шығу"
   },
   "common": {
+    "selectLanguage": "Тілді таңдау",
+    "logoAlt": "MiniGames логотипі",
     "search": "Іздеу",
     "loading": "Жүктелуде",
     "retry": "Қайталау",
@@ -18,6 +25,22 @@
     "playNow": "Қазір ойнау",
     "comments": "Пікірлер",
     "returnHome": "Басты бетке оралу"
+  },
+  "footer": {
+    "description": "Үзіліс жасап, көңіл көтеріңіз. Браузерде бірден ойнауға болатын жүздеген шағын ойын. Жүктеп алудың қажеті жоқ.",
+    "explore": "Шолу",
+    "categories": "Санаттар",
+    "company": "Компания",
+    "aboutUs": "Біз туралы",
+    "contact": "Байланыс",
+    "privacyPolicy": "Құпиялылық саясаты",
+    "termsOfService": "Пайдалану шарттары",
+    "share": "Бөлісу",
+    "rssFeed": "RSS арнасы",
+    "copyright": "© {{year}} MiniGames. Барлық құқықтар қорғалған.",
+    "school": "RS School",
+    "author": "@student-nickname",
+    "design": "Сүйіспеншілікпен жасалған"
   },
   "favorites": {
     "add": "Таңдаулыларға қосу",

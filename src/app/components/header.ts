@@ -12,6 +12,7 @@ import {
 } from '../../services/app-session';
 import { logOut } from '../../services/firebase';
 import { showSnackbar } from '../utils/snackbar';
+import { onLanguageChange, t } from '../../i18n';
 
 export interface AppHeader extends HTMLElement {
   getAppSession(): AppSession | null;
@@ -31,29 +32,31 @@ export function createHeader(
   const logoContainer = createElement('div', 'header__logo-container');
   const logoIcon = createElement('img', 'header__logo-icon');
   logoIcon.src = './assets/minigames_logo.png';
-  logoIcon.alt = 'MiniGames logo';
+  logoIcon.alt = t('common.logoAlt');
   const logo = createElement('a', 'header__logo', 'MiniGames');
   logo.href = getAppPath('home');
   logo.setAttribute('data-nav', ROUTES.HOME);
+  logo.setAttribute('aria-label', t('navigation.homeAriaLabel'));
   logoContainer.append(logoIcon, logo);
 
   const navigation = createElement('nav', 'header__navigation');
+  navigation.setAttribute('aria-label', t('navigation.menuAriaLabel'));
 
   const headerBtnsWrapper = createElement('div', 'header__btns-wrapper');
-  const homeLink = createElement('a', 'header__link active', 'Home');
+  const homeLink = createElement('a', 'header__link active', t('navigation.home'));
   homeLink.href = getAppPath('home');
   homeLink.setAttribute('data-nav', ROUTES.HOME);
-  homeLink.setAttribute('data-text', 'Home');
-  const libraryLink = createElement('a', 'header__link', 'Library');
+  homeLink.setAttribute('data-text', t('navigation.home'));
+  const libraryLink = createElement('a', 'header__link', t('navigation.library'));
   libraryLink.href = getAppPath('library');
   libraryLink.setAttribute('data-nav', ROUTES.LIBRARY);
-  libraryLink.setAttribute('data-text', 'Library');
-  const tournamentsLink = createElement('a', 'header__link', 'Tournaments');
+  libraryLink.setAttribute('data-text', t('navigation.library'));
+  const tournamentsLink = createElement('a', 'header__link', t('navigation.tournaments'));
   tournamentsLink.href = getAppPath('home');
-  tournamentsLink.setAttribute('data-text', 'Tournaments');
-  const communityLink = createElement('a', 'header__link', 'Community');
+  tournamentsLink.setAttribute('data-text', t('navigation.tournaments'));
+  const communityLink = createElement('a', 'header__link', t('navigation.community'));
   communityLink.href = getAppPath('home');
-  communityLink.setAttribute('data-text', 'Community');
+  communityLink.setAttribute('data-text', t('navigation.community'));
   navigation.append(homeLink, libraryLink, tournamentsLink, communityLink);
 
   const actions = createElement('div', 'header__actions');
@@ -62,10 +65,10 @@ export function createHeader(
     'header-language-id',
   );
 
-  const signInButton = createElement('button', 'header__sign-in', 'Log in');
+  const signInButton = createElement('button', 'header__sign-in', t('auth.logIn'));
   signInButton.type = 'button';
 
-  const signUpButton = createElement('button', 'header__sign-up', 'Sign up');
+  const signUpButton = createElement('button', 'header__sign-up', t('auth.signUp'));
   signUpButton.type = 'button';
 
   const userProfile = createElement('div', 'header__profile');
@@ -74,17 +77,38 @@ export function createHeader(
   userAvatar.setAttribute('aria-hidden', 'true');
   const userName = createElement('span', 'header__user');
   userProfile.append(userName, userAvatar);
-  const logoutButton = createElement('button', 'header__logout', 'Log out');
+  const logoutButton = createElement('button', 'header__logout', t('auth.logOut'));
   logoutButton.type = 'button';
   logoutButton.hidden = true;
 
   const burgerButton = createElement('button', 'header__burger');
   burgerButton.type = 'button';
+  burgerButton.setAttribute('aria-label', t('navigation.menuAriaLabel'));
+  burgerButton.setAttribute('aria-expanded', 'false');
   const mobileMenu = createMobileMenu();
 
   const mobileLoginButton = mobileMenu.querySelector('.mobile-menu__login') as HTMLButtonElement;
   const mobileSignUpButton = mobileMenu.querySelector('.mobile-menu__signup') as HTMLButtonElement;
   const mobileLogoutButton = mobileMenu.querySelector('.mobile-menu__logout') as HTMLButtonElement;
+
+  const updateTranslations = (): void => {
+    logoIcon.alt = t('common.logoAlt');
+    logo.setAttribute('aria-label', t('navigation.homeAriaLabel'));
+    navigation.setAttribute('aria-label', t('navigation.menuAriaLabel'));
+    homeLink.textContent = t('navigation.home');
+    homeLink.setAttribute('data-text', t('navigation.home'));
+    libraryLink.textContent = t('navigation.library');
+    libraryLink.setAttribute('data-text', t('navigation.library'));
+    tournamentsLink.textContent = t('navigation.tournaments');
+    tournamentsLink.setAttribute('data-text', t('navigation.tournaments'));
+    communityLink.textContent = t('navigation.community');
+    communityLink.setAttribute('data-text', t('navigation.community'));
+    signInButton.textContent = t('auth.logIn');
+    signUpButton.textContent = t('auth.signUp');
+    logoutButton.textContent = t('auth.logOut');
+    burgerButton.setAttribute('aria-label', t('navigation.menuAriaLabel'));
+  };
+  onLanguageChange(updateTranslations);
 
   const getProfileName = (session: AppSession | null): string => {
     if (!session) return 'Player';
@@ -247,10 +271,12 @@ export function createHeader(
   burgerButton.addEventListener('click', () => {
     mobileMenu.classList.add('mobile-menu--open');
     document.body.classList.add('menu-open');
+    burgerButton.setAttribute('aria-expanded', 'true');
   });
   closeButton?.addEventListener('click', () => {
     mobileMenu.classList.remove('mobile-menu--open');
     document.body.classList.remove('menu-open');
+    burgerButton.setAttribute('aria-expanded', 'false');
   });
   document.addEventListener('keydown', (event) => {
     checkSessionExpiration();
@@ -261,6 +287,7 @@ export function createHeader(
     if (mobileMenu.classList.contains('mobile-menu--open')) {
       mobileMenu.classList.remove('mobile-menu--open');
       document.body.classList.remove('menu-open');
+      burgerButton.setAttribute('aria-expanded', 'false');
     }
 
     if (authDialog.classList.contains('auth-dialog--open')) {

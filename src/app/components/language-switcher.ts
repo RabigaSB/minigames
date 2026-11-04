@@ -4,6 +4,7 @@ import {
   getCurrentLanguage,
   onLanguageChange,
   supportedLanguages,
+  t,
 } from '../../i18n';
 
 const languageNames = {
@@ -16,18 +17,24 @@ onLanguageChange((language) => {
   document.querySelectorAll<HTMLSelectElement>('.language-switcher__select').forEach((select) => {
     select.value = language;
   });
+  document.querySelectorAll<HTMLElement>('.language-switcher__label').forEach((label) => {
+    label.textContent = t('common.selectLanguage');
+  });
+  document
+    .querySelectorAll<HTMLSelectElement>('.language-switcher__select')
+    .forEach((select) => select.setAttribute('aria-label', t('common.selectLanguage')));
 });
 
 export function createLanguageSwitcher(className = '', languageId = 'language-id'): HTMLElement {
   const switcher = createElement('label', `language-switcher ${className}`.trim());
-  const label = createElement('span', 'language-switcher__label', 'Select language');
+  const label = createElement('span', 'language-switcher__label', t('common.selectLanguage'));
   const select = createElement(
     'select',
     'language-switcher__select',
     '',
     languageId,
   ) as HTMLSelectElement;
-  select.setAttribute('aria-label', label.textContent ?? 'Select language');
+  select.setAttribute('aria-label', t('common.selectLanguage'));
 
   for (const language of supportedLanguages) {
     const option = createElement('option', '', languageNames[language]) as HTMLOptionElement;

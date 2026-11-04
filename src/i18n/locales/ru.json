@@ -1,7 +1,12 @@
 {
   "navigation": {
     "home": "Главная",
-    "library": "Библиотека"
+    "library": "Библиотека",
+    "tournaments": "Турниры",
+    "community": "Сообщество",
+    "closeMenu": "Закрыть меню навигации",
+    "homeAriaLabel": "Главная страница MiniGames",
+    "menuAriaLabel": "Основная навигация"
   },
   "auth": {
     "logIn": "Войти",
@@ -9,6 +14,8 @@
     "logOut": "Выйти"
   },
   "common": {
+    "selectLanguage": "Выбрать язык",
+    "logoAlt": "Логотип MiniGames",
     "search": "Поиск",
     "loading": "Загрузка",
     "retry": "Повторить",
@@ -18,6 +25,22 @@
     "playNow": "Играть",
     "comments": "Комментарии",
     "returnHome": "На главную"
+  },
+  "footer": {
+    "description": "Сделайте перерыв и повеселитесь. Сотни отобранных мини-игр доступны прямо в браузере. Без загрузки.",
+    "explore": "Обзор",
+    "categories": "Категории",
+    "company": "Компания",
+    "aboutUs": "О нас",
+    "contact": "Контакты",
+    "privacyPolicy": "Политика конфиденциальности",
+    "termsOfService": "Условия использования",
+    "share": "Поделиться",
+    "rssFeed": "RSS-лента",
+    "copyright": "© {{year}} MiniGames. Все права защищены.",
+    "school": "RS School",
+    "author": "@student-nickname",
+    "design": "Создано с любовью"
   },
   "favorites": {
     "add": "Добавить в избранное",

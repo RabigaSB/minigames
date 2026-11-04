@@ -44,14 +44,10 @@ export function getCurrentLanguage(): SupportedLanguage {
   return supportedLanguages.find((supportedLanguage) => supportedLanguage === baseLanguage) ?? 'en';
 }
 
-export function onLanguageChange(
-  listener: (language: SupportedLanguage) => void,
-): () => void {
+export function onLanguageChange(listener: (language: SupportedLanguage) => void): () => void {
   const handleLanguageChange = (language: string): void => {
     const baseLanguage = language.split('-')[0];
-    const supportedLanguage = supportedLanguages.find(
-      (candidate) => candidate === baseLanguage,
-    );
+    const supportedLanguage = supportedLanguages.find((candidate) => candidate === baseLanguage);
 
     if (supportedLanguage) listener(supportedLanguage);
   };

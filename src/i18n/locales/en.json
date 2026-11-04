@@ -1,7 +1,12 @@
 {
   "navigation": {
     "home": "Home",
-    "library": "Library"
+    "library": "Library",
+    "tournaments": "Tournaments",
+    "community": "Community",
+    "closeMenu": "Close navigation menu",
+    "homeAriaLabel": "MiniGames home page",
+    "menuAriaLabel": "Main navigation"
   },
   "auth": {
     "logIn": "Log in",
@@ -9,6 +14,8 @@
     "logOut": "Log out"
   },
   "common": {
+    "selectLanguage": "Select language",
+    "logoAlt": "MiniGames logo",
     "search": "Search",
     "loading": "Loading",
     "retry": "Retry",
@@ -18,6 +25,22 @@
     "playNow": "Play Now",
     "comments": "Comments",
     "returnHome": "Return Home"
+  },
+  "footer": {
+    "description": "Take a short break and have fun. Hundreds of curated casual mini-games right in your web browser. No download required.",
+    "explore": "Explore",
+    "categories": "Categories",
+    "company": "Company",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "share": "Share",
+    "rssFeed": "RSS feed",
+    "copyright": "© {{year}} MiniGames. All rights reserved.",
+    "school": "RS School",
+    "author": "@student-nickname",
+    "design": "Designed with love"
   },
   "favorites": {
     "add": "Add to Favorites",
